@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout | Fashion Shop</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo">Fashion Shop</div>
+        <ul class="nav-links">
+          <li><a href="index.html">Back to Shop</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="payment-layout">
+      <div class="payment-methods">
+        <div class="method-item active" onclick="switchMethod('aba')">
+          <i class="fas fa-money-bill-wave"></i> ABA PAY
+        </div>
+        <div class="method-item" onclick="switchMethod('acleda')">
+          <i class="fas fa-university"></i> ACLEDA
+        </div>
+        <div class="method-item" onclick="switchMethod('wing')">
+          <i class="fas fa-plane"></i> WING BANK
+        </div>
+        <div class="method-item" onclick="switchMethod('khqr')">
+          <i class="fas fa-qrcode"></i> KHQR
+        </div>
+        <div class="method-item" onclick="switchMethod('card')">
+          <i class="fas fa-credit-card"></i> Credit Card
+        </div>
+      </div>
+
+      <div class="payment-content">
+        <div id="qr-area" class="qr-display active">
+          <h2 id="bank-name">ABA PAY</h2>
+          <div class="qr-box">
+            <div class="qr-placeholder-img">
+              <img
+                id="qr-image"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ABA-Pay"
+                alt="QR Code"
+                width="150"
+              />
+            </div>
+            <p style="margin-top: 10px">Total: $49.00</p>
+          </div>
+          <p>សូមស្កេនដើម្បីបង់ប្រាក់</p>
+          <button class="btn-confirm" onclick="processPayment()">
+            I have Paid
+          </button>
+        </div>
+
+        <div id="card-area" class="card-form">
+          <h2>Credit / Debit Card</h2>
+          <div class="form-group">
+            <label>Cardholder Name</label>
+            <input type="text" placeholder="SOK DARA" required />
+          </div>
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" placeholder="4222 2222 2222 2222" required />
+          </div>
+          <div class="form-group">
+            <label>Expiry / CVC</label>
+            <div style="display: flex; gap: 10px">
+              <input type="text" placeholder="MM/YY" />
+              <input type="text" placeholder="123" />
+            </div>
+          </div>
+          <button class="btn-confirm" onclick="processPayment()">
+            Pay Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-msg" class="success-popup">
+      <i class="fas fa-check-circle"></i>
+      <h2>Payment Successful!</h2>
+      <p>ការបង់ប្រាក់បានជោគជ័យ។ អរគុណ!</p>
+      <button
+        class="cta-button"
+        onclick="window.location.href='index.html'"
+        style="margin-top: 20px"
+      >
+        Shop More
+      </button>
+    </div>
+
+    <script>
+      function switchMethod(method) {
+        // 1. ដោះ Active ចេញពីគ្រប់ប៊ូតុង
+        document
+          .querySelectorAll(".method-item")
+          .forEach((item) => item.classList.remove("active"));
+        // 2. ដាក់ Active លើប៊ូតុងដែលបានចុច
+        event.currentTarget.classList.add("active");
+
+        const qrArea = document.getElementById("qr-area");
+        const cardArea = document.getElementById("card-area");
+        const bankName = document.getElementById("bank-name");
+        const qrImage = document.getElementById("qr-image");
+
+        if (method === "card") {
+          // បើចុច Card: លាក់ QR, បង្ហាញ Form
+          qrArea.classList.remove("active");
+          cardArea.classList.add("active");
+        } else {
+          // បើចុច Bank: លាក់ Form, បង្ហាញ QR
+          cardArea.classList.remove("active");
+          qrArea.classList.add("active");
+
+          // ប្តូរឈ្មោះ និង QR
+          if (method === "aba") {
+            bankName.innerText = "ABA PAY";
+            qrImage.src =
+              "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ABA";
+          } else if (method === "acleda") {
+            bankName.innerText = "ACLEDA MOBILE";
+            qrImage.src =
+              "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Acleda";
+          } else if (method === "wing") {
+            bankName.innerText = "WING BANK";
+            qrImage.src =
+              "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Wing";
+          } else if (method === "khqr") {
+            bankName.innerText = "KHQR (All Banks)";
+            qrImage.src =
+              "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KHQR";
+          }
+        }
+      }
+
+      function processPayment() {
+        const btn = document.querySelector(
+          '.payment-content .btn-confirm:not([style*="display: none"])'
+        );
+        if (btn) {
+          btn.innerText = "Checking...";
+          btn.style.opacity = "0.7";
+        }
+
+        // រង់ចាំ 2 វិនាទី
+        setTimeout(() => {
+          document.getElementById("success-msg").style.display = "block";
+          document.querySelector(".payment-layout").style.opacity = "0.2"; // ធ្វើឱ្យផ្ទៃក្រោយស្រអាប់
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>

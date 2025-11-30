@@ -1,0 +1,430 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Freehand&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Metal&display=swap");
+
+/* --- 1. VARIABLES (កំណត់ពណ៌ដើម) --- */
+:root {
+  --primary: #2c3e50; /* ពណ៌ទឹកប៊ិចចាស់ */
+  --accent: #d35400; /* ពណ៌ទឹកក្រូច */
+  --green: #27ae60; /* ពណ៌បៃតង */
+  --light: #f4f4f4; /* ពណ៌ផ្ទៃខាងក្រោយ */
+  --white: #ffffff;
+  --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif; /* ប្រើ Font ស្អាត */
+}
+
+body {
+  background-color: var(--light);
+  color: var(--primary);
+  font-size: 30px;
+  line-height: 1.6;
+}
+
+/* --- 2. NAVBAR (ប៉ែកខាងលើ) --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  padding: 50px 5%; /* បង្កើន Padding ឱ្យធំជាងមុន */
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+  transition: 0.3s;
+}
+.nav-links a:hover {
+  color: var(--accent);
+}
+
+.nav-icons {
+  display: flex;
+  gap: 20px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+/* --- 3. HERO SECTION (រូបភាពធំ) --- */
+.hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url("https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600");
+  background-size: cover;
+  background-position: center;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+}
+
+.kh {
+  font-family: "Metal", serif;
+  /* font-weight: 400; */
+  font-style: normal;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+.cta-button {
+  background: var(--accent);
+  color: white;
+  padding: 10px 25px;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+/* --- 4. PRODUCT GRID (ធានាថា Responsive) --- */
+.products-container {
+  padding: 40px 5%;
+  max-width: 1400px;
+  margin: auto;
+}
+.products-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.product-grid {
+  display: grid;
+  /* បច្ចេកទេសធ្វើឱ្យវា Responsive ស្វ័យប្រវត្តិ */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 15px;
+  text-align: center;
+}
+.product-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+.price {
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* --- 5. FOOTER (កែឱ្យធំ និងមាន Column ត្រឹមត្រូវ) --- */
+footer {
+  background: var(--dark-footer);
+  color: #ddd;
+  padding-top: 60px; /* បង្កើន Padding ឱ្យធំ */
+  margin-top: 80px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: auto;
+  /* ប្រើ Grid ដើម្បីបែងចែកជា ៣ ជួរ */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  padding: 0 5% 50px 5%;
+}
+
+.footer-col h3 {
+  color: var(--white);
+  margin-bottom: 25px;
+  position: relative;
+  font-size: 1.4rem; /* ចំណងជើង Footer ធំជាងមុន */
+}
+
+.footer-col ul {
+  list-style: none;
+}
+.footer-col ul li {
+  margin-bottom: 12px;
+}
+.footer-col ul li a {
+  color: #aaa;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.footer-col ul li a:hover {
+  color: var(--accent);
+  padding-left: 5px;
+}
+.footer-col p {
+  font-size: 1rem;
+}
+
+.social-icons {
+  margin-top: 20px;
+}
+.social-icons a {
+  color: white;
+  margin-right: 15px;
+  font-size: 1.5rem;
+}
+
+.footer-bottom {
+  background: #000;
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+}
+
+/* ប៊ូតុង ២ គូគ្នា */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+.add-to-cart {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+.buy-now {
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 5px;
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- 5. PAYMENT PAGE STYLES --- */
+.payment-layout {
+  display: flex;
+  max-width: 900px;
+  margin: 50px auto;
+  background: white;
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.payment-methods {
+  width: 30%;
+  background: #f8f9fa;
+  border-right: 1px solid #ddd;
+}
+.method-item {
+  padding: 20px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.method-item:hover,
+.method-item.active {
+  background: white;
+  color: var(--accent);
+  border-left: 5px solid var(--accent);
+}
+
+.payment-content {
+  width: 70%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* QR & Form Areas */
+.qr-display,
+.card-form {
+  display: none;
+  width: 100%;
+  text-align: center;
+}
+.qr-display.active,
+.card-form.active {
+  display: block;
+  animation: fadeIn 0.5s;
+}
+
+.qr-box {
+  background: var(--primary);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px auto;
+  color: white;
+  width: fit-content;
+}
+.qr-placeholder-img {
+  background: white;
+  padding: 10px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.btn-confirm {
+  background: var(--green);
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* Popup Success */
+.success-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  display: none;
+  z-index: 2000;
+}
+.success-popup i {
+  font-size: 4rem;
+  color: var(--green);
+  margin-bottom: 15px;
+  display: block;
+}
+
+/* --- 6. FOOTER --- */
+footer {
+  background: #222;
+  color: #ddd;
+  padding-top: 50px;
+  margin-top: 50px;
+}
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 0 5% 40px;
+}
+.footer-bottom {
+  background: #111;
+  text-align: center;
+  padding: 15px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in {
+  opacity: 0;
+  transition: 1s ease-out;
+}
+.fade-in.visible {
+  opacity: 1;
+}
+
+/* --- MOBILE RESPONSIVE --- */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .nav-links {
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+  .payment-layout {
+    flex-direction: column;
+    margin: 20px;
+  }
+  .payment-methods {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+  .method-item {
+    padding: 15px;
+    font-size: 0.9rem;
+    min-width: 120px;
+  }
+  .payment-content {
+    width: 100%;
+    padding: 20px;
+  }
+}
