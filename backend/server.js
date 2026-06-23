@@ -21,9 +21,8 @@ app.use(cors());
 // Connect Database
 connectDB();
 
-// Serve Frontend Files (ភ្ជាប់ទៅកាន់ Folder Frontend)
-app.use(express.static(path.join(__dirname, "../frontend/public")));
-
+// បន្ទាត់កូដថ្មី
+app.use(express.static(path.join(__dirname, "public")));
 // Set up API Routes
 app.use("/api", authRoutes);
 app.use("/api", productRoutes);
