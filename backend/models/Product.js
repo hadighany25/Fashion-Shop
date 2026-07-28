@@ -2,22 +2,40 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
-    id: { type: Number, required: true, unique: true }, // រក្សាទុកតាមសំណូមពរ ដើម្បីកុំឱ្យ Error Frontend
-    name: { type: String, required: true, trim: true },
-    price: { type: Number, required: true, min: 0 },
-    category: { type: String, required: true, trim: true },
-    img: { type: String, required: true },
-    stock: { type: Number, default: 0, min: 0 },
-
-    // 🔗 [ថ្មី] ភ្ជាប់ទំនិញនេះទៅកាន់ម្ចាស់ហាង (អ្នកលក់)
-    seller: {
+    store: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // ទាញទិន្នន័យពី User Model (ដែលមាន role ជា seller)
+      ref: "Store", // ភ្ជាប់ទៅកាន់ Store (បញ្ជាក់ថាទំនិញនេះជារបស់ហាងណា)
       required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    stock: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String, // ទុក URL របស់រូបភាព
+      default: "https://via.placeholder.com/300",
     },
   },
   {
-    timestamps: true, // បង្កើត createdAt និង updatedAt ដោយស្វ័យប្រវត្តិ
+    timestamps: true,
   },
 );
 

@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 
-// ផ្ញើ Request ទៅកាន់ /api/register
-router.post("/register", authController.register);
+// អតិថិជនចុះឈ្មោះ
+router.post("/register", authController.registerBuyer);
 
-// ផ្ញើ Request ទៅកាន់ /api/login
+// អ្នកប្រើប្រាស់ទាំងអស់ Login ចូល
 router.post("/login", authController.login);
 
 module.exports = router;

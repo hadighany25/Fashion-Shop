@@ -1,74 +1,104 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
-// ១. Middleware សម្រាប់ឆែកថា User បាន Login ហើយឬនៅ
-const verifyToken = async (req, res, next) => {
+// ១. សន្តិសុខទូទៅ: ឆែកមើលថាតើមានសំបុត្រ (Token) ត្រឹមត្រូវឬអត់? (សម្រាប់គ្រប់គ្នាដែល Login)
+const verifyToken = (req, res, next) => {
   try {
-    // ទាញយក Token ពី Header (ទម្រង់: Bearer <token>)
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
+    // ឆែកមើលបើអត់មាន Token ភ្ជាប់មកទេ
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res
         .status(401)
         .json({
           success: false,
-          message: "មិនមានសិទ្ធិទេ សូម Login ជាមុនសិន!",
+          message: "សូម Login ជាមុនសិន (No token provided)!",
         });
     }
 
-    // ផ្ទៀងផ្ទាត់ Token
+    const token = authHeader.split(" ")[1];
+
+    // បកប្រែ Token មកវិញ ដោយប្រៀបធៀបជាមួយសោសម្ងាត់ (JWT_SECRET)
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "fallback_secret_key",
+      process.env.JWT_SECRET || "FASHION_SHOP_SECRET_KEY",
     );
 
-    // ស្វែងរក User ក្នុង Database តាមរយៈ ID ដែលមានក្នុង Token ហើយកាត់ចោល Password
-    req.user = await User.findById(decoded.id).select("-password");
-
-    if (!req.user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "រកមិនឃើញគណនីនេះទេ!" });
-    }
-
-    next(); // អនុញ្ញាតឱ្យទៅកាន់ Route បន្តទៀត
+    // បញ្ចូលទិន្នន័យ (id, role, username) ទៅក្នុង req.user ដើម្បីឲ្យ Controller ងាយស្រួលយកទៅប្រើបន្ត
+    req.user = decoded;
+    next(); // អនុញ្ញាតឲ្យដើរទៅមុខបន្ត
   } catch (error) {
-    res
+    return res
       .status(401)
       .json({
         success: false,
-        message: "Token មិនត្រឹមត្រូវ ឬផុតកំណត់ សូម Login ម្ដងទៀត!",
+        message: "Token មិនត្រឹមត្រូវ ឬហួសកំណត់ (Invalid Token)!",
       });
   }
 };
 
-// ២. Middleware សម្រាប់ឆែកថា User នេះជាអ្នកលក់ (Seller) ឬ Admin
-const isSellerOrAdmin = (req, res, next) => {
-  if (req.user && (req.user.role === "seller" || req.user.role === "admin")) {
-    next();
+// ២. សន្តិសុខសម្រាប់ Super Admin ប៉ុណ្ណោះ
+const isSuperAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "super_admin") {
+    next(); // ឱ្យឆ្លងកាត់
   } else {
-    res
+    return res
       .status(403)
       .json({
         success: false,
-        message:
-          "សុំទោស! មានតែអ្នកលក់ (Seller) ឬ Admin ទេទើបអាចធ្វើសកម្មភាពនេះបាន។",
+        message: "សិទ្ធិត្រូវបដិសេធ! សម្រាប់តែ Super Admin ប៉ុណ្ណោះ។",
       });
   }
 };
 
-// ៣. Middleware សម្រាប់ឆែកថាមានតែ Admin ម្នាក់គត់ទើបមានសិទ្ធិ
+// ៣. សន្តិសុខសម្រាប់ Admin (Super Admin ក៏អាចចូលបានដែរ)
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  if (
+    req.user &&
+    (req.user.role === "admin" || req.user.role === "super_admin")
+  ) {
     next();
   } else {
-    res
+    return res
       .status(403)
       .json({
         success: false,
-        message: "សុំទោស! មានតែ Admin ទេទើបមានសិទ្ធិចូលទីនេះបាន។",
+        message: "សិទ្ធិត្រូវបដិសេធ! សម្រាប់តែ Admin ប៉ុណ្ណោះ។",
       });
   }
 };
 
-module.exports = { verifyToken, isSellerOrAdmin, isAdmin };
+// ៤. សន្តិសុខសម្រាប់អ្នកលក់ (Seller)
+const isSeller = (req, res, next) => {
+  if (req.user && req.user.role === "seller") {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "សិទ្ធិត្រូវបដិសេធ! សម្រាប់តែអ្នកលក់ (Seller) ប៉ុណ្ណោះ។",
+      });
+  }
+};
+
+// ៥. (ស្រេចចិត្ត) សន្តិសុខសម្រាប់បុគ្គលិកទាំងអស់ (Super Admin, Admin, Seller)
+const isStaff = (req, res, next) => {
+  if (req.user && ["super_admin", "admin", "seller"].includes(req.user.role)) {
+    next();
+  } else {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "សិទ្ធិត្រូវបដិសេធ! សម្រាប់តែបុគ្គលិកប៉ុណ្ណោះ។",
+      });
+  }
+};
+
+module.exports = {
+  verifyToken,
+  isSuperAdmin,
+  isAdmin,
+  isSeller,
+  isStaff,
+};

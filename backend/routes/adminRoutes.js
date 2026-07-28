@@ -1,37 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const jwt = require("jsonwebtoken");
+const {
+  verifyToken,
+  isSuperAdmin,
+  isAdmin,
+} = require("../middleware/authMiddleware");
 
-// Middleware ឆែកសិទ្ធិ Admin
-const verifyAdmin = (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader)
-      return res
-        .status(401)
-        .json({ success: false, message: "No token provided" });
+// ១. បង្កើត Admin ថ្មី (ត្រូវមាន Token ត្រឹមត្រូវ នឹងត្រូវតែមានតួនាទីជា Super Admin)
+router.post("/admin", verifyToken, isSuperAdmin, adminController.createAdmin);
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "YOUR_SECRET_KEY",
-    );
+// ២. បង្កើតអ្នកលក់ និងហាង (ត្រូវមាន Token ត្រឹមត្រូវ នឹងត្រូវតែមានតួនាទីចាប់ពី Admin ឡើងទៅ)
+router.post("/seller", verifyToken, isAdmin, adminController.createSeller);
 
-    if (decoded.role !== "admin") {
-      return res
-        .status(403)
-        .json({ success: false, message: "Access denied. Admins only." });
-    }
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ success: false, message: "Invalid token" });
-  }
-};
-
-router.get("/dashboard", verifyAdmin, adminController.getDashboardData);
-router.post("/users", verifyAdmin, adminController.createSystemAccount);
-router.delete("/users/:id", verifyAdmin, adminController.deleteUser);
+// ៣. ទាញយកទិន្នន័យសរុបបង្ហាញលើ Dashboard (ត្រូវតែជា Admin)
+router.get("/stats", verifyToken, isAdmin, adminController.getDashboardStats);
 
 module.exports = router;

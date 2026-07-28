@@ -1,48 +1,77 @@
-require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-const connectDB = require("./config/db");
+const bcrypt = require("bcryptjs");
+require("dotenv").config(); // សម្រាប់ទាញយកទិន្នន័យពីឯកសារ .env
 
-// 1. Import Routes
+// ១. ទាញយក Routes ដែលយើងបានសរសេរ
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
-const adminRoutes = require("./routes/adminRoutes");
 
-// 2. Import Controller for Telegram Bot
-const { pollTelegramUpdates } = require("./controllers/orderController");
+// ២. ទាញយក User Model សម្រាប់បង្កើត Super Admin
+const User = require("./models/User");
 
-const app = express(); // ⚠️ ត្រូវបង្កើត app ឱ្យបានមុនសិន ទើបយកមកប្រើប្រាស់ជាមួយ app.use()
+const app = express();
 
-// 3. Middleware
-app.use(express.json());
-app.use(cors());
+// ៣. Middleware សំខាន់ៗសម្រាប់ Server
+app.use(cors()); // អនុញ្ញាតឱ្យ Frontend អាចហៅ API បាន
+app.use(express.json()); // អនុញ្ញាតឱ្យ Server ស្គាល់ទិន្នន័យប្រភេទ JSON
+app.use(express.urlencoded({ extended: true }));
 
-// 4. Connect Database
-connectDB();
-
-// 5. បម្រើឯកសារ Static (Frontend នៅក្នុង Folder public)
+// បម្រើឯកសារ Frontend (HTML/CSS/JS) ដែលនៅក្នុង Folder 'public'
 app.use(express.static(path.join(__dirname, "public")));
 
-// 6. Set up API Routes
-app.use("/api/auth", authRoutes); // សម្រាប់ Login/Register
-app.use("/api/products", productRoutes); // សម្រាប់ទំនិញ
-app.use("/api/orders", orderRoutes); // សម្រាប់វិក្កយបត្រ
-app.use("/api/admin", adminRoutes); // សម្រាប់ Admin Dashboard (ដាក់នៅទីនេះត្រឹមត្រូវ)
+// ៤. ភ្ជាប់ Routes ទាំងអស់ទៅកាន់ API Endpoints
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
-// 7. Start Telegram Bot Polling
-if (typeof pollTelegramUpdates === "function") {
-  setInterval(pollTelegramUpdates, 2000);
-  console.log("🤖 Telegram Bot Polling started...");
-} else {
-  console.log(
-    "⚠️ មិនទាន់ឃើញមុខងារ pollTelegramUpdates ដំណើរការក្នុង orderController ទេ",
-  );
-}
+// ៥. ការតភ្ជាប់ទៅកាន់ Database (MongoDB)
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/fashion_shop_db";
 
-// 8. Start Server
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log("✅ បានភ្ជាប់ទៅកាន់ MongoDB ដោយជោគជ័យ!");
+    createSuperAdmin(); // ហៅ Function បង្កើត Super Admin ពេលភ្ជាប់ DB ជោគជ័យ
+  })
+  .catch((err) => {
+    console.error("❌ បរាជ័យក្នុងការភ្ជាប់ MongoDB:", err);
+  });
+
+// ៦. Function សម្រាប់បង្កើត Super Admin ដោយស្វ័យប្រវត្តិ
+const createSuperAdmin = async () => {
+  try {
+    // ឆែកមើលថាតើមាន Super Admin ក្នុងប្រព័ន្ធហើយឬនៅ?
+    const adminExists = await User.findOne({ role: "super_admin" });
+
+    if (!adminExists) {
+      // បើអត់ទាន់មានទេ យើងបង្កើតថ្មីមួយ
+      const hashedPassword = await bcrypt.hash("superadmin123", 10); // លេខសម្ងាត់ដើម
+      const superAdmin = new User({
+        username: "superadmin",
+        password: hashedPassword,
+        role: "super_admin",
+      });
+      await superAdmin.save();
+      console.log("👑 គណនី Super Admin ត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិ!");
+      console.log("👉 ឈ្មោះគណនី: superadmin | លេខសម្ងាត់: superadmin123");
+    } else {
+      console.log("👑 គណនី Super Admin មានរួចរាល់ហើយនៅក្នុងប្រព័ន្ធ។");
+    }
+  } catch (error) {
+    console.error("❌ មានបញ្ហាក្នុងការបង្កើត Super Admin:", error);
+  }
+};
+
+// ៧. កំណត់ Port សម្រាប់ដំណើរការ Server (មិនប្រើ 3000 ទេ)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Fashion Shop Server running on port ${PORT}`);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server កំពុងដំណើរការយ៉ាងរលូននៅលើ Port: ${PORT}`);
 });

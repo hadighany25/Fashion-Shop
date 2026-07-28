@@ -1,35 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
+const { verifyToken, isSeller } = require("../middleware/authMiddleware");
 
-// ទាញយក Middleware ទាំង២ ដែលបងបានរៀបចំអម្បាញ់មិញមកប្រើ
-const {
-  verifyToken,
-  isSellerOrAdmin,
-} = require("../middleware/authMiddleware");
-
-// ==========================================
-// PUBLIC ROUTES (សម្រាប់អ្នកទិញទូទៅ មិនបាច់ Login ក៏មើលបាន)
-// ==========================================
+// ១. ទាញទំនិញទាំងអស់មកបង្ហាញលើទំព័រដើម (Public - អ្នកណាក៏អាចមើលបាន មិនបាច់ Login)
 router.get("/", productController.getAllProducts);
-router.get("/:id", productController.getProductById);
 
-// ==========================================
-// PROTECTED ROUTES (សម្រាប់តែ Seller ឬ Admin ប៉ុណ្ណោះ)
-// ==========================================
-// រាល់ការ Add, Edit, ឬ Delete ត្រូវតែឆ្លងកាត់អ្នកយាមទ្វារទាំង២នេះសិន
-router.post("/", verifyToken, isSellerOrAdmin, productController.addProduct);
-router.put(
-  "/:id",
+// ២. អ្នកលក់ទាញយកទំនិញក្នុងហាងរបស់ខ្លួនឯង (ត្រូវតែជា Seller ទើបអាចមើលបាន)
+router.get(
+  "/seller",
   verifyToken,
-  isSellerOrAdmin,
-  productController.updateProduct,
+  isSeller,
+  productController.getSellerProducts,
 );
-router.delete(
-  "/:id",
-  verifyToken,
-  isSellerOrAdmin,
-  productController.deleteProduct,
-);
+
+// ៣. អ្នកលក់បន្ថែមទំនិញថ្មីចូលហាង (ត្រូវតែជា Seller)
+router.post("/", verifyToken, isSeller, productController.addProduct);
 
 module.exports = router;
