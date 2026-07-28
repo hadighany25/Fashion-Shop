@@ -227,6 +227,7 @@
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: bold;
+        text-transform: capitalize;
       }
       .badge.admin {
         background-color: rgba(239, 68, 68, 0.2);
@@ -311,8 +312,8 @@
             <i class="fas fa-box-open"></i>
           </div>
           <div class="stat-info">
-            <h3 id="stat-total-products">0</h3>
-            <p>Total Products</p>
+            <h3 id="stat-total-products">3,420</h3>
+            <p>Total Products (Mock)</p>
           </div>
         </div>
       </div>
@@ -351,6 +352,7 @@
             <select id="new-role">
               <option value="seller">Seller</option>
               <option value="admin">Administrator</option>
+              <option value="buyer">Buyer</option>
             </select>
           </div>
           <button type="submit" class="btn-primary">
@@ -372,18 +374,40 @@
             </tr>
           </thead>
           <tbody id="user-table-body">
-            <!-- Data loaded dynamically -->
+            <!-- Data loaded dynamically via JS -->
           </tbody>
         </table>
       </section>
     </main>
 
     <script>
+      // ==========================================
+      // 1. បង្កើតទិន្នន័យសិប្បនិម្មិត (Mock Setup) ដើម្បីកុំឲ្យ Error ពេលអត់ Backend
+      // ==========================================
+      if (!localStorage.getItem("token")) {
+        // បើអត់ទាន់ Login ទេ យើងបង្ខំឲ្យមានសិទ្ធិ Admin ទីនេះដើម្បីងាយស្រួលតេស្ត
+        localStorage.setItem("token", "fake-jwt-token-for-frontend");
+        localStorage.setItem("role", "admin");
+        localStorage.setItem("username", "super_admin");
+      }
+
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
       const USERNAME = localStorage.getItem("username");
 
-      // 1. Security Check: Ensure only Admin can view this page
+      // បង្កើតទិន្នន័យ Users ចោលក្នុង LocalStorage បើមិនទាន់មាន
+      if (!localStorage.getItem("db_users")) {
+        const defaultUsers = [
+          { _id: "1", username: "super_admin", role: "admin" },
+          { _id: "2", username: "fashion_seller_1", role: "seller" },
+          { _id: "3", username: "normal_buyer", role: "buyer" },
+        ];
+        localStorage.setItem("db_users", JSON.stringify(defaultUsers));
+      }
+
+      // ==========================================
+      // 2. ពិនិត្យសិទ្ធិ និងដំណើរការកម្មវិធី
+      // ==========================================
       document.addEventListener("DOMContentLoaded", () => {
         if (!TOKEN || ROLE !== "admin") {
           Swal.fire({
@@ -395,55 +419,118 @@
             window.location.href = "admin-login.html";
           });
         } else {
-          document.getElementById("admin-name").innerText = USERNAME || "Admin";
+          document.getElementById("admin-name").innerText = USERNAME;
           loadDashboardData();
         }
       });
 
-      // 2. Fetch Real Stats and Users from Backend
-      async function loadDashboardData() {
-        try {
-          const res = await fetch("/api/admin/dashboard", {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
+      // ==========================================
+      // 3. ទាញទិន្នន័យមកបង្ហាញ (លែងពឹង Backend សិន)
+      // ==========================================
+      function loadDashboardData() {
+        // ទាញទិន្នន័យចេញពី LocalStorage
+        const users = JSON.parse(localStorage.getItem("db_users")) || [];
 
-          if (data.success) {
-            // Update Stats
-            document.getElementById("stat-total-users").innerText =
-              data.stats.totalUsers;
-            document.getElementById("stat-total-sellers").innerText =
-              data.stats.totalSellers;
-            document.getElementById("stat-total-products").innerText =
-              data.stats.totalProducts;
+        // គណនាសរុប
+        const totalUsers = users.length;
+        const totalSellers = users.filter((u) => u.role === "seller").length;
 
-            // Update Users Table
-            const tbody = document.getElementById("user-table-body");
-            tbody.innerHTML = data.users
-              .map(
-                (u) => `
-              <tr>
-                <td>${u.username}</td>
-                <td><span class="badge ${u.role}">${u.role.toUpperCase()}</span></td>
-                <td>Active</td>
-                <td>
-                  ${
-                    u.username === USERNAME
-                      ? `<button disabled style="background:none;border:none;color:gray;"><i class="fas fa-ban"></i></button>`
-                      : `<button onclick="deleteUser('${u._id}', '${u.username}')" style="background:none;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>`
-                  }
-                </td>
-              </tr>
-            `,
-              )
-              .join("");
-          }
-        } catch (error) {
-          console.error("Error loading dashboard data:", error);
-        }
+        document.getElementById("stat-total-users").innerText = totalUsers;
+        document.getElementById("stat-total-sellers").innerText = totalSellers;
+
+        // បង្ហាញចូលក្នុង Table
+        const tbody = document.getElementById("user-table-body");
+        tbody.innerHTML = users
+          .map(
+            (u) => `
+          <tr>
+            <td>${u.username}</td>
+            <td><span class="badge ${u.role}">${u.role}</span></td>
+            <td>Active</td>
+            <td>
+              ${
+                u.username === USERNAME
+                  ? `<button disabled style="background:none;border:none;color:gray;cursor:not-allowed;"><i class="fas fa-ban"></i></button>`
+                  : `<button onclick="deleteUser('${u._id}', '${u.username}')" style="background:none;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>`
+              }
+            </td>
+          </tr>
+        `,
+          )
+          .join("");
       }
 
-      // 3. Logout Function
+      // ==========================================
+      // 4. បង្កើតគណនីថ្មីបញ្ចូលទៅ LocalStorage
+      // ==========================================
+      function createSystemAccount() {
+        const usernameInput = document
+          .getElementById("new-username")
+          .value.trim();
+        const roleInput = document.getElementById("new-role").value;
+
+        let users = JSON.parse(localStorage.getItem("db_users")) || [];
+
+        // ឆែកមើលថាតើមានឈ្មោះនេះរួចហើយឬនៅ
+        const exists = users.find(
+          (u) => u.username.toLowerCase() === usernameInput.toLowerCase(),
+        );
+        if (exists) {
+          Swal.fire("Failed", "Username already exists!", "error");
+          return;
+        }
+
+        // បង្កើត Object User ថ្មី
+        const newUser = {
+          _id: Date.now().toString(), // បង្កើត ID ស្វ័យប្រវត្តិ
+          username: usernameInput,
+          role: roleInput,
+        };
+
+        // រក្សាទុកក្នុង LocalStorage
+        users.push(newUser);
+        localStorage.setItem("db_users", JSON.stringify(users));
+
+        Swal.fire(
+          "Created!",
+          `${usernameInput} has been created as ${roleInput}.`,
+          "success",
+        );
+        document.getElementById("createAccountForm").reset();
+        loadDashboardData(); // Refresh table
+      }
+
+      // ==========================================
+      // 5. លុបគណនីចេញពី LocalStorage
+      // ==========================================
+      function deleteUser(userId, username) {
+        Swal.fire({
+          title: `Delete ${username}?`,
+          text: "This action cannot be undone!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#94a3b8",
+          confirmButtonText: "Yes, delete",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            let users = JSON.parse(localStorage.getItem("db_users")) || [];
+
+            // ចម្រាញ់យកតែទិន្នន័យណាដែលមិនមែនជា ID ដែលចង់លុប
+            users = users.filter((u) => u._id !== userId);
+
+            // Save ចូល LocalStorage វិញ
+            localStorage.setItem("db_users", JSON.stringify(users));
+
+            Swal.fire("Deleted!", "User has been deleted.", "success");
+            loadDashboardData(); // Refresh table
+          }
+        });
+      }
+
+      // ==========================================
+      // 6. មុខងារ Logout
+      // ==========================================
       function handleLogout() {
         Swal.fire({
           title: "Are you sure?",
@@ -455,81 +542,11 @@
           confirmButtonText: "Yes, logout!",
         }).then((result) => {
           if (result.isConfirmed) {
-            localStorage.clear();
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            localStorage.removeItem("username");
+            // បើចង់លុបទិន្នន័យ Mock ចោលពេល Logout អាចថែម: localStorage.removeItem("db_users");
             window.location.href = "admin-login.html";
-          }
-        });
-      }
-
-      // 4. Create Account Function (Real API Call)
-      async function createSystemAccount() {
-        const username = document.getElementById("new-username").value.trim();
-        const password = document.getElementById("new-password").value;
-        const role = document.getElementById("new-role").value;
-
-        try {
-          const res = await fetch("/api/admin/users", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
-            body: JSON.stringify({ username, password, role }),
-          });
-          const data = await res.json();
-
-          if (data.success) {
-            Swal.fire(
-              "Created!",
-              `${username} has been successfully created as a ${role}.`,
-              "success",
-            );
-            document.getElementById("createAccountForm").reset();
-            loadDashboardData(); // Refresh table and stats
-          } else {
-            Swal.fire(
-              "Failed",
-              data.message || "Unable to create account",
-              "error",
-            );
-          }
-        } catch (error) {
-          Swal.fire("Error", "Server connection failed", "error");
-        }
-      }
-
-      // 5. Delete User Function (Real API Call)
-      async function deleteUser(userId, username) {
-        Swal.fire({
-          title: `Delete user ${username}?`,
-          text: "This action cannot be undone!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          cancelButtonColor: "#94a3b8",
-          confirmButtonText: "Yes, delete",
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-              const res = await fetch(`/api/admin/users/${userId}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${TOKEN}` },
-              });
-              const data = await res.json();
-
-              if (data.success) {
-                Swal.fire("Deleted!", "User has been deleted.", "success");
-                loadDashboardData();
-              } else {
-                Swal.fire(
-                  "Failed",
-                  data.message || "Could not delete user",
-                  "error",
-                );
-              }
-            } catch (error) {
-              Swal.fire("Error", "Server connection failed", "error");
-            }
           }
         });
       }
