@@ -8,7 +8,9 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
+app.use("/api/admin", adminRoutes);
 // 2. Import Controller for Telegram Bot
 const { pollTelegramUpdates } = require("./controllers/orderController");
 

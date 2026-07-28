@@ -287,7 +287,7 @@
         <div class="stat-card">
           <div class="stat-icon"><i class="fas fa-users"></i></div>
           <div class="stat-info">
-            <h3>1,250</h3>
+            <h3 id="stat-total-users">0</h3>
             <p>Total Users</p>
           </div>
         </div>
@@ -299,7 +299,7 @@
             <i class="fas fa-store"></i>
           </div>
           <div class="stat-info">
-            <h3>45</h3>
+            <h3 id="stat-total-sellers">0</h3>
             <p>Active Sellers</p>
           </div>
         </div>
@@ -311,7 +311,7 @@
             <i class="fas fa-box-open"></i>
           </div>
           <div class="stat-info">
-            <h3>3,420</h3>
+            <h3 id="stat-total-products">0</h3>
             <p>Total Products</p>
           </div>
         </div>
@@ -372,50 +372,20 @@
             </tr>
           </thead>
           <tbody id="user-table-body">
-            <!-- Sample Data -->
-            <tr>
-              <td>super_admin</td>
-              <td><span class="badge admin">Admin</span></td>
-              <td>Active</td>
-              <td>
-                <button
-                  disabled
-                  style="background: none; border: none; color: gray"
-                >
-                  <i class="fas fa-ban"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>fashion_seller_1</td>
-              <td><span class="badge seller">Seller</span></td>
-              <td>Active</td>
-              <td>
-                <button
-                  style="
-                    background: none;
-                    border: none;
-                    color: var(--danger);
-                    cursor: pointer;
-                  "
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
+            <!-- Data loaded dynamically -->
           </tbody>
         </table>
       </section>
     </main>
 
     <script>
+      const TOKEN = localStorage.getItem("token");
+      const ROLE = localStorage.getItem("role");
+      const USERNAME = localStorage.getItem("username");
+
       // 1. Security Check: Ensure only Admin can view this page
       document.addEventListener("DOMContentLoaded", () => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-        const username = localStorage.getItem("username");
-
-        if (!token || role !== "admin") {
+        if (!TOKEN || ROLE !== "admin") {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
@@ -425,11 +395,55 @@
             window.location.href = "admin-login.html";
           });
         } else {
-          document.getElementById("admin-name").innerText = username || "Admin";
+          document.getElementById("admin-name").innerText = USERNAME || "Admin";
+          loadDashboardData();
         }
       });
 
-      // 2. Logout Function
+      // 2. Fetch Real Stats and Users from Backend
+      async function loadDashboardData() {
+        try {
+          const res = await fetch("/api/admin/dashboard", {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            // Update Stats
+            document.getElementById("stat-total-users").innerText =
+              data.stats.totalUsers;
+            document.getElementById("stat-total-sellers").innerText =
+              data.stats.totalSellers;
+            document.getElementById("stat-total-products").innerText =
+              data.stats.totalProducts;
+
+            // Update Users Table
+            const tbody = document.getElementById("user-table-body");
+            tbody.innerHTML = data.users
+              .map(
+                (u) => `
+              <tr>
+                <td>${u.username}</td>
+                <td><span class="badge ${u.role}">${u.role.toUpperCase()}</span></td>
+                <td>Active</td>
+                <td>
+                  ${
+                    u.username === USERNAME
+                      ? `<button disabled style="background:none;border:none;color:gray;"><i class="fas fa-ban"></i></button>`
+                      : `<button onclick="deleteUser('${u._id}', '${u.username}')" style="background:none;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>`
+                  }
+                </td>
+              </tr>
+            `,
+              )
+              .join("");
+          }
+        } catch (error) {
+          console.error("Error loading dashboard data:", error);
+        }
+      }
+
+      // 3. Logout Function
       function handleLogout() {
         Swal.fire({
           title: "Are you sure?",
@@ -447,27 +461,76 @@
         });
       }
 
-      // 3. Create Seller/Admin Function (Frontend Logic)
+      // 4. Create Account Function (Real API Call)
       async function createSystemAccount() {
-        const username = document.getElementById("new-username").value;
+        const username = document.getElementById("new-username").value.trim();
         const password = document.getElementById("new-password").value;
         const role = document.getElementById("new-role").value;
 
-        // Note: This API endpoint needs to be created in the backend later
+        try {
+          const res = await fetch("/api/admin/users", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify({ username, password, role }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            Swal.fire(
+              "Created!",
+              `${username} has been successfully created as a ${role}.`,
+              "success",
+            );
+            document.getElementById("createAccountForm").reset();
+            loadDashboardData(); // Refresh table and stats
+          } else {
+            Swal.fire(
+              "Failed",
+              data.message || "Unable to create account",
+              "error",
+            );
+          }
+        } catch (error) {
+          Swal.fire("Error", "Server connection failed", "error");
+        }
+      }
+
+      // 5. Delete User Function (Real API Call)
+      async function deleteUser(userId, username) {
         Swal.fire({
-          title: "Creating Account...",
-          text: `Setting up ${username} as ${role}.`,
-          icon: "info",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          // After successful API call, you would update the table and show success
-          Swal.fire(
-            "Created!",
-            `${username} has been successfully created as a ${role}.`,
-            "success",
-          );
-          document.getElementById("createAccountForm").reset();
+          title: `Delete user ${username}?`,
+          text: "This action cannot be undone!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#94a3b8",
+          confirmButtonText: "Yes, delete",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const res = await fetch(`/api/admin/users/${userId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${TOKEN}` },
+              });
+              const data = await res.json();
+
+              if (data.success) {
+                Swal.fire("Deleted!", "User has been deleted.", "success");
+                loadDashboardData();
+              } else {
+                Swal.fire(
+                  "Failed",
+                  data.message || "Could not delete user",
+                  "error",
+                );
+              }
+            } catch (error) {
+              Swal.fire("Error", "Server connection failed", "error");
+            }
+          }
         });
       }
     </script>
