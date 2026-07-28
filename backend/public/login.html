@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login & Register | Fashion Shop</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Metal&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      /* --- រក្សាទុក CSS របស់បងដដែលទាំងអស់ (ខ្ញុំអត់បានលុបឬកែប្រែ CSS ទេ) --- */
+      :root {
+        --primary: #2c3e50;
+        --accent: #d35400;
+        --white: #ffffff;
+        --glass: rgba(255, 255, 255, 0.15);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "DM Sans", sans-serif;
+      }
+
+      body {
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+          url("https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 6%;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px);
+        border-bottom: 1px solid var(--glass-border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .logo {
+        font-size: 2rem;
+        font-family: "Metal", serif;
+        color: var(--white);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        list-style: none;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: var(--white);
+        font-size: 1.2rem;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+      .nav-links a:hover {
+        color: var(--accent);
+      }
+
+      .auth-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+      }
+      .auth-card {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 25px;
+        padding: 50px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: var(--shadow);
+        color: var(--white);
+        text-align: center;
+        animation: floatUp 0.8s ease-out;
+      }
+
+      @keyframes floatUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .auth-card h2 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+      .auth-card p {
+        color: #eee;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+      }
+
+      .input-group {
+        margin-bottom: 25px;
+        text-align: left;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1rem;
+        color: #ddd;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        color: var(--white);
+        font-size: 1.1rem;
+        outline: none;
+        transition: 0.3s;
+      }
+      .input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .input-group input:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--accent);
+        box-shadow: 0 0 10px rgba(211, 84, 0, 0.3);
+      }
+
+      .btn-submit {
+        width: 100%;
+        padding: 18px;
+        background: var(--accent);
+        color: var(--white);
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 5px 15px rgba(211, 84, 0, 0.4);
+      }
+      .btn-submit:hover {
+        background: #e67e22;
+        transform: translateY(-2px);
+      }
+
+      .switch-text {
+        margin-top: 25px;
+        font-size: 1rem;
+        color: #ddd;
+      }
+      .switch-text a {
+        color: var(--accent);
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .switch-text a:hover {
+        text-decoration: underline;
+      }
+
+      .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+      .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader-overlay" id="loader">
+      <div class="spinner"></div>
+    </div>
+
+    <nav class="navbar">
+      <div class="logo">
+        <span style="color: var(--accent)"
+          ><i class="fas fa-shopping-bag"></i
+        ></span>
+        Fashion Shop
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+
+    <div class="auth-wrapper">
+      <div id="login-box" class="auth-card">
+        <h2>Welcome Back!</h2>
+        <p>Login to access your fashion world.</p>
+
+        <!-- 🔧 វេចខ្ចប់ដោយ <form> ដើម្បីឱ្យអាចចុច Enter បាន -->
+        <form
+          onsubmit="
+            event.preventDefault();
+            handleAuth('login');
+          "
+        >
+          <div class="input-group">
+            <label>Username</label>
+            <input
+              type="text"
+              id="login-user"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              id="login-pass"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <!-- 🔧 ប្តូរទៅជា type="submit" -->
+          <button type="submit" class="btn-submit">Login</button>
+        </form>
+
+        <div class="switch-text">
+          Don't have an account?
+          <a onclick="toggleForm('register')">Register Now</a>
+        </div>
+      </div>
+
+      <div id="register-box" class="auth-card hidden">
+        <h2>Create Account</h2>
+        <p>Join us and explore the new style.</p>
+
+        <!-- 🔧 វេចខ្ចប់ដោយ <form> សម្រាប់ Register ក៏ចុច Enter បានដែរ -->
+        <form
+          onsubmit="
+            event.preventDefault();
+            handleAuth('register');
+          "
+        >
+          <div class="input-group">
+            <label>Choose Username</label>
+            <input
+              type="text"
+              id="reg-user"
+              placeholder="e.g. sokdara123"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Create Password</label>
+            <input
+              type="password"
+              id="reg-pass"
+              placeholder="At least 6 characters"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              id="reg-pass-confirm"
+              placeholder="Repeat password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-submit">Sign Up</button>
+        </form>
+
+        <div class="switch-text">
+          Already have an account?
+          <a onclick="toggleForm('login')">Login Here</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/api";
+      const loader = document.getElementById("loader");
+
+      function toggleForm(formType) {
+        const loginBox = document.getElementById("login-box");
+        const registerBox = document.getElementById("register-box");
+
+        if (formType === "register") {
+          loginBox.classList.add("hidden");
+          registerBox.classList.remove("hidden");
+        } else {
+          registerBox.classList.add("hidden");
+          loginBox.classList.remove("hidden");
+        }
+      }
+
+      async function handleAuth(type) {
+        loader.style.display = "flex";
+
+        try {
+          if (type === "register") {
+            const username = document.getElementById("reg-user").value.trim();
+            const password = document.getElementById("reg-pass").value;
+            const confirm = document.getElementById("reg-pass-confirm").value;
+
+            if (password !== confirm) {
+              alert("❌ Passwords do not match!");
+              loader.style.display = "none";
+              return;
+            }
+
+            const res = await fetch(`${API_URL}/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              alert("✅ Register Successful! Please Login.");
+              toggleForm("login");
+            } else {
+              alert("❌ Register Failed: " + data.message);
+            }
+          } else {
+            const username = document.getElementById("login-user").value.trim();
+            const password = document.getElementById("login-pass").value;
+
+            const res = await fetch(`${API_URL}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              // 💾 រក្សាទុក Token, Username ព្រមទាំង Role ថ្មី
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("username", data.username);
+              localStorage.setItem("role", data.role || "buyer"); // ការពារ Error បើគ្មាន Role
+
+              // 🔥 ផ្នែក Admin / Seller Check តាមស្តង់ដារថ្មី 🔥
+              if (data.role === "admin" || data.role === "seller") {
+                window.location.href = "admin.html"; // អ្នកលក់ ឬ Admin លោតទៅផ្ទាំងគ្រប់គ្រង
+              } else {
+                window.location.href = "index.html"; // អ្នកទិញធម្មតា លោតទៅទំព័រដើម
+              }
+            } else {
+              alert("❌ Login Failed: " + data.message);
+            }
+          }
+        } catch (error) {
+          console.error(error);
+          alert("❌ Error connecting to server!");
+        } finally {
+          loader.style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

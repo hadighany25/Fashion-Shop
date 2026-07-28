@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fashion Shop | Elevate Your Style</title>
+    <!-- ប្រើប្រាស់ Font ទំនើប Poppins សម្រាប់ UI -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      /* =========================================
+         ១. ការកំណត់ពណ៌ និងទម្រង់ទូទៅ (Global Styles)
+      ========================================= */
+      :root {
+        --primary: #111111;
+        --secondary: #f4f4f4;
+        --accent: #ff4757;
+        --text-dark: #2f3542;
+        --text-light: #747d8c;
+        --white: #ffffff;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background-color: var(--secondary);
+        color: var(--text-dark);
+        scroll-behavior: smooth;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      ul {
+        list-style: none;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        outline: none;
+        background: none;
+        font-family: inherit;
+      }
+
+      /* =========================================
+         ២. ផ្នែកខាងលើ (Navbar)
+      ========================================= */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 5%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow-sm);
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .logo i {
+        color: var(--accent);
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        background: var(--secondary);
+        border-radius: 50px;
+        padding: 5px 15px;
+        width: 100%;
+        max-width: 400px;
+      }
+      .search-box input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 8px;
+        font-size: 0.95rem;
+      }
+      .search-box button {
+        color: var(--text-light);
+        font-size: 1.1rem;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+      .nav-link {
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: var(--transition);
+      }
+      .nav-link:hover {
+        color: var(--accent);
+      }
+
+      .cart-btn {
+        position: relative;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .cart-badge {
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        background: var(--accent);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 20px;
+      }
+
+      .auth-btn {
+        background: var(--primary);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: var(--transition);
+      }
+      .auth-btn:hover {
+        background: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .mobile-toggle {
+        display: none;
+        font-size: 1.5rem;
+      }
+
+      /* =========================================
+         ៣. ផ្នែកបដា (Hero Section)
+      ========================================= */
+      .hero {
+        height: 70vh;
+        background:
+          linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)),
+          url("https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070")
+            center/cover;
+        display: flex;
+        align-items: center;
+        padding: 0 5%;
+      }
+      .hero-content {
+        max-width: 600px;
+        color: white;
+        animation: fadeInUp 1s ease;
+      }
+      .hero-content h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 15px;
+      }
+      .hero-content p {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        display: inline-block;
+        transition: var(--transition);
+      }
+      .btn-primary:hover {
+        background: #ff3042;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* =========================================
+         ៤. ផ្នែកបញ្ជីទំនិញ និងតម្រង (Shop & Filters)
+      ========================================= */
+      .shop-section {
+        padding: 60px 5%;
+        background: var(--secondary);
+        min-height: 50vh;
+      }
+      .section-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+      }
+
+      .filters {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+      }
+      .filter-btn {
+        padding: 8px 20px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 50px;
+        font-weight: 500;
+        color: var(--text-dark);
+        transition: var(--transition);
+        text-transform: capitalize;
+      }
+      .filter-btn.active,
+      .filter-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 30px;
+      }
+
+      /* Product Card */
+      .card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .card-img-wrapper {
+        position: relative;
+        padding-top: 100%;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .card-img-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+      }
+      .card:hover .card-img-wrapper img {
+        transform: scale(1.08);
+      }
+
+      .stock-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        z-index: 2;
+      }
+      .stock-in {
+        background: #2ed573;
+      }
+      .stock-out {
+        background: #ff4757;
+      }
+
+      .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .category-tag {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+      }
+      /*  */
+      .product-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+      }
+      .price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .btn-add {
+        background: var(--primary);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: var(--transition);
+      }
+      .btn-add:hover:not(:disabled) {
+        background: var(--accent);
+        transform: scale(1.1);
+      }
+      .btn-add:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      /* =========================================
+         ៥. ផ្នែកបាត (Footer & Utilities)
+      ========================================= */
+      footer {
+        background: var(--primary);
+        color: white;
+        padding: 60px 5% 20px;
+        margin-top: 50px;
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+      .footer-col h3 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: white;
+      }
+      .footer-col p,
+      .footer-col a {
+        color: #a4b0be;
+        transition: var(--transition);
+        line-height: 1.8;
+      }
+      .footer-col a:hover {
+        color: var(--accent);
+        padding-left: 5px;
+      }
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      .social-links a:hover {
+        background: var(--accent);
+      }
+      .footer-bottom {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #a4b0be;
+        font-size: 0.9rem;
+      }
+
+      /* Toast & Loader */
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--primary);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        font-weight: 500;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        z-index: 3000;
+      }
+      #toast.show {
+        transform: translateY(0);
+        opacity: 1;
+        border-left: 5px solid var(--accent);
+      }
+
+      .loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsive (សម្រាប់ទូរស័ព្ទ) */
+      @media (max-width: 768px) {
+        .nav-actions {
+          display: none;
+          flex-direction: column;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: white;
+          padding: 20px;
+          box-shadow: var(--shadow-sm);
+        }
+        .nav-actions.active {
+          display: flex;
+        }
+        .search-box {
+          display: none;
+        }
+        .mobile-toggle {
+          display: block;
+        }
+        .filters {
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 10px;
+          flex-wrap: nowrap;
+        }
+        .filter-btn {
+          white-space: nowrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- រង្វង់ដើរពេលកំពុង Load ទិន្នន័យ -->
+    <div class="loader-overlay" id="loader"><div class="spinner"></div></div>
+
+    <!-- ================= Navbar ================= -->
+    <nav class="navbar">
+      <a href="index.html" class="logo"
+        ><i class="fas fa-shopping-bag"></i> Fashion</a
+      >
+
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search latest trends..."
+          onkeyup="handleSearch()"
+        />
+        <button><i class="fas fa-search"></i></button>
+      </div>
+
+      <div class="nav-actions" id="navMenu">
+        <a href="index.html" class="nav-link" style="color: var(--accent)"
+          >Home</a
+        >
+        <a href="#shop" class="nav-link">Shop</a>
+
+        <!-- មុខងារ Cart (មាន Badge លេខ) -->
+        <a
+          href="#"
+          onclick="requireLogin('payment.html')"
+          class="cart-btn nav-link"
+        >
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" id="cartCount">0</span>
+        </a>
+
+        <!-- ប៊ូតុង Login / User Profile នឹងផ្លាស់ប្តូរតាមរយៈ JS -->
+        <div id="authContainer">
+          <a href="login.html" class="auth-btn">Sign In</a>
+        </div>
+      </div>
+      <div
+        class="mobile-toggle"
+        onclick="document.getElementById('navMenu').classList.toggle('active')"
+      >
+        <i class="fas fa-bars"></i>
+      </div>
+    </nav>
+
+    <!-- ================= Hero Banner ================= -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Discover Your New Style Today</h1>
+        <p>
+          Explore our exclusive collection of premium clothing and accessories
+          designed to make you stand out.
+        </p>
+        <a href="#shop" class="btn-primary"
+          >Shop Collection
+          <i class="fas fa-arrow-right" style="margin-left: 8px"></i
+        ></a>
+      </div>
+    </section>
+
+    <!-- ================= Shop Section ================= -->
+    <section id="shop" class="shop-section">
+      <h2 class="section-title">Trending Products</h2>
+
+      <!-- តម្រង (Categories) នឹងលោតចេញមកស្វ័យប្រវត្តិពី Database -->
+      <div class="filters" id="categoryFilters">
+        <button class="filter-btn active" data-category="all">All</button>
+        <!-- Categories ផ្សេងទៀតនឹង Insert តាម JS -->
+      </div>
+
+      <!-- កន្លែងបង្ហាញទំនិញ -->
+      <div class="product-grid" id="productGrid">
+        <!-- ទំនិញនឹងបង្ហាញនៅទីនេះ -->
+      </div>
+    </section>
+
+    <!-- ================= Footer ================= -->
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h3>
+            <i class="fas fa-shopping-bag" style="color: var(--accent)"></i>
+            Fashion Shop
+          </h3>
+          <p>
+            Your ultimate destination for the latest trends in fashion. Quality
+            and comfort delivered to your doorstep.
+          </p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul style="display: flex; flex-direction: column; gap: 10px">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#shop">Shop Now</a></li>
+            <li><a href="payment.html">Checkout</a></li>
+            <li><a href="login.html">My Account</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact Us</h3>
+          <ul style="display: flex; flex-direction: column; gap: 10px">
+            <li>
+              <i class="fas fa-map-marker-alt" style="width: 20px"></i> Phnom
+              Penh, Cambodia
+            </li>
+            <li>
+              <i class="fas fa-phone" style="width: 20px"></i> +855 12 345 678
+            </li>
+            <li>
+              <i class="fas fa-envelope" style="width: 20px"></i>
+              support@fashionshop.com
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Fashion Shop. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- សារជោគជ័យពេល Add ចូលកន្ត្រក -->
+    <div id="toast"><i class="fas fa-check-circle"></i> Added to cart!</div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+      const API_URL = "/api";
+      let allProducts = [];
+      let isLoggedIn = false;
+
+      // ១. ពិនិត្យមើលថា User បាន Login ហើយឬនៅ ពេលបើកវេបសាយ
+      function checkAuthStatus() {
+        const token = localStorage.getItem("token");
+        const username = localStorage.getItem("username");
+        const role = localStorage.getItem("role");
+        const authContainer = document.getElementById("authContainer");
+
+        if (token && username) {
+          isLoggedIn = true;
+          // បើជា Admin ឬ Seller បន្ថែមប៊ូតុងទៅផ្ទាំង Dashboard
+          let dashboardBtn =
+            role === "admin" || role === "seller"
+              ? `<a href="admin.html" class="nav-link" style="margin-right: 15px;"><i class="fas fa-chart-line"></i> Dashboard</a>`
+              : "";
+
+          authContainer.innerHTML = `
+            ${dashboardBtn}
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <span style="font-weight: 500; color: var(--primary);"><i class="fas fa-user-circle"></i> ${username}</span>
+              <button onclick="logout()" class="auth-btn" style="background: #f1f2f6; color: var(--text-dark);">Logout</button>
+            </div>
+          `;
+        } else {
+          isLoggedIn = false;
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        localStorage.removeItem("role");
+        window.location.reload();
+      }
+
+      // ២. អនុញ្ញាតឱ្យចូលមើល Page (ឧទាហរណ៍ Cart) លុះត្រាតែ Login
+      function requireLogin(targetUrl) {
+        if (!isLoggedIn) {
+          alert(
+            "🔒 សូម Login (ចូលគណនី) ជាមុនសិន ដើម្បីអាចទិញទំនិញ ឬចូលមើលកន្ត្រកបាន!",
+          );
+          window.location.href = "login.html";
+        } else {
+          window.location.href = targetUrl;
+        }
+      }
+
+      // ៣. ទាញយកទិន្នន័យទំនិញពី Backend
+      async function loadProducts() {
+        try {
+          const res = await fetch(`${API_URL}/products`);
+          const data = await res.json();
+          allProducts = data;
+
+          generateDynamicCategories(allProducts);
+          displayProducts(allProducts);
+        } catch (error) {
+          document.getElementById("productGrid").innerHTML =
+            `<p style="grid-column: 1/-1; text-align: center; color: var(--accent);">⚠️ មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ។ សូមឆែកមើល Backend!</p>`;
+        } finally {
+          document.getElementById("loader").style.display = "none";
+        }
+      }
+
+      // ៤. បង្កើតប៊ូតុង Category ស្វ័យប្រវត្តិ (Dynamic Filtering)
+      function generateDynamicCategories(products) {
+        const filterContainer = document.getElementById("categoryFilters");
+        // ច្រោះយកតែឈ្មោះ Category ដែលមិនជាន់គ្នា
+        const categories = [
+          ...new Set(products.map((p) => p.category?.toLowerCase())),
+        ].filter(Boolean);
+
+        let html = `<button class="filter-btn active" data-category="all" onclick="filterProducts('all', this)">All</button>`;
+        categories.forEach((cat) => {
+          html += `<button class="filter-btn" data-category="${cat}" onclick="filterProducts('${cat}', this)">${cat}</button>`;
+        });
+        filterContainer.innerHTML = html;
+      }
+
+      // ៥. មុខងារតម្រង (Filter) ពេលចុចលើ Category
+      function filterProducts(category, btnElement) {
+        // ដូរពណ៌ប៊ូតុង
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btnElement.classList.add("active");
+
+        let filtered =
+          category === "all"
+            ? allProducts
+            : allProducts.filter((p) => p.category?.toLowerCase() === category);
+        displayProducts(filtered);
+      }
+
+      // ៦. មុខងារស្វែងរកតាមឈ្មោះ (Search)
+      function handleSearch() {
+        const query = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        // ពេល Search យើងលុបពណ៌ Category ទាំងអស់ចោលសិន ដើម្បីកុំឱ្យច្រឡំ
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.remove("active"));
+
+        let filtered = allProducts.filter((p) =>
+          p.name.toLowerCase().includes(query),
+        );
+        displayProducts(filtered);
+      }
+
+      // ៧. បង្ហាញទំនិញនៅលើអេក្រង់ (Render HTML Cards)
+      function displayProducts(items) {
+        const grid = document.getElementById("productGrid");
+        if (items.length === 0) {
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">គ្មានទំនិញដែលអ្នកកំពុងស្វែងរកទេ!</p>`;
+          return;
+        }
+
+        grid.innerHTML = items
+          .map((p) => {
+            const stock = parseInt(p.stock) || 0;
+            const isOut = stock <= 0;
+            const stockBadge = isOut
+              ? `<span class="stock-badge stock-out">Out of Stock</span>`
+              : `<span class="stock-badge stock-in">${stock} In Stock</span>`;
+
+            return `
+            <div class="card">
+              ${stockBadge}
+              <div class="card-img-wrapper" onclick="alert('មុខងារមើលលម្អិត (Quick View) នឹងបន្ថែមនៅពេលក្រោយ។')">
+                <img src="${p.img || "https://via.placeholder.com/300"}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+              </div>
+              <div class="card-body">
+                <span class="category-tag">${p.category || "General"}</span>
+                <h3 class="product-name">${p.name}</h3>
+                <div class="price-row">
+                  <span class="price">$${parseFloat(p.price).toFixed(2)}</span>
+                  <!-- ប៊ូតុង Add to Cart (បើអត់មានស្តុក Disable វា) -->
+                  <button class="btn-add" ${isOut ? "disabled" : ""} onclick="addToCart('${p.id || p._id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, ${stock})">
+                    <i class="fas ${isOut ? "fa-times" : "fa-plus"}"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      // ៨. មុខងារបញ្ចូលកន្ត្រក (Cart) + ទប់សិទ្ធិ
+      function addToCart(id, name, price, maxStock) {
+        // 🔒 ទប់សិទ្ធិ៖ បើមិនទាន់ Login ទេ អត់ឱ្យចុចទិញទេ
+        if (!isLoggedIn) {
+          alert("🔒 សូម Login ជាមុនសិន ទើបអាចដាក់ចូលកន្ត្រកបាន!");
+          window.location.href = "login.html";
+          return;
+        }
+
+        let cart = JSON.parse(localStorage.getItem("shoppingCart")) || [];
+        let existingItem = cart.find((item) => item.id === id);
+
+        if (existingItem) {
+          if (existingItem.qty + 1 > maxStock) {
+            alert(`សុំទោស! ទំនិញនេះមានក្នុងស្តុកតែ ${maxStock} ប៉ុណ្ណោះ។`);
+            return;
+          }
+          existingItem.qty += 1;
+        } else {
+          cart.push({ id, name, price: parseFloat(price), qty: 1 });
+        }
+
+        localStorage.setItem("shoppingCart", JSON.stringify(cart));
+        updateCartBadge();
+        showToast(`Added ${name} to cart!`);
+      }
+
+      function updateCartBadge() {
+        const cart = JSON.parse(localStorage.getItem("shoppingCart")) || [];
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        document.getElementById("cartCount").innerText = totalItems;
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+      }
+
+      // ពេលបើកវេបសាយ ដំណើរការមុខងារទាំងនេះមុនគេ
+      window.onload = () => {
+        checkAuthStatus();
+        updateCartBadge();
+        loadProducts();
+      };
+    </script>
+  </body>
+</html>

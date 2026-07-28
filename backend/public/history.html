@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Order History | Fashion Shop</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* --- Base Styles --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+      body {
+        background: #f4f6f9;
+        color: #333;
+      }
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5%;
+        background: #2c3e50;
+        color: white;
+      }
+      .navbar a {
+        color: white;
+        text-decoration: none;
+      }
+
+      /* --- History Styles --- */
+      .history-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        min-height: 60vh;
+      }
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+      }
+      .order-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid #2c3e50;
+      }
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        color: #555;
+      }
+      .order-id {
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+      .order-items {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-family: monospace;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+      }
+      .total-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #d35400;
+      }
+
+      .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: white;
+      }
+      .badge-preparing {
+        background: #f39c12;
+      }
+      .badge-shipping {
+        background: #3498db;
+      }
+      .badge-delivered {
+        background: #2ecc71;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 50px;
+        color: #7f8c8d;
+      }
+      .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #bdc3c7;
+      }
+      .btn-back {
+        background: #2c3e50;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo"><i class="fas fa-shopping-bag"></i> Fashion Shop</div>
+      <ul style="display: flex; list-style: none; gap: 20px">
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+
+    <div class="history-container">
+      <div class="history-header">
+        <h2><i class="fas fa-history"></i> My Order History</h2>
+        <span id="user-greeting" style="font-weight: bold; color: #d35400"
+          >...</span
+        >
+      </div>
+
+      <div id="orders-list">
+        <div style="text-align: center; padding: 40px">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ⚠️ ប្តូរ URL អោយចង្អុលទៅកាន់ Backend របស់អ្នក
+      const API_URL = "/api";
+      const username = localStorage.getItem("username");
+
+      if (!username) {
+        window.location.href = "login.html";
+      }
+      document.getElementById("user-greeting").innerText = `Hello, ${username}`;
+
+      async function fetchOrderHistory() {
+        try {
+          const res = await fetch(`${API_URL}/orders/${username}`);
+          const orders = await res.json();
+          const container = document.getElementById("orders-list");
+
+          if (orders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Orders Yet!</h3>
+                    <p>You haven't placed any orders. Start shopping now.</p>
+                    <a href="index.html" class="btn-back">Go to Shop</a>
+                </div>`;
+            return;
+          }
+
+          container.innerHTML = orders
+            .map((order) => {
+              let badgeClass = "badge-preparing",
+                statusText = "Preparing",
+                statusIcon = "fas fa-box-open";
+              if (order.status === "Shipping") {
+                badgeClass = "badge-shipping";
+                statusText = "Shipping";
+                statusIcon = "fas fa-truck-fast";
+              }
+              if (order.status === "Delivered") {
+                badgeClass = "badge-delivered";
+                statusText = "Delivered";
+                statusIcon = "fas fa-check-circle";
+              }
+
+              return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">Order ID: ${order.orderId}</span>
+                        <span><i class="far fa-calendar-alt"></i> ${order.date}</span>
+                    </div>
+                    <div class="order-items">${order.itemsString}</div>
+                    <div class="order-footer">
+                        <span class="total-amount">Total: $${parseFloat(order.amount).toFixed(2)}</span>
+                        <span class="badge ${badgeClass}"><i class="${statusIcon}"></i> ${statusText}</span>
+                    </div>
+                </div>`;
+            })
+            .join("");
+        } catch (error) {
+          document.getElementById("orders-list").innerHTML =
+            `<p style="color:red; text-align:center;">Error loading orders. Is the server running?</p>`;
+        }
+      }
+
+      let lastHistoryData = "";
+      async function autoUpdateHistory() {
+        try {
+          const res = await fetch(`${API_URL}/orders/${username}`);
+          const orders = await res.json();
+          if (lastHistoryData !== JSON.stringify(orders)) {
+            lastHistoryData = JSON.stringify(orders);
+            fetchOrderHistory();
+          }
+        } catch (err) {}
+      }
+
+      setInterval(autoUpdateHistory, 2000);
+      window.onload = fetchOrderHistory;
+    </script>
+  </body>
+</html>
