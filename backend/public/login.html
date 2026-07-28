@@ -13,7 +13,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
 
-    <!-- បញ្ចូល SweetAlert2 ដើម្បីទទួលបាន Alert ស្អាតៗ -->
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -329,7 +329,6 @@
     </div>
 
     <script>
-      // កែប្រែ API ឱ្យត្រូវជាមួយ server.js ថ្មី
       const API_URL = "/api/auth";
       const loader = document.getElementById("loader");
 
@@ -357,11 +356,10 @@
 
             if (password !== confirm) {
               loader.style.display = "none";
-              // SweetAlert: ខុសលេខសម្ងាត់
               return Swal.fire({
                 icon: "warning",
-                title: "សូមពិនិត្យម្តងទៀត",
-                text: "លេខសម្ងាត់មិនផ្ទៀងផ្ទាត់គ្នានោះទេ!",
+                title: "Warning",
+                text: "Passwords do not match!",
                 confirmButtonColor: "#d35400",
               });
             }
@@ -375,11 +373,10 @@
 
             if (data.success) {
               loader.style.display = "none";
-              // SweetAlert: បង្កើតគណនីជោគជ័យ
               Swal.fire({
                 icon: "success",
-                title: "ជោគជ័យ!",
-                text: "គណនីត្រូវបានបង្កើតរួចរាល់ សូមធ្វើការ Login",
+                title: "Success!",
+                text: "Account created successfully. Please login.",
                 confirmButtonColor: "#d35400",
               }).then(() => {
                 document.getElementById("reg-user").value = "";
@@ -389,11 +386,10 @@
               });
             } else {
               loader.style.display = "none";
-              // SweetAlert: បង្កើតគណនីបរាជ័យ
               Swal.fire({
                 icon: "error",
-                title: "បរាជ័យ",
-                text: data.message || "មិនអាចបង្កើតគណនីបានទេ!",
+                title: "Failed",
+                text: data.message || "Unable to create account!",
                 confirmButtonColor: "#d35400",
               });
             }
@@ -415,10 +411,9 @@
 
               loader.style.display = "none";
 
-              // SweetAlert: Login ជោគជ័យ
               Swal.fire({
                 icon: "success",
-                title: "ចូលគណនីជោគជ័យ",
+                title: "Login Successful",
                 showConfirmButton: false,
                 timer: 1500,
               }).then(() => {
@@ -430,11 +425,10 @@
               });
             } else {
               loader.style.display = "none";
-              // SweetAlert: Login បរាជ័យ
               Swal.fire({
                 icon: "error",
-                title: "ចូលគណនីបរាជ័យ",
-                text: data.message || "ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!",
+                title: "Login Failed",
+                text: data.message || "Invalid username or password!",
                 confirmButtonColor: "#d35400",
               });
             }
@@ -442,11 +436,10 @@
         } catch (error) {
           console.error(error);
           loader.style.display = "none";
-          // SweetAlert: Error ភ្ជាប់ទៅ Server
           Swal.fire({
             icon: "error",
-            title: "បញ្ហាភ្ជាប់ទៅ Server",
-            text: "មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ! សូមសាកល្បងម្តងទៀត។",
+            title: "Connection Error",
+            text: "Unable to connect to the server! Please try again.",
             confirmButtonColor: "#d35400",
           });
         }
