@@ -13,8 +13,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
 
+    <!-- បញ្ចូល SweetAlert2 ដើម្បីទទួលបាន Alert ស្អាតៗ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-      /* --- រក្សាទុក CSS របស់បងដដែលទាំងអស់ (ខ្ញុំអត់បានលុបឬកែប្រែ CSS ទេ) --- */
       :root {
         --primary: #2c3e50;
         --accent: #d35400;
@@ -244,7 +246,6 @@
         <h2>Welcome Back!</h2>
         <p>Login to access your fashion world.</p>
 
-        <!-- 🔧 វេចខ្ចប់ដោយ <form> ដើម្បីឱ្យអាចចុច Enter បាន -->
         <form
           onsubmit="
             event.preventDefault();
@@ -270,7 +271,6 @@
             />
           </div>
 
-          <!-- 🔧 ប្តូរទៅជា type="submit" -->
           <button type="submit" class="btn-submit">Login</button>
         </form>
 
@@ -284,7 +284,6 @@
         <h2>Create Account</h2>
         <p>Join us and explore the new style.</p>
 
-        <!-- 🔧 វេចខ្ចប់ដោយ <form> សម្រាប់ Register ក៏ចុច Enter បានដែរ -->
         <form
           onsubmit="
             event.preventDefault();
@@ -330,7 +329,8 @@
     </div>
 
     <script>
-      const API_URL = "/api";
+      // កែប្រែ API ឱ្យត្រូវជាមួយ server.js ថ្មី
+      const API_URL = "/api/auth";
       const loader = document.getElementById("loader");
 
       function toggleForm(formType) {
@@ -356,9 +356,14 @@
             const confirm = document.getElementById("reg-pass-confirm").value;
 
             if (password !== confirm) {
-              alert("❌ Passwords do not match!");
               loader.style.display = "none";
-              return;
+              // SweetAlert: ខុសលេខសម្ងាត់
+              return Swal.fire({
+                icon: "warning",
+                title: "សូមពិនិត្យម្តងទៀត",
+                text: "លេខសម្ងាត់មិនផ្ទៀងផ្ទាត់គ្នានោះទេ!",
+                confirmButtonColor: "#d35400",
+              });
             }
 
             const res = await fetch(`${API_URL}/register`, {
@@ -369,10 +374,28 @@
             const data = await res.json();
 
             if (data.success) {
-              alert("✅ Register Successful! Please Login.");
-              toggleForm("login");
+              loader.style.display = "none";
+              // SweetAlert: បង្កើតគណនីជោគជ័យ
+              Swal.fire({
+                icon: "success",
+                title: "ជោគជ័យ!",
+                text: "គណនីត្រូវបានបង្កើតរួចរាល់ សូមធ្វើការ Login",
+                confirmButtonColor: "#d35400",
+              }).then(() => {
+                document.getElementById("reg-user").value = "";
+                document.getElementById("reg-pass").value = "";
+                document.getElementById("reg-pass-confirm").value = "";
+                toggleForm("login");
+              });
             } else {
-              alert("❌ Register Failed: " + data.message);
+              loader.style.display = "none";
+              // SweetAlert: បង្កើតគណនីបរាជ័យ
+              Swal.fire({
+                icon: "error",
+                title: "បរាជ័យ",
+                text: data.message || "មិនអាចបង្កើតគណនីបានទេ!",
+                confirmButtonColor: "#d35400",
+              });
             }
           } else {
             const username = document.getElementById("login-user").value.trim();
@@ -386,26 +409,46 @@
             const data = await res.json();
 
             if (data.success) {
-              // 💾 រក្សាទុក Token, Username ព្រមទាំង Role ថ្មី
               localStorage.setItem("token", data.token);
               localStorage.setItem("username", data.username);
-              localStorage.setItem("role", data.role || "buyer"); // ការពារ Error បើគ្មាន Role
+              localStorage.setItem("role", data.role || "buyer");
 
-              // 🔥 ផ្នែក Admin / Seller Check តាមស្តង់ដារថ្មី 🔥
-              if (data.role === "admin" || data.role === "seller") {
-                window.location.href = "admin.html"; // អ្នកលក់ ឬ Admin លោតទៅផ្ទាំងគ្រប់គ្រង
-              } else {
-                window.location.href = "index.html"; // អ្នកទិញធម្មតា លោតទៅទំព័រដើម
-              }
+              loader.style.display = "none";
+
+              // SweetAlert: Login ជោគជ័យ
+              Swal.fire({
+                icon: "success",
+                title: "ចូលគណនីជោគជ័យ",
+                showConfirmButton: false,
+                timer: 1500,
+              }).then(() => {
+                if (data.role === "admin" || data.role === "seller") {
+                  window.location.href = "admin.html";
+                } else {
+                  window.location.href = "index.html";
+                }
+              });
             } else {
-              alert("❌ Login Failed: " + data.message);
+              loader.style.display = "none";
+              // SweetAlert: Login បរាជ័យ
+              Swal.fire({
+                icon: "error",
+                title: "ចូលគណនីបរាជ័យ",
+                text: data.message || "ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!",
+                confirmButtonColor: "#d35400",
+              });
             }
           }
         } catch (error) {
           console.error(error);
-          alert("❌ Error connecting to server!");
-        } finally {
           loader.style.display = "none";
+          // SweetAlert: Error ភ្ជាប់ទៅ Server
+          Swal.fire({
+            icon: "error",
+            title: "បញ្ហាភ្ជាប់ទៅ Server",
+            text: "មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ! សូមសាកល្បងម្តងទៀត។",
+            confirmButtonColor: "#d35400",
+          });
         }
       }
     </script>
