@@ -17,7 +17,7 @@
         font-family: "DM Sans", sans-serif;
       }
       body {
-        background-color: #1e293b; /* Dark theme for Admin */
+        background-color: #1e293b;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -88,12 +88,8 @@
       <h2>Admin Portal</h2>
       <p>Restricted Access - Authorized Personnel Only</p>
 
-      <form
-        onsubmit="
-          event.preventDefault();
-          handleAdminLogin();
-        "
-      >
+      <!-- កែសម្រួល៖ បោះ event ទៅក្នុង Function ផ្ទាល់ -->
+      <form onsubmit="handleAdminLogin(event)">
         <div class="input-group">
           <label>Admin Username</label>
           <input
@@ -119,7 +115,10 @@
     <script>
       const API_URL = "/api/auth";
 
-      async function handleAdminLogin() {
+      // កែសម្រួល៖ ទទួលយក event ជា Parameter
+      async function handleAdminLogin(event) {
+        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh
+
         const username = document.getElementById("admin-user").value.trim();
         const password = document.getElementById("admin-pass").value;
 
@@ -132,8 +131,15 @@
           const data = await res.json();
 
           if (data.success) {
-            // Block normal buyers from logging in here
-            if (data.role !== "admin" && data.role !== "seller") {
+            // ការពារករណី Backend ពេលខ្លះបោះមកជា data.user.role ឬ data.role
+            const userRole = data.role || (data.user && data.user.role);
+
+            // កែសម្រួល៖ អនុញ្ញាតឱ្យ super_admin អាចចូលបានដែរ
+            if (
+              userRole !== "super_admin" &&
+              userRole !== "admin" &&
+              userRole !== "seller"
+            ) {
               return Swal.fire({
                 icon: "error",
                 title: "Access Denied",
@@ -144,8 +150,11 @@
 
             // Save tokens for admin/seller
             localStorage.setItem("token", data.token);
-            localStorage.setItem("username", data.username);
-            localStorage.setItem("role", data.role);
+            localStorage.setItem(
+              "username",
+              data.username || (data.user && data.user.username),
+            );
+            localStorage.setItem("role", userRole);
 
             Swal.fire({
               icon: "success",
@@ -154,10 +163,10 @@
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              // Correctly route based on role
-              if (data.role === "admin") {
+              // នាំទៅកាន់ទំព័រទៅតាម Role
+              if (userRole === "super_admin" || userRole === "admin") {
                 window.location.href = "admin.html";
-              } else if (data.role === "seller") {
+              } else if (userRole === "seller") {
                 window.location.href = "seller-inventory.html";
               }
             });
