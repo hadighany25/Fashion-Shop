@@ -244,7 +244,7 @@
     <div class="auth-wrapper">
       <div id="login-box" class="auth-card">
         <h2>Welcome Back!</h2>
-        <p>Login to access your fashion world.</p>
+        <p>Login to access your buyer account.</p>
 
         <form
           onsubmit="
@@ -405,11 +405,23 @@
             const data = await res.json();
 
             if (data.success) {
+              loader.style.display = "none";
+
+              // 🛑 strict check: block admin or seller from logging in through buyer login page
+              if (data.role === "admin" || data.role === "seller") {
+                localStorage.clear(); // clear any data if set
+                return Swal.fire({
+                  icon: "error",
+                  title: "Access Denied",
+                  text: "Administrators and sellers must use the Admin Portal login!",
+                  confirmButtonColor: "#d35400",
+                });
+              }
+
+              // Allow only buyers
               localStorage.setItem("token", data.token);
               localStorage.setItem("username", data.username);
               localStorage.setItem("role", data.role || "buyer");
-
-              loader.style.display = "none";
 
               Swal.fire({
                 icon: "success",
@@ -417,11 +429,7 @@
                 showConfirmButton: false,
                 timer: 1500,
               }).then(() => {
-                if (data.role === "admin" || data.role === "seller") {
-                  window.location.href = "admin.html";
-                } else {
-                  window.location.href = "index.html";
-                }
+                window.location.href = "index.html";
               });
             } else {
               loader.style.display = "none";
