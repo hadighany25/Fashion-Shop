@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fashion Shop | Elevate Your Style</title>
-    <!-- ប្រើប្រាស់ Font ទំនើប Poppins សម្រាប់ UI -->
+    <!-- Modern Font Poppins -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -13,11 +13,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-      /* =========================================
-         ១. ការកំណត់ពណ៌ និងទម្រង់ទូទៅ (Global Styles)
-      ========================================= */
       :root {
         --primary: #111111;
         --secondary: #f4f4f4;
@@ -56,9 +55,7 @@
         font-family: inherit;
       }
 
-      /* =========================================
-         ២. ផ្នែកខាងលើ (Navbar)
-      ========================================= */
+      /* Navbar */
       .navbar {
         display: flex;
         justify-content: space-between;
@@ -84,6 +81,22 @@
         color: var(--accent);
       }
 
+      .nav-links-center {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+      }
+      .nav-links-center a {
+        font-weight: 500;
+        font-size: 0.95srem;
+        color: var(--text-dark);
+        transition: var(--transition);
+      }
+      .nav-links-center a:hover,
+      .nav-links-center a.active {
+        color: var(--accent);
+      }
+
       .search-box {
         display: flex;
         align-items: center;
@@ -91,33 +104,25 @@
         border-radius: 50px;
         padding: 5px 15px;
         width: 100%;
-        max-width: 400px;
+        max-width: 280px;
       }
       .search-box input {
         flex: 1;
         background: transparent;
         border: none;
         outline: none;
-        padding: 8px;
-        font-size: 0.95rem;
+        padding: 6px;
+        font-size: 0.9rem;
       }
       .search-box button {
         color: var(--text-light);
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
 
       .nav-actions {
         display: flex;
         align-items: center;
-        gap: 25px;
-      }
-      .nav-link {
-        font-weight: 500;
-        font-size: 0.95rem;
-        transition: var(--transition);
-      }
-      .nav-link:hover {
-        color: var(--accent);
+        gap: 20px;
       }
 
       .cart-btn {
@@ -125,12 +130,12 @@
         font-size: 1.2rem;
         display: flex;
         align-items: center;
-        gap: 5px;
+        color: var(--text-dark);
       }
       .cart-badge {
         position: absolute;
         top: -8px;
-        right: -12px;
+        right: -10px;
         background: var(--accent);
         color: white;
         font-size: 0.7rem;
@@ -152,14 +157,74 @@
         transform: translateY(-2px);
       }
 
+      /* Profile Dropdown Styling */
+      .profile-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .profile-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--secondary);
+        padding: 6px 15px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--primary);
+        transition: var(--transition);
+      }
+      .profile-trigger:hover {
+        background: #e4e4e4;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 120%;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: var(--shadow-md);
+        border-radius: 12px;
+        overflow: hidden;
+        z-index: 1000;
+        animation: fadeInUp 0.3s ease;
+      }
+      .dropdown-content a,
+      .dropdown-content button {
+        color: var(--text-dark);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        text-align: left;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+        background: none;
+        border: none;
+      }
+      .dropdown-content a:hover,
+      .dropdown-content button:hover {
+        background-color: var(--secondary);
+        color: var(--accent);
+      }
+      .dropdown-content .logout-item {
+        color: var(--accent);
+        border-top: 1px solid #eee;
+      }
+      .profile-dropdown.active .dropdown-content {
+        display: block;
+      }
+
       .mobile-toggle {
         display: none;
         font-size: 1.5rem;
+        cursor: pointer;
       }
 
-      /* =========================================
-         ៣. ផ្នែកបដា (Hero Section)
-      ========================================= */
+      /* Hero Banner */
       .hero {
         height: 70vh;
         background:
@@ -202,9 +267,7 @@
         box-shadow: var(--shadow-md);
       }
 
-      /* =========================================
-         ៤. ផ្នែកបញ្ជីទំនិញ និងតម្រង (Shop & Filters)
-      ========================================= */
+      /* Shop Section */
       .shop-section {
         padding: 60px 5%;
         background: var(--secondary);
@@ -313,12 +376,12 @@
         letter-spacing: 1px;
         margin-bottom: 5px;
       }
-      /*  */
       .product-name {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 10px;
         display: -webkit-box;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
@@ -355,9 +418,7 @@
         cursor: not-allowed;
       }
 
-      /* =========================================
-         ៥. ផ្នែកបាត (Footer & Utilities)
-      ========================================= */
+      /* Footer */
       footer {
         background: var(--primary);
         color: white;
@@ -461,7 +522,7 @@
       @keyframes fadeInUp {
         from {
           opacity: 0;
-          transform: translateY(30px);
+          transform: translateY(10px);
         }
         to {
           opacity: 1;
@@ -469,9 +530,9 @@
         }
       }
 
-      /* Responsive (សម្រាប់ទូរស័ព្ទ) */
-      @media (max-width: 768px) {
-        .nav-actions {
+      /* Responsive */
+      @media (max-width: 900px) {
+        .nav-links-center {
           display: none;
           flex-direction: column;
           position: absolute;
@@ -482,7 +543,7 @@
           padding: 20px;
           box-shadow: var(--shadow-sm);
         }
-        .nav-actions.active {
+        .nav-links-center.active {
           display: flex;
         }
         .search-box {
@@ -491,68 +552,57 @@
         .mobile-toggle {
           display: block;
         }
-        .filters {
-          justify-content: flex-start;
-          overflow-x: auto;
-          padding-bottom: 10px;
-          flex-wrap: nowrap;
-        }
-        .filter-btn {
-          white-space: nowrap;
-        }
       }
     </style>
   </head>
   <body>
-    <!-- រង្វង់ដើរពេលកំពុង Load ទិន្នន័យ -->
+    <!-- Loader Overlay -->
     <div class="loader-overlay" id="loader"><div class="spinner"></div></div>
 
-    <!-- ================= Navbar ================= -->
+    <!-- Navbar -->
     <nav class="navbar">
-      <a href="index.html" class="logo"
-        ><i class="fas fa-shopping-bag"></i> Fashion</a
-      >
+      <a href="index.html" class="logo">
+        <i class="fas fa-shopping-bag"></i> Fashion
+      </a>
+
+      <!-- Expanded Navbar Links -->
+      <div class="nav-links-center" id="navLinksCenter">
+        <a href="index.html" class="active">Home</a>
+        <a href="#shop">Shop</a>
+        <a href="#shop">New Arrivals</a>
+        <a href="#shop">Collections</a>
+        <a href="#" onclick="showContactModal()">Contact</a>
+      </div>
 
       <div class="search-box">
         <input
           type="text"
           id="searchInput"
-          placeholder="Search latest trends..."
+          placeholder="Search products..."
           onkeyup="handleSearch()"
         />
         <button><i class="fas fa-search"></i></button>
       </div>
 
-      <div class="nav-actions" id="navMenu">
-        <a href="index.html" class="nav-link" style="color: var(--accent)"
-          >Home</a
-        >
-        <a href="#shop" class="nav-link">Shop</a>
-
-        <!-- មុខងារ Cart (មាន Badge លេខ) -->
-        <a
-          href="#"
-          onclick="requireLogin('payment.html')"
-          class="cart-btn nav-link"
-        >
+      <div class="nav-actions">
+        <!-- Cart Button -->
+        <a href="#" onclick="requireLogin('payment.html')" class="cart-btn">
           <i class="fas fa-shopping-cart"></i>
           <span class="cart-badge" id="cartCount">0</span>
         </a>
 
-        <!-- ប៊ូតុង Login / User Profile នឹងផ្លាស់ប្តូរតាមរយៈ JS -->
+        <!-- Auth Container (Dynamic via JS) -->
         <div id="authContainer">
           <a href="login.html" class="auth-btn">Sign In</a>
         </div>
       </div>
-      <div
-        class="mobile-toggle"
-        onclick="document.getElementById('navMenu').classList.toggle('active')"
-      >
+
+      <div class="mobile-toggle" onclick="toggleMobileMenu()">
         <i class="fas fa-bars"></i>
       </div>
     </nav>
 
-    <!-- ================= Hero Banner ================= -->
+    <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
         <h1>Discover Your New Style Today</h1>
@@ -560,30 +610,23 @@
           Explore our exclusive collection of premium clothing and accessories
           designed to make you stand out.
         </p>
-        <a href="#shop" class="btn-primary"
-          >Shop Collection
-          <i class="fas fa-arrow-right" style="margin-left: 8px"></i
-        ></a>
+        <a href="#shop" class="btn-primary">
+          Shop Collection
+          <i class="fas fa-arrow-right" style="margin-left: 8px"></i>
+        </a>
       </div>
     </section>
 
-    <!-- ================= Shop Section ================= -->
+    <!-- Shop Section -->
     <section id="shop" class="shop-section">
       <h2 class="section-title">Trending Products</h2>
-
-      <!-- តម្រង (Categories) នឹងលោតចេញមកស្វ័យប្រវត្តិពី Database -->
       <div class="filters" id="categoryFilters">
         <button class="filter-btn active" data-category="all">All</button>
-        <!-- Categories ផ្សេងទៀតនឹង Insert តាម JS -->
       </div>
-
-      <!-- កន្លែងបង្ហាញទំនិញ -->
-      <div class="product-grid" id="productGrid">
-        <!-- ទំនិញនឹងបង្ហាញនៅទីនេះ -->
-      </div>
+      <div class="product-grid" id="productGrid"></div>
     </section>
 
-    <!-- ================= Footer ================= -->
+    <!-- Footer -->
     <footer>
       <div class="footer-grid">
         <div class="footer-col">
@@ -632,16 +675,20 @@
       </div>
     </footer>
 
-    <!-- សារជោគជ័យពេល Add ចូលកន្ត្រក -->
+    <!-- Toast Notification -->
     <div id="toast"><i class="fas fa-check-circle"></i> Added to cart!</div>
 
-    <!-- ================= JAVASCRIPT ================= -->
+    <!-- JavaScript Application Logic -->
     <script>
       const API_URL = "/api";
       let allProducts = [];
       let isLoggedIn = false;
 
-      // ១. ពិនិត្យមើលថា User បាន Login ហើយឬនៅ ពេលបើកវេបសាយ
+      function toggleMobileMenu() {
+        document.getElementById("navLinksCenter").classList.toggle("active");
+      }
+
+      // Check Authentication & Setup Profile Dropdown Menu
       function checkAuthStatus() {
         const token = localStorage.getItem("token");
         const username = localStorage.getItem("username");
@@ -650,64 +697,163 @@
 
         if (token && username) {
           isLoggedIn = true;
-          // បើជា Admin ឬ Seller បន្ថែមប៊ូតុងទៅផ្ទាំង Dashboard
-          let dashboardBtn =
+          let dashboardLink =
             role === "admin" || role === "seller"
-              ? `<a href="admin.html" class="nav-link" style="margin-right: 15px;"><i class="fas fa-chart-line"></i> Dashboard</a>`
+              ? `<a href="admin.html"><i class="fas fa-chart-line" style="color: var(--accent);"></i> Dashboard</a>`
               : "";
 
           authContainer.innerHTML = `
-            ${dashboardBtn}
-            <div style="display: flex; align-items: center; gap: 15px;">
-              <span style="font-weight: 500; color: var(--primary);"><i class="fas fa-user-circle"></i> ${username}</span>
-              <button onclick="logout()" class="auth-btn" style="background: #f1f2f6; color: var(--text-dark);">Logout</button>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="profile-trigger" onclick="toggleDropdown(event)">
+                <i class="fas fa-user-circle" style="font-size: 1.2rem; color: var(--accent);"></i>
+                <span>${username}</span>
+                <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+              </div>
+              <div class="dropdown-content">
+                ${dashboardLink}
+                <a href="#" onclick="openProfileModal('${username}')"><i class="fas fa-id-card"></i> View Profile</a>
+                <a href="#" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Change Password</a>
+                <button class="logout-item" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+              </div>
             </div>
           `;
         } else {
           isLoggedIn = false;
+          authContainer.innerHTML = `<a href="login.html" class="auth-btn">Sign In</a>`;
         }
       }
 
-      function logout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("role");
-        window.location.reload();
+      // Toggle Profile Dropdown
+      function toggleDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById("profileDropdown");
+        dropdown.classList.toggle("active");
       }
 
-      // ២. អនុញ្ញាតឱ្យចូលមើល Page (ឧទាហរណ៍ Cart) លុះត្រាតែ Login
+      // Close dropdown when clicking outside
+      window.addEventListener("click", () => {
+        const dropdown = document.getElementById("profileDropdown");
+        if (dropdown && dropdown.classList.contains("active")) {
+          dropdown.classList.remove("active");
+        }
+      });
+
+      // View Profile Modal using SweetAlert2
+      function openProfileModal(username) {
+        const role = localStorage.getItem("role") || "buyer";
+        Swal.fire({
+          title: "User Profile",
+          html: `
+            <div style="text-align: left; padding: 10px 20px; font-size: 1rem;">
+              <p style="margin-bottom: 10px;"><strong>Username:</strong> ${username}</p>
+              <p style="margin-bottom: 10px;"><strong>Role:</strong> <span style="text-transform: uppercase; color: var(--accent);">${role}</span></p>
+              <p style="margin-bottom: 10px;"><strong>Status:</strong> Active & Verified</p>
+            </div>
+          `,
+          confirmButtonText: "Close",
+          confirmButtonColor: "#111111",
+        });
+      }
+
+      // Change Password / Update Name Simulation Modal
+      function openChangePasswordModal() {
+        Swal.fire({
+          title: "Account Settings",
+          html: `
+            <input type="text" id="swal-username" class="swal2-input" placeholder="New Username">
+            <input type="password" id="swal-oldpass" class="swal2-input" placeholder="Current Password">
+            <input type="password" id="swal-newpass" class="swal2-input" placeholder="New Password">
+          `,
+          confirmButtonText: "Save Changes",
+          confirmButtonColor: "#ff4757",
+          showCancelButton: true,
+          focusConfirm: false,
+          preConfirm: () => {
+            const newUsername = document.getElementById("swal-username").value;
+            const oldPass = document.getElementById("swal-oldpass").value;
+            const newPass = document.getElementById("swal-newpass").value;
+            if (!oldPass || !newPass) {
+              Swal.showValidationMessage("Please fill in password fields!");
+            }
+            return { newUsername, oldPass, newPass };
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire(
+              "Success",
+              "Profile information updated successfully!",
+              "success",
+            );
+            if (result.value.newUsername) {
+              localStorage.setItem("username", result.value.newUsername);
+              setTimeout(() => location.reload(), 1500);
+            }
+          }
+        });
+      }
+
+      // SweetAlert2 Confirmation for Logout
+      function confirmLogout() {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You will be logged out of your session.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ff4757",
+          cancelButtonColor: "#747d8c",
+          confirmButtonText: "Yes, Logout",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+            Swal.fire({
+              title: "Logged Out!",
+              text: "You have been logged out successfully.",
+              icon: "success",
+              timer: 1200,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.reload();
+            });
+          }
+        });
+      }
+
       function requireLogin(targetUrl) {
         if (!isLoggedIn) {
-          alert(
-            "🔒 សូម Login (ចូលគណនី) ជាមុនសិន ដើម្បីអាចទិញទំនិញ ឬចូលមើលកន្ត្រកបាន!",
-          );
-          window.location.href = "login.html";
+          Swal.fire({
+            icon: "warning",
+            title: "Authentication Required",
+            text: "Please sign in to access your cart or checkout!",
+            confirmButtonColor: "#ff4757",
+          }).then(() => {
+            window.location.href = "login.html";
+          });
         } else {
           window.location.href = targetUrl;
         }
       }
 
-      // ៣. ទាញយកទិន្នន័យទំនិញពី Backend
+      // Load Products from Backend
       async function loadProducts() {
         try {
           const res = await fetch(`${API_URL}/products`);
           const data = await res.json();
           allProducts = data;
-
           generateDynamicCategories(allProducts);
           displayProducts(allProducts);
         } catch (error) {
-          document.getElementById("productGrid").innerHTML =
-            `<p style="grid-column: 1/-1; text-align: center; color: var(--accent);">⚠️ មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ។ សូមឆែកមើល Backend!</p>`;
+          document.getElementById("productGrid").innerHTML = `
+            <p style="grid-column: 1/-1; text-align: center; color: var(--accent);">⚠️ Unable to connect to the server!</p>
+          `;
         } finally {
           document.getElementById("loader").style.display = "none";
         }
       }
 
-      // ៤. បង្កើតប៊ូតុង Category ស្វ័យប្រវត្តិ (Dynamic Filtering)
       function generateDynamicCategories(products) {
         const filterContainer = document.getElementById("categoryFilters");
-        // ច្រោះយកតែឈ្មោះ Category ដែលមិនជាន់គ្នា
         const categories = [
           ...new Set(products.map((p) => p.category?.toLowerCase())),
         ].filter(Boolean);
@@ -719,9 +865,7 @@
         filterContainer.innerHTML = html;
       }
 
-      // ៥. មុខងារតម្រង (Filter) ពេលចុចលើ Category
       function filterProducts(category, btnElement) {
-        // ដូរពណ៌ប៊ូតុង
         document
           .querySelectorAll(".filter-btn")
           .forEach((b) => b.classList.remove("active"));
@@ -734,27 +878,23 @@
         displayProducts(filtered);
       }
 
-      // ៦. មុខងារស្វែងរកតាមឈ្មោះ (Search)
       function handleSearch() {
         const query = document
           .getElementById("searchInput")
           .value.toLowerCase();
-        // ពេល Search យើងលុបពណ៌ Category ទាំងអស់ចោលសិន ដើម្បីកុំឱ្យច្រឡំ
         document
           .querySelectorAll(".filter-btn")
           .forEach((b) => b.classList.remove("active"));
-
         let filtered = allProducts.filter((p) =>
           p.name.toLowerCase().includes(query),
         );
         displayProducts(filtered);
       }
 
-      // ៧. បង្ហាញទំនិញនៅលើអេក្រង់ (Render HTML Cards)
       function displayProducts(items) {
         const grid = document.getElementById("productGrid");
         if (items.length === 0) {
-          grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">គ្មានទំនិញដែលអ្នកកំពុងស្វែងរកទេ!</p>`;
+          grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">No products found!</p>`;
           return;
         }
 
@@ -769,7 +909,7 @@
             return `
             <div class="card">
               ${stockBadge}
-              <div class="card-img-wrapper" onclick="alert('មុខងារមើលលម្អិត (Quick View) នឹងបន្ថែមនៅពេលក្រោយ។')">
+              <div class="card-img-wrapper" onclick="Swal.fire('${p.name}', 'Category: ${p.category || "General"}\\nPrice: $${parseFloat(p.price).toFixed(2)}', 'info')">
                 <img src="${p.img || "https://via.placeholder.com/300"}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
               </div>
               <div class="card-body">
@@ -777,7 +917,6 @@
                 <h3 class="product-name">${p.name}</h3>
                 <div class="price-row">
                   <span class="price">$${parseFloat(p.price).toFixed(2)}</span>
-                  <!-- ប៊ូតុង Add to Cart (បើអត់មានស្តុក Disable វា) -->
                   <button class="btn-add" ${isOut ? "disabled" : ""} onclick="addToCart('${p.id || p._id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, ${stock})">
                     <i class="fas ${isOut ? "fa-times" : "fa-plus"}"></i>
                   </button>
@@ -789,12 +928,16 @@
           .join("");
       }
 
-      // ៨. មុខងារបញ្ចូលកន្ត្រក (Cart) + ទប់សិទ្ធិ
       function addToCart(id, name, price, maxStock) {
-        // 🔒 ទប់សិទ្ធិ៖ បើមិនទាន់ Login ទេ អត់ឱ្យចុចទិញទេ
         if (!isLoggedIn) {
-          alert("🔒 សូម Login ជាមុនសិន ទើបអាចដាក់ចូលកន្ត្រកបាន!");
-          window.location.href = "login.html";
+          Swal.fire({
+            icon: "warning",
+            title: "Please Sign In",
+            text: "You need to sign in before adding items to cart.",
+            confirmButtonColor: "#ff4757",
+          }).then(() => {
+            window.location.href = "login.html";
+          });
           return;
         }
 
@@ -803,7 +946,11 @@
 
         if (existingItem) {
           if (existingItem.qty + 1 > maxStock) {
-            alert(`សុំទោស! ទំនិញនេះមានក្នុងស្តុកតែ ${maxStock} ប៉ុណ្ណោះ។`);
+            Swal.fire(
+              "Stock Limit",
+              `Sorry, only ${maxStock} items available in stock.`,
+              "error",
+            );
             return;
           }
           existingItem.qty += 1;
@@ -829,7 +976,14 @@
         setTimeout(() => toast.classList.remove("show"), 3000);
       }
 
-      // ពេលបើកវេបសាយ ដំណើរការមុខងារទាំងនេះមុនគេ
+      function showContactModal() {
+        Swal.fire({
+          title: "Contact Us",
+          html: "Email: support@fashionshop.com<br>Phone: +855 12 345 678<br>Location: Phnom Penh, Cambodia",
+          confirmButtonColor: "#ff4757",
+        });
+      }
+
       window.onload = () => {
         checkAuthStatus();
         updateCartBadge();
