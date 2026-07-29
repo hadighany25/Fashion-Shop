@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const sellerController = require("../controllers/sellerController");
-const { verifyToken } = require("../middlewares/auth");
 
+// កែបន្ទាត់នេះឱ្យត្រូវនឹងឈ្មោះ Folder និង File របស់បង
+const { verifyToken } = require("../middleware/authMiddleware");
+
+// បើកដំណើរការ Middleware នេះ
+router.use(verifyToken);
 // ==========================================
 // Profile & Settings
 // ==========================================
