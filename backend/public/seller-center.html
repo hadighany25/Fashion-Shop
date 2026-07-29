@@ -99,6 +99,11 @@
         display: flex;
         justify-content: center;
         gap: 10px;
+        transition: 0.2s;
+      }
+      .logout-btn:hover {
+        background-color: var(--danger);
+        color: white;
       }
 
       /* Topbar & Profile */
@@ -291,7 +296,6 @@
         vertical-align: middle;
       }
 
-      /* Simple Form inputs */
       .form-group {
         margin-bottom: 15px;
       }
@@ -349,9 +353,8 @@
 
     <!-- Main Wrapper -->
     <div class="main-wrapper">
-      <!-- Topbar -->
       <header class="topbar">
-        <h3>Welcome back!</h3>
+        <h3>Welcome to Seller Center</h3>
         <div class="topbar-right">
           <!-- Notification Bell -->
           <div
@@ -366,7 +369,9 @@
           <!-- Profile Clickable -->
           <div class="store-profile" onclick="showProfileOptions()">
             <div class="store-avatar" id="avatar-container">
-              <span id="avatar-initial">S</span>
+              <span id="avatar-initial"
+                ><i class="fas fa-spinner fa-spin"></i
+              ></span>
             </div>
             <span id="store-name-display">Loading...</span>
           </div>
@@ -375,13 +380,17 @@
 
       <!-- Content Area -->
       <div class="content-area">
-        <!-- 1. DASHBOARD -->
+        <!-- DASHBOARD -->
         <div id="dashboard" class="view-section active">
           <div class="section-header"><h2>Overview</h2></div>
-          <p>Dashboard statistics will fetch from database here...</p>
+          <div class="table-container">
+            <p id="dashboard-text">
+              Welcome! Check your orders and products from the sidebar menu.
+            </p>
+          </div>
         </div>
 
-        <!-- 2. ORDERS (KANBAN) -->
+        <!-- ORDERS (KANBAN) -->
         <div id="orders" class="view-section">
           <div class="section-header"><h2>Order Management</h2></div>
           <div class="kanban-board">
@@ -389,7 +398,7 @@
               <div class="kanban-header">
                 <span>New</span> <span class="badge" id="count-new">0</span>
               </div>
-              <div id="list-new">Loading...</div>
+              <div id="list-new"><p class="text-muted">Loading...</p></div>
             </div>
             <div class="kanban-column" id="col-packing">
               <div class="kanban-header">
@@ -415,7 +424,7 @@
           </div>
         </div>
 
-        <!-- 3. PRODUCTS -->
+        <!-- PRODUCTS -->
         <div id="products" class="view-section">
           <div class="section-header">
             <h2>My Products</h2>
@@ -445,14 +454,16 @@
               </thead>
               <tbody id="product-table-body">
                 <tr>
-                  <td colspan="5" text-align="center">Loading products...</td>
+                  <td colspan="5" style="text-align: center">
+                    Loading products...
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- 4. WALLET -->
+        <!-- WALLET -->
         <div id="wallet" class="view-section">
           <div class="section-header"><h2>Store Wallet & Payouts</h2></div>
           <div
@@ -460,21 +471,26 @@
             style="text-align: center; padding: 50px"
           >
             <i class="fas fa-tools fa-3x text-muted"></i>
-            <p style="margin-top: 10px">Wallet feature is under development.</p>
+            <p style="margin-top: 10px">Wallet feature is coming soon.</p>
           </div>
         </div>
 
-        <!-- 5. SETTINGS -->
+        <!-- SETTINGS -->
         <div id="settings" class="view-section">
           <div class="section-header"><h2>Store Settings</h2></div>
           <div class="table-container" style="max-width: 600px">
             <form id="settingsForm" onsubmit="updateStoreSettings(event)">
               <div class="form-group">
-                <label>Store Name</label>
-                <input type="text" id="set-store-name" required />
+                <label>Store Name <span style="color: red">*</span></label>
+                <input
+                  type="text"
+                  id="set-store-name"
+                  required
+                  placeholder="Enter your store name"
+                />
               </div>
               <div class="form-group">
-                <label>Store Logo (Image URL)</label>
+                <label>Store Logo (Image URL from Internet)</label>
                 <input
                   type="url"
                   id="set-store-logo"
@@ -483,9 +499,15 @@
               </div>
               <div class="form-group">
                 <label>Store Description</label>
-                <textarea id="set-store-desc" rows="4"></textarea>
+                <textarea
+                  id="set-store-desc"
+                  rows="4"
+                  placeholder="Tell customers about your store..."
+                ></textarea>
               </div>
-              <button type="submit" class="btn-primary">Save Changes</button>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+              </button>
             </form>
           </div>
         </div>
@@ -496,11 +518,12 @@
       // ==========================================
       // SETUP & API CONFIGURATION
       // ==========================================
-      const API_BASE = "/api/seller"; // Backend Routes សម្រាប់ Seller
+      const API_BASE = "/api/seller";
       const TOKEN = localStorage.getItem("token");
 
       document.addEventListener("DOMContentLoaded", () => {
         if (!TOKEN) {
+          // បើគ្មាន Token ទេ ដេញឱ្យទៅ Login វិញ
           window.location.href = "admin-login.html";
           return;
         }
@@ -522,20 +545,23 @@
       }
 
       // ==========================================
-      // FETCH DATA FROM DATABASE
+      // FETCH PROFILE DATA
       // ==========================================
       async function loadInitialData() {
-        // ទាញយក Profile ហាង
         try {
           const res = await fetch(`${API_BASE}/profile`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
           const data = await res.json();
-          if (res.ok) {
+
+          if (res.ok && data.store) {
+            // ករណីមាន Store រួចហើយ
             document.getElementById("store-name-display").innerText =
               data.store.storeName;
             document.getElementById("set-store-name").value =
               data.store.storeName;
+            document.getElementById("set-store-desc").value =
+              data.store.description || "";
 
             if (data.store.logoUrl) {
               document.getElementById("avatar-container").innerHTML =
@@ -543,26 +569,48 @@
               document.getElementById("set-store-logo").value =
                 data.store.logoUrl;
             } else {
-              document.getElementById("avatar-initial").innerText =
-                data.store.storeName.charAt(0).toUpperCase();
+              document.getElementById("avatar-container").innerHTML =
+                `<span id="avatar-initial">${data.store.storeName.charAt(0).toUpperCase()}</span>`;
             }
+          } else {
+            // ករណី Login ចូលបាន តែអត់ទាន់មានទិន្នន័យហាង (Store Profile)
+            document.getElementById("store-name-display").innerText =
+              "New Store (Click to Setup)";
+            document.getElementById("avatar-container").innerHTML =
+              `<span id="avatar-initial">!</span>`;
+
+            // ប្រាប់អ្នកប្រើប្រាស់ឱ្យទៅបំពេញពត៌មានហាង
+            Swal.fire({
+              icon: "info",
+              title: "Welcome Seller!",
+              text: "Please set up your store information first.",
+              confirmButtonText: "Go to Settings",
+              allowOutsideClick: false,
+            }).then(() => {
+              switchTab("settings", document.querySelectorAll(".nav-link")[4]);
+            });
           }
         } catch (error) {
-          console.error("Profile fetch error");
+          // ករណី Server Error ដាច់អ៉ីនធឺណិត ឬ Error ផ្សេងៗ
+          console.error("Profile fetch error", error);
+          document.getElementById("store-name-display").innerText =
+            "Connection Error";
+          document.getElementById("avatar-container").innerHTML =
+            `<span id="avatar-initial">X</span>`;
         }
 
-        fetchOrders(); // ទាញយក Order ដើម្បីលោត Notification Bell
+        fetchOrders(); // ហៅមកដើម្បីលោតកណ្ដឹង Notification
       }
 
       // ==========================================
-      // PROFILE & PASSWORD
+      // PROFILE OPTIONS (Password Change)
       // ==========================================
       function showProfileOptions() {
         Swal.fire({
-          title: "Profile Options",
+          title: "Store Options",
           showDenyButton: true,
           showCancelButton: true,
-          confirmButtonText: "View Profile",
+          confirmButtonText: "Store Settings",
           denyButtonText: `Change Password`,
         }).then((result) => {
           if (result.isConfirmed) {
@@ -588,7 +636,6 @@
           },
         });
         if (formValues && formValues.newPass) {
-          // Send to API
           const res = await fetch(`${API_BASE}/change-password`, {
             method: "PUT",
             headers: {
@@ -597,13 +644,20 @@
             },
             body: JSON.stringify(formValues),
           });
-          if (res.ok) Swal.fire("Success", "Password changed!", "success");
-          else Swal.fire("Error", "Failed to change password.", "error");
+          const data = await res.json();
+          if (res.ok)
+            Swal.fire("Success", "Password changed successfully!", "success");
+          else
+            Swal.fire(
+              "Error",
+              data.message || "Failed to change password.",
+              "error",
+            );
         }
       }
 
       // ==========================================
-      // ORDER MANAGEMENT (Kanban Flow)
+      // ORDERS FUNCTIONALITY
       // ==========================================
       async function fetchOrders() {
         try {
@@ -613,7 +667,6 @@
           const data = await res.json();
           const orders = data.orders || [];
 
-          // Reset Columns
           let htmlNew = "",
             htmlPacking = "",
             htmlShipping = "",
@@ -627,7 +680,7 @@
             const cardHtml = `
               <div class="order-card">
                 <h4>#${order._id.substring(0, 6).toUpperCase()}</h4>
-                <p>Items: ${order.itemsCount} | Total: $${order.totalPrice}</p>
+                <p>Items: ${order.itemsCount || 0} | Total: $${order.totalPrice || 0}</p>
                 <div class="order-actions">
                   ${getOrderButtons(order._id, order.status)}
                 </div>
@@ -648,9 +701,10 @@
             }
           });
 
-          // Render DOM
+          // ប្រសិនបើគ្មាន Order ឱ្យវាបង្ហាញពាក្យថា No orders yet ជំនួស Loading...
           document.getElementById("list-new").innerHTML =
-            htmlNew || "<p class='text-muted'>No orders</p>";
+            htmlNew ||
+            "<p style='color:var(--text-muted); font-size:14px;'>No orders yet</p>";
           document.getElementById("list-packing").innerHTML = htmlPacking || "";
           document.getElementById("list-shipping").innerHTML =
             htmlShipping || "";
@@ -662,7 +716,6 @@
           document.getElementById("count-shipping").innerText = countShipping;
           document.getElementById("count-completed").innerText = countCompleted;
 
-          // Update Bell Notification
           const badge = document.getElementById("order-badge");
           if (countNew > 0) {
             badge.style.display = "block";
@@ -671,7 +724,8 @@
             badge.style.display = "none";
           }
         } catch (error) {
-          console.error("Order fetch error");
+          document.getElementById("list-new").innerHTML =
+            "<p style='color:red;'>Failed to load orders</p>";
         }
       }
 
@@ -687,7 +741,7 @@
 
       function updateOrderStatus(orderId, newStatus) {
         Swal.fire({
-          title: `Move to ${newStatus}?`,
+          title: `Move order to ${newStatus}?`,
           icon: "question",
           showCancelButton: true,
           confirmButtonText: "Yes, update it!",
@@ -701,7 +755,7 @@
               },
               body: JSON.stringify({ status: newStatus }),
             });
-            fetchOrders(); // Refresh table
+            fetchOrders();
           }
         });
       }
@@ -710,16 +764,17 @@
       // PRODUCTS & CATEGORIES
       // ==========================================
       async function fetchProducts() {
+        const tbody = document.getElementById("product-table-body");
         try {
           const res = await fetch(`${API_BASE}/products`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
           const data = await res.json();
           const products = data.products || [];
-          const tbody = document.getElementById("product-table-body");
 
+          // បើគ្មានទិន្នន័យ ឱ្យបាត់ពាក្យ Loading ដាក់ No products វិញ
           if (products.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No products yet</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No products found. Add a new product!</td></tr>`;
             return;
           }
 
@@ -742,21 +797,22 @@
             )
             .join("");
         } catch (error) {
-          console.error("Product fetch error");
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error fetching products.</td></tr>`;
         }
       }
 
       async function showAddProductModal() {
-        // Fetch Categories to show in dropdown
         let categoryOptions = "<option value=''>Select Category</option>";
         try {
           const res = await fetch(`${API_BASE}/categories`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
           const data = await res.json();
-          data.categories.forEach((c) => {
-            categoryOptions += `<option value="${c._id}">${c.name}</option>`;
-          });
+          if (data.categories) {
+            data.categories.forEach((c) => {
+              categoryOptions += `<option value="${c._id}">${c.name}</option>`;
+            });
+          }
         } catch (e) {}
 
         const { value: formValues } = await Swal.fire({
@@ -765,7 +821,7 @@
             `<input id="p-name" class="swal2-input" placeholder="Product Name">` +
             `<input id="p-price" type="number" class="swal2-input" placeholder="Price ($)">` +
             `<input id="p-stock" type="number" class="swal2-input" placeholder="Stock Quantity">` +
-            `<input id="p-image" type="url" class="swal2-input" placeholder="Image URL (Internet Link)">` +
+            `<input id="p-image" type="url" class="swal2-input" placeholder="Image URL (Link only)">` +
             `<select id="p-category" class="swal2-select">${categoryOptions}</select>`,
           focusConfirm: false,
           preConfirm: () => {
@@ -789,8 +845,10 @@
             body: JSON.stringify(formValues),
           });
           if (res.ok) {
-            Swal.fire("Added!", "", "success");
+            Swal.fire("Added!", "Product has been created.", "success");
             fetchProducts();
+          } else {
+            Swal.fire("Error", "Failed to add product", "error");
           }
         }
       }
@@ -799,7 +857,7 @@
         const { value: catName } = await Swal.fire({
           title: "Create Category",
           input: "text",
-          inputPlaceholder: "Category Name (e.g. T-Shirts)",
+          inputPlaceholder: "e.g. Shirts, Shoes...",
           showCancelButton: true,
         });
 
@@ -812,13 +870,14 @@
             },
             body: JSON.stringify({ name: catName }),
           });
-          if (res.ok) Swal.fire("Created!", "", "success");
+          if (res.ok) Swal.fire("Created!", "Category added.", "success");
         }
       }
 
       function deleteProduct(id) {
         Swal.fire({
-          title: "Delete Product?",
+          title: "Are you sure?",
+          text: "You cannot revert this!",
           icon: "warning",
           showCancelButton: true,
         }).then(async (result) => {
@@ -833,7 +892,7 @@
       }
 
       // ==========================================
-      // SETTINGS
+      // SETTINGS (Create / Update Store)
       // ==========================================
       async function updateStoreSettings(event) {
         event.preventDefault();
@@ -841,22 +900,29 @@
         const logoUrl = document.getElementById("set-store-logo").value;
         const desc = document.getElementById("set-store-desc").value;
 
-        const res = await fetch(`${API_BASE}/profile`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${TOKEN}`,
-          },
-          body: JSON.stringify({
-            storeName: name,
-            logoUrl: logoUrl,
-            description: desc,
-          }),
-        });
+        try {
+          const res = await fetch(`${API_BASE}/profile`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify({
+              storeName: name,
+              logoUrl: logoUrl,
+              description: desc,
+            }),
+          });
+          const data = await res.json();
 
-        if (res.ok) {
-          Swal.fire("Saved", "Settings updated successfully", "success");
-          loadInitialData(); // Refresh UI
+          if (res.ok) {
+            Swal.fire("Saved!", "Store profile updated.", "success");
+            loadInitialData(); // Refresh Profile UI
+          } else {
+            Swal.fire("Error", data.message || "Something went wrong", "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Connection failed", "error");
         }
       }
 
