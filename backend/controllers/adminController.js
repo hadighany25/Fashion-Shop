@@ -2,40 +2,23 @@ const User = require("../models/User");
 const Store = require("../models/Store");
 const bcrypt = require("bcryptjs");
 
-// ១. បង្កើតគណនី Admin ថ្មី (សម្រាប់តែ Super Admin ប៉ុណ្ណោះដែលអាចហៅ Function នេះបាន)
-exports.createAdmin = async (req, res) => {
+// ១. ទាញយកអ្នកប្រើប្រាស់ទាំងអស់ (សម្រាប់បង្ហាញក្នុង Table លើ Dashboard)
+exports.getAllUsers = async (req, res) => {
   try {
-    const { username, password } = req.body;
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "ឈ្មោះគណនីនេះមានរួចហើយ!" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newAdmin = new User({
-      username,
-      password: hashedPassword,
-      role: "admin",
-    });
-
-    await newAdmin.save();
-    res
-      .status(201)
-      .json({ success: true, message: "បង្កើតគណនី Admin បានជោគជ័យ!" });
+    // ទាញយក Users ទាំងអស់ តែមិនយក password ទេ ដើម្បីសុវត្ថិភាព
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.status(200).json({ success: true, users });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ២. បង្កើតគណនី Seller ថ្មី ព្រមទាំងបង្កើត Store ឱ្យគាត់ដោយស្វ័យប្រវត្តិ (Admin / Super Admin)
-exports.createSeller = async (req, res) => {
+// ២. បង្កើតគណនីថ្មីរួមបញ្ចូលគ្នា (Admin, Seller, ឬ Buyer)
+exports.createUser = async (req, res) => {
   try {
-    const { username, password, storeName, storeCategory } = req.body;
+    const { username, password, role, storeName, storeCategory } = req.body;
 
-    // ឆែកមើលឈ្មោះគណនី
+    // ឆែកមើលក្រែងឈ្មោះគណនីនេះមានរួចហើយ
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res
@@ -43,43 +26,87 @@ exports.createSeller = async (req, res) => {
         .json({ success: false, message: "ឈ្មោះគណនីនេះមានរួចហើយ!" });
     }
 
+    // បើជ្រើសរើស Role ជា Seller ត្រូវប្រាកដថាគាត់បានបញ្ជូនឈ្មោះហាងមកដែរ
+    if (role === "seller" && (!storeName || !storeCategory)) {
+      return res.status(400).json({
+        success: false,
+        message: "សូមបំពេញឈ្មោះហាង និងប្រភេទហាងសម្រាប់អ្នកលក់!",
+      });
+    }
+
+    // វាយលេខសម្ងាត់ជាកូដ (Hash)
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ជំហានទី១៖ បង្កើតគណនី User ជាសិន (Role: seller)
-    const newSeller = new User({
+    // បង្កើតគណនី User សិន (ទោះជា role អ្វីក៏ដោយ)
+    const newUser = new User({
       username,
       password: hashedPassword,
-      role: "seller",
+      role: role || "buyer",
     });
-    const savedSeller = await newSeller.save();
 
-    // ជំហានទី២៖ យក ID របស់ Seller នោះមកបង្កើតហាង (Store)
-    const newStore = new Store({
-      owner: savedSeller._id,
-      storeName,
-      storeCategory,
-      status: "active",
-    });
-    await newStore.save();
+    const savedUser = await newUser.save();
+
+    // បើសិនជាគាត់ជា Seller ត្រូវយក ID របស់គាត់ទៅបង្កើតហាង (Store) បន្តទៀត
+    if (role === "seller") {
+      const newStore = new Store({
+        owner: savedUser._id,
+        storeName,
+        storeCategory,
+        status: "active",
+      });
+      await newStore.save();
+    }
 
     res.status(201).json({
       success: true,
-      message: "បង្កើតគណនីអ្នកលក់ និងហាងបានជោគជ័យ!",
-      store: newStore,
+      message: "បង្កើតគណនីបានជោគជ័យ!",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ៣. ទាញយកទិន្នន័យសរុបសម្រាប់បង្ហាញលើ Admin Dashboard
+// ៣. លុបគណនី (Delete User)
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "រកមិនឃើញគណនីនេះទេ!" });
+    }
+
+    // ការពារមិនឱ្យលុបគណនី Super Admin បានជាដាច់ខាត
+    if (user.role === "super_admin") {
+      return res
+        .status(403)
+        .json({ success: false, message: "មិនអាចលុបគណនី Super Admin បានទេ!" });
+    }
+
+    // លុប User នោះចោល
+    await User.findByIdAndDelete(id);
+
+    // បើសិនជាអ្នកដែលត្រូវលុបជា Seller យើងត្រូវលុបហាង (Store) របស់គាត់ចោលដែរ
+    if (user.role === "seller") {
+      await Store.findOneAndDelete({ owner: id });
+    }
+
+    res.status(200).json({ success: true, message: "លុបគណនីបានជោគជ័យ!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ៤. ទាញយកទិន្នន័យសរុបសម្រាប់បង្ហាញលើ Admin Dashboard Statistics
 exports.getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalSellers = await User.countDocuments({ role: "seller" });
     const totalStores = await Store.countDocuments();
 
-    res.json({
+    res.status(200).json({
       success: true,
       stats: { totalUsers, totalSellers, totalStores },
     });

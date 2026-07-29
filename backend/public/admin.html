@@ -154,7 +154,7 @@
         font-size: 0.9rem;
       }
 
-      /* Create Seller Section */
+      /* Action Section & Form */
       .action-section {
         background-color: var(--card-bg);
         padding: 25px;
@@ -170,7 +170,7 @@
 
       .form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr auto;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 15px;
         align-items: end;
       }
@@ -209,6 +209,14 @@
       .btn-primary:disabled {
         background-color: #475569;
         cursor: not-allowed;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      /* លាក់ប្រអប់ Store ជាបណ្ដោះអាសន្ន */
+      .store-field {
+        display: none;
       }
 
       /* Data Table */
@@ -324,9 +332,9 @@
         </div>
       </div>
 
-      <!-- Create New Seller / Admin -->
+      <!-- Create New System Account & Store -->
       <section class="action-section">
-        <h2><i class="fas fa-user-plus"></i> Create System Account</h2>
+        <h2><i class="fas fa-user-plus"></i> Create System Account & Store</h2>
         <form id="createAccountForm" class="form-grid">
           <div class="input-group">
             <label>Username</label>
@@ -348,13 +356,30 @@
           </div>
           <div class="input-group">
             <label>Role</label>
-            <select id="new-role">
+            <!-- ហៅ Function toggleStoreFields ពេលមានការផ្លាស់ប្តូរ Role -->
+            <select id="new-role" onchange="toggleStoreFields()">
               <option value="seller">Seller</option>
               <option value="admin">Administrator</option>
               <option value="buyer">Buyer</option>
             </select>
           </div>
-          <button type="submit" id="btn-create" class="btn-primary">
+
+          <!-- ប្រអប់សម្រាប់ហាង (លោតចេញតែពេលរើស Seller ប៉ុណ្ណោះ) -->
+          <div class="input-group store-field" id="store-name-group">
+            <label>Store Name</label>
+            <input type="text" id="store-name" placeholder="Enter store name" />
+          </div>
+          <div class="input-group store-field" id="store-category-group">
+            <label>Store Category</label>
+            <select id="store-category">
+              <option value="Fashion">Fashion & Clothing</option>
+              <option value="Shoes">Shoes & Sneakers</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Beauty">Beauty & Cosmetics</option>
+            </select>
+          </div>
+
+          <button type="submit" id="btn-create" class="btn-primary full-width">
             <i class="fas fa-plus"></i> Create Account
           </button>
         </form>
@@ -385,7 +410,7 @@
       // ==========================================
       // 1. កំណត់អថេរ និងពិនិត្យសិទ្ធិចូលប្រើ
       // ==========================================
-      const API_BASE = "/api/admin"; // ដូរទៅតាម Route ក្នុង Backend របស់បង
+      const API_BASE = "/api/admin"; // ដូរទៅតាម Route ពិតប្រាកដក្នុង Backend របស់បង
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
       const USERNAME = localStorage.getItem("username");
@@ -405,20 +430,40 @@
         }
 
         document.getElementById("admin-name").innerText = USERNAME;
-        loadDashboardData();
+        toggleStoreFields(); // បង្ហាញ ឬលាក់ប្រអប់ Store តាមការកំណត់ដើម (Default ជា Seller)
+        loadDashboardData(); // ទាញទិន្នន័យពី API
       });
 
       // ==========================================
-      // 2. ទាញទិន្នន័យពី MongoDB (Backend)
+      // 2. មុខងារលាក់ ឬបង្ហាញប្រអប់បំពេញទិន្នន័យហាង
+      // ==========================================
+      function toggleStoreFields() {
+        const role = document.getElementById("new-role").value;
+        const storeGroups = document.querySelectorAll(".store-field");
+        const storeNameInput = document.getElementById("store-name");
+
+        if (role === "seller") {
+          // បង្ហាញប្រអប់ និងបង្ខំឱ្យបំពេញ
+          storeGroups.forEach((el) => (el.style.display = "flex"));
+          storeNameInput.required = true;
+        } else {
+          // លាក់ប្រអប់ និងមិនបាច់បំពេញ
+          storeGroups.forEach((el) => (el.style.display = "none"));
+          storeNameInput.required = false;
+          storeNameInput.value = "";
+        }
+      }
+
+      // ==========================================
+      // 3. ទាញទិន្នន័យពី MongoDB (Backend API)
       // ==========================================
       async function loadDashboardData() {
         try {
-          // ហៅ API ទាញយក Users ទាំងអស់ (ត្រូវប្រាកដថា Backend មាន Route នេះ)
           const res = await fetch(`${API_BASE}/users`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`, // បញ្ជូន Token ទៅ Backend ដើម្បីបញ្ជាក់សិទ្ធិ
+              Authorization: `Bearer ${TOKEN}`,
             },
           });
 
@@ -451,7 +496,7 @@
               <td>Active</td>
               <td>
                 ${
-                  u.username === USERNAME || u.role === "super_admin" // មិនឱ្យលុបខ្លួនឯង ឬលុប super_admin ទេ
+                  u.username === USERNAME || u.role === "super_admin"
                     ? `<button disabled style="background:none;border:none;color:gray;cursor:not-allowed;" title="Cannot delete this user"><i class="fas fa-ban"></i></button>`
                     : `<button onclick="deleteUser('${u._id}', '${u.username}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Delete User"><i class="fas fa-trash"></i></button>`
                 }
@@ -468,7 +513,7 @@
       }
 
       // ==========================================
-      // 3. បង្កើតគណនីថ្មី (បញ្ជូនទៅ Backend)
+      // 4. បង្កើតគណនីថ្មី (និងហាងបើជារបស់ Seller)
       // ==========================================
       document
         .getElementById("createAccountForm")
@@ -480,14 +525,21 @@
             .value.trim();
           const passwordInput = document.getElementById("new-password").value;
           const roleInput = document.getElementById("new-role").value;
-          const btnCreate = document.getElementById("btn-create");
 
+          // ទាញយកទិន្នន័យហាង (វាមានតម្លៃទាល់តែ Role ជា Seller)
+          const storeNameInput = document
+            .getElementById("store-name")
+            .value.trim();
+          const storeCategoryInput =
+            document.getElementById("store-category").value;
+
+          const btnCreate = document.getElementById("btn-create");
           btnCreate.disabled = true;
           btnCreate.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating...`;
 
           try {
             const res = await fetch(`${API_BASE}/users`, {
-              // ឬបងអាចប្រើ "/api/auth/register" បើ Backend ប្រើផ្លូវនោះ
+              // ឬបងប្រើ "/api/auth/register" អាស្រ័យលើ Backend
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -497,6 +549,8 @@
                 username: usernameInput,
                 password: passwordInput,
                 role: roleInput,
+                storeName: storeNameInput,
+                storeCategory: storeCategoryInput,
               }),
             });
 
@@ -505,11 +559,12 @@
             if (res.ok) {
               Swal.fire(
                 "Created!",
-                `${usernameInput} has been created as ${roleInput}.`,
+                `Account ${usernameInput} has been created successfully.`,
                 "success",
               );
               document.getElementById("createAccountForm").reset();
-              loadDashboardData(); // ទាញទិន្នន័យថ្មីមកបង្ហាញ
+              toggleStoreFields(); // តម្រូវប្រអប់ហាងឱ្យត្រូវតាមស្ថានភាពដើម
+              loadDashboardData(); // Refresh table
             } else {
               Swal.fire(
                 "Failed",
@@ -526,7 +581,7 @@
         });
 
       // ==========================================
-      // 4. លុបគណនី (បញ្ជូនសំណើទៅ Backend)
+      // 5. លុបគណនី
       // ==========================================
       function deleteUser(userId, username) {
         Swal.fire({
@@ -566,7 +621,7 @@
       }
 
       // ==========================================
-      // 5. មុខងារ Logout
+      // 6. មុខងារ Logout
       // ==========================================
       function handleLogout() {
         Swal.fire({
@@ -579,7 +634,7 @@
           confirmButtonText: "Yes, logout!",
         }).then((result) => {
           if (result.isConfirmed) {
-            localStorage.clear(); // លុប Token ទាំងអស់
+            localStorage.clear(); // លុបទិន្នន័យ (Token, Role) ចេញទាំងអស់
             window.location.href = "admin-login.html";
           }
         });
