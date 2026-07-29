@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcryptjs");
-require("dotenv").config(); // សម្រាប់ទាញយកទិន្នន័យពីឯកសារ .env
+
+// កែតម្រូវទី១៖ កុំឱ្យ dotenv ដំណើរការរំខាននៅលើ Fly.io
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 // ១. ទាញយក Routes ដែលយើងបានសរសេរ
 const authRoutes = require("./routes/authRoutes");
@@ -31,8 +35,9 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
 // ៥. ការតភ្ជាប់ទៅកាន់ Database (MongoDB)
+// កែតម្រូវទី២៖ ប្ដូរពី MONGODB_URI ទៅជា MONGO_URI ឱ្យត្រូវជាមួយ Fly Secrets
 const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/fashion_shop_db";
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/fashion_shop_db";
 
 mongoose
   .connect(MONGODB_URI)
@@ -69,9 +74,10 @@ const createSuperAdmin = async () => {
   }
 };
 
-// ៧. កំណត់ Port សម្រាប់ដំណើរការ Server (មិនប្រើ 3000 ទេ)
+// ៧. កំណត់ Port សម្រាប់ដំណើរការ Server
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+// កែតម្រូវទី៣៖ បន្ថែម "0.0.0.0" ដើម្បីកុំឱ្យ Fly.io បដិសេធការភ្ជាប់ (Refused Connection)
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server កំពុងដំណើរការយ៉ាងរលូននៅលើ Port: ${PORT}`);
 });
