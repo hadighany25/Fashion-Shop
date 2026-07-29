@@ -22,6 +22,7 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
+        overflow: hidden; /* ការពារកុំឱ្យមាន Scrollbar លោតចុះឡើង */
         color: #fff;
       }
       .admin-login-card {
@@ -62,6 +63,7 @@
         color: #fff;
         font-size: 1rem;
         outline: none;
+        transition: 0.3s;
       }
       .input-group input:focus {
         border-color: #38bdf8;
@@ -81,6 +83,10 @@
       .btn-login:hover {
         background: #0369a1;
       }
+      .btn-login:disabled {
+        background: #475569;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
@@ -88,8 +94,8 @@
       <h2>Admin Portal</h2>
       <p>Restricted Access - Authorized Personnel Only</p>
 
-      <!-- កែសម្រួល៖ បោះ event ទៅក្នុង Function ផ្ទាល់ -->
-      <form onsubmit="handleAdminLogin(event)">
+      <!-- លុប onsubmit ចេញពី HTML ប្រើប្រាស់ id ជំនួសវិញ -->
+      <form id="admin-login-form">
         <div class="input-group">
           <label>Admin Username</label>
           <input
@@ -97,6 +103,7 @@
             id="admin-user"
             required
             placeholder="Enter username"
+            autocomplete="username"
           />
         </div>
         <div class="input-group">
@@ -106,21 +113,33 @@
             id="admin-pass"
             required
             placeholder="Enter password"
+            autocomplete="current-password"
           />
         </div>
-        <button type="submit" class="btn-login">Login to Dashboard</button>
+        <button type="submit" id="submit-btn" class="btn-login">
+          Login to Dashboard
+        </button>
       </form>
     </div>
 
     <script>
+      // ដោយសារ Frontend និង Backend នៅជាមួយគ្នា យើងអាចប្រើ Path ខ្លីបែបនេះបាន
       const API_URL = "/api/auth";
 
-      // កែសម្រួល៖ ទទួលយក event ជា Parameter
-      async function handleAdminLogin(event) {
-        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh
+      // ចាប់យក Form តាមរយៈ ID
+      const loginForm = document.getElementById("admin-login-form");
+      const submitBtn = document.getElementById("submit-btn");
+
+      // ប្រើ addEventListener ដើម្បីធានាថា preventDefault ដំណើរការបាន ១០០%
+      loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh ដាច់ខាត
 
         const username = document.getElementById("admin-user").value.trim();
         const password = document.getElementById("admin-pass").value;
+
+        // ដូរ UI ប៊ូតុងពេលកំពុងរង់ចាំ
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Logging in...";
 
         try {
           const res = await fetch(`${API_URL}/login`, {
@@ -131,15 +150,17 @@
           const data = await res.json();
 
           if (data.success) {
-            // ការពារករណី Backend ពេលខ្លះបោះមកជា data.user.role ឬ data.role
+            // ទាញយក Role របស់អ្នកប្រើប្រាស់
             const userRole = data.role || (data.user && data.user.role);
 
-            // កែសម្រួល៖ អនុញ្ញាតឱ្យ super_admin អាចចូលបានដែរ
+            // ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យតែ super_admin, admin និង seller ប៉ុណ្ណោះ
             if (
               userRole !== "super_admin" &&
               userRole !== "admin" &&
               userRole !== "seller"
             ) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Login to Dashboard";
               return Swal.fire({
                 icon: "error",
                 title: "Access Denied",
@@ -148,7 +169,7 @@
               });
             }
 
-            // Save tokens for admin/seller
+            // រក្សាទុក Token និងទិន្នន័យចាំបាច់
             localStorage.setItem("token", data.token);
             localStorage.setItem(
               "username",
@@ -163,7 +184,7 @@
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              // នាំទៅកាន់ទំព័រទៅតាម Role
+              // បញ្ជូនទៅកាន់ទំព័រទៅតាម Role
               if (userRole === "super_admin" || userRole === "admin") {
                 window.location.href = "admin.html";
               } else if (userRole === "seller") {
@@ -171,6 +192,9 @@
               }
             });
           } else {
+            // បើ Login ខុស
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Login to Dashboard";
             Swal.fire({
               icon: "error",
               title: "Login Failed",
@@ -179,14 +203,16 @@
             });
           }
         } catch (error) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Login to Dashboard";
           Swal.fire({
             icon: "error",
             title: "Connection Error",
-            text: "Cannot connect to server.",
+            text: "Cannot connect to server. Please try again.",
             confirmButtonColor: "#0284c7",
           });
         }
-      }
+      });
     </script>
   </body>
 </html>
