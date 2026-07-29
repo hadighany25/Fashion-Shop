@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Center | Fashion Shop</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+      :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --accent: #f97316;
+        --bg-main: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --border-color: #e5e7eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "DM Sans", sans-serif;
+      }
+
+      body {
+        display: flex;
+        height: 100vh;
+        background-color: var(--bg-main);
+        color: var(--text-dark);
+        overflow: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 260px;
+        background-color: var(--bg-card);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-color);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+        z-index: 10;
+      }
+      .sidebar-logo {
+        padding: 25px 20px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sidebar-logo i {
+        color: var(--accent);
+      }
+      .nav-menu {
+        list-style: none;
+        flex: 1;
+        padding: 20px 0;
+      }
+      .nav-menu li {
+        margin-bottom: 5px;
+      }
+      .nav-menu a {
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.3s;
+        gap: 15px;
+        border-left: 4px solid transparent;
+        cursor: pointer;
+      }
+      .nav-menu a:hover,
+      .nav-menu a.active {
+        background-color: rgba(79, 70, 229, 0.05);
+        color: var(--primary);
+        border-left: 4px solid var(--primary);
+      }
+      .logout-btn {
+        margin: 20px;
+        padding: 12px;
+        background-color: #fff;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      .logout-btn:hover {
+        background-color: var(--danger);
+        color: #fff;
+      }
+
+      /* Main Content & Topbar */
+      .main-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .topbar {
+        height: 70px;
+        background-color: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 30px;
+      }
+      .topbar-search input {
+        padding: 10px 15px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        width: 300px;
+        outline: none;
+        background-color: var(--bg-main);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .store-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+      }
+      .store-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      /* Content Area */
+      .content-area {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+      }
+      .view-section {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      .view-section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+      .btn-primary {
+        padding: 10px 20px;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+      .stat-info p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+      }
+      .stat-info h3 {
+        font-size: 1.4rem;
+        color: var(--text-dark);
+      }
+
+      /* Kanban Board for Orders */
+      .kanban-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        height: calc(100vh - 200px);
+      }
+      .kanban-column {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .kanban-header {
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      .order-card {
+        background: var(--bg-card);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        cursor: grab;
+      }
+      .order-card h4 {
+        margin-bottom: 5px;
+        color: var(--primary);
+      }
+      .order-card p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+      }
+
+      /* Products Table */
+      .table-container {
+        background: var(--bg-card);
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 15px 20px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+      th {
+        background-color: #f9fafb;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .product-row img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 15px;
+        vertical-align: middle;
+      }
+      .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+      .badge.active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+      .badge.out-stock {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo"><i class="fas fa-store"></i> Seller Center</div>
+      <ul class="nav-menu">
+        <li>
+          <a class="nav-link active" onclick="switchTab('dashboard', this)">
+            <i class="fas fa-chart-pie"></i> Dashboard
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('orders', this)">
+            <i class="fas fa-clipboard-list"></i> Manage Orders
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('products', this)">
+            <i class="fas fa-box-open"></i> My Products
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('wallet', this)">
+            <i class="fas fa-wallet"></i> Store Wallet
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('settings', this)">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+        </li>
+      </ul>
+      <button class="logout-btn" onclick="handleLogout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-search">
+          <input type="text" placeholder="Search orders, products..." />
+        </div>
+        <div class="topbar-right">
+          <i
+            class="fas fa-bell text-muted"
+            style="font-size: 1.2rem; cursor: pointer"
+          ></i>
+          <div class="store-profile">
+            <div class="store-avatar" id="avatar-initial">S</div>
+            <span id="store-name-display">My Store</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- 1. DASHBOARD VIEW -->
+        <div id="dashboard" class="view-section active">
+          <div class="section-header">
+            <h2>Overview</h2>
+            <button class="btn-primary">
+              <i class="fas fa-plus"></i> Add Product
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div
+                class="stat-icon"
+                style="
+                  background: rgba(79, 70, 229, 0.1);
+                  color: var(--primary);
+                "
+              >
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="stat-info">
+                <p>Today's Revenue</p>
+                <h3>$450.00</h3>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div
+                class="stat-icon"
+                style="
+                  background: rgba(249, 115, 22, 0.1);
+                  color: var(--accent);
+                "
+              >
+                <i class="fas fa-shopping-bag"></i>
+              </div>
+              <div class="stat-info">
+                <p>Pending Orders</p>
+                <h3>12</h3>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div
+                class="stat-icon"
+                style="
+                  background: rgba(16, 185, 129, 0.1);
+                  color: var(--success);
+                "
+              >
+                <i class="fas fa-box"></i>
+              </div>
+              <div class="stat-info">
+                <p>Active Products</p>
+                <h3>34</h3>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div
+                class="stat-icon"
+                style="
+                  background: rgba(245, 158, 11, 0.1);
+                  color: var(--warning);
+                "
+              >
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="stat-info">
+                <p>Store Rating</p>
+                <h3>4.8 / 5</h3>
+              </div>
+            </div>
+          </div>
+          <div class="table-container" style="padding: 20px">
+            <h3 style="margin-bottom: 15px">Recent Activities</h3>
+            <p style="color: var(--text-muted)">No new activities today.</p>
+          </div>
+        </div>
+
+        <!-- 2. ORDERS VIEW (Kanban Board) -->
+        <div id="orders" class="view-section">
+          <div class="section-header">
+            <h2>Order Management</h2>
+          </div>
+          <div class="kanban-board">
+            <!-- Column 1 -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <span>New Orders</span>
+                <span
+                  class="badge"
+                  style="background: var(--accent); color: white"
+                  >2</span
+                >
+              </div>
+              <div class="order-card">
+                <h4>#ORD-001</h4>
+                <p>2x Vintage T-Shirt</p>
+                <div class="order-footer">
+                  <span>$45.00</span>
+                  <button
+                    class="btn-primary"
+                    style="padding: 5px 10px; font-size: 0.8rem"
+                  >
+                    Accept
+                  </button>
+                </div>
+              </div>
+              <div class="order-card">
+                <h4>#ORD-002</h4>
+                <p>1x Denim Jacket</p>
+                <div class="order-footer">
+                  <span>$89.00</span>
+                  <button
+                    class="btn-primary"
+                    style="padding: 5px 10px; font-size: 0.8rem"
+                  >
+                    Accept
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Column 2 -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <span>Packing</span>
+                <span
+                  class="badge"
+                  style="background: var(--warning); color: white"
+                  >1</span
+                >
+              </div>
+              <div class="order-card">
+                <h4>#ORD-003</h4>
+                <p>Sneakers (White, 42)</p>
+                <div class="order-footer">
+                  <span>$120.00</span>
+                  <i class="fas fa-box text-muted"></i>
+                </div>
+              </div>
+            </div>
+            <!-- Column 3 -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <span>Shipping</span>
+                <span
+                  class="badge"
+                  style="background: var(--primary); color: white"
+                  >0</span
+                >
+              </div>
+              <!-- Empty State -->
+            </div>
+            <!-- Column 4 -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <span>Completed</span>
+                <span
+                  class="badge"
+                  style="background: var(--success); color: white"
+                  >24</span
+                >
+              </div>
+              <!-- Completed items can be listed here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PRODUCTS VIEW -->
+        <div id="products" class="view-section">
+          <div class="section-header">
+            <h2>My Products</h2>
+            <button class="btn-primary">
+              <i class="fas fa-plus"></i> Add New Product
+            </button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Details</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="product-row">
+                  <td>
+                    <img src="https://via.placeholder.com/50" alt="Product" />
+                    <strong>Classic Cotton T-Shirt</strong>
+                  </td>
+                  <td>Fashion</td>
+                  <td>$15.00</td>
+                  <td>120</td>
+                  <td><span class="badge active">Active</span></td>
+                  <td>
+                    <button
+                      style="
+                        border: none;
+                        background: none;
+                        cursor: pointer;
+                        color: var(--primary);
+                        margin-right: 10px;
+                      "
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      style="
+                        border: none;
+                        background: none;
+                        cursor: pointer;
+                        color: var(--danger);
+                      "
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="product-row">
+                  <td>
+                    <img src="https://via.placeholder.com/50" alt="Product" />
+                    <strong>Leather Handbag</strong>
+                  </td>
+                  <td>Accessories</td>
+                  <td>$45.00</td>
+                  <td>0</td>
+                  <td><span class="badge out-stock">Out of Stock</span></td>
+                  <td>
+                    <button
+                      style="
+                        border: none;
+                        background: none;
+                        cursor: pointer;
+                        color: var(--primary);
+                        margin-right: 10px;
+                      "
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      style="
+                        border: none;
+                        background: none;
+                        cursor: pointer;
+                        color: var(--danger);
+                      "
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. WALLET & SETTINGS (Placeholders) -->
+        <div id="wallet" class="view-section">
+          <div class="section-header"><h2>Store Wallet & Payouts</h2></div>
+          <div
+            class="table-container"
+            style="padding: 40px; text-align: center"
+          >
+            <i
+              class="fas fa-wallet fa-3x"
+              style="color: var(--primary); margin-bottom: 20px"
+            ></i>
+            <h3>Wallet features coming soon...</h3>
+          </div>
+        </div>
+        <div id="settings" class="view-section">
+          <div class="section-header"><h2>Store Settings</h2></div>
+          <div
+            class="table-container"
+            style="padding: 40px; text-align: center"
+          >
+            <i
+              class="fas fa-tools fa-3x"
+              style="color: var(--text-muted); margin-bottom: 20px"
+            ></i>
+            <h3>Settings page coming soon...</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 1. Check Authentication
+      const TOKEN = localStorage.getItem("token");
+      const ROLE = localStorage.getItem("role");
+      const USERNAME = localStorage.getItem("username");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!TOKEN || ROLE !== "seller") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only Sellers can access this portal.",
+            allowOutsideClick: false,
+          }).then(() => {
+            window.location.href = "admin-login.html";
+          });
+          return;
+        }
+
+        // Set User Info
+        document.getElementById("store-name-display").innerText = USERNAME;
+        document.getElementById("avatar-initial").innerText =
+          USERNAME.charAt(0).toUpperCase();
+      });
+
+      // 2. Tab Switching Logic (Single Page Application behavior)
+      function switchTab(tabId, element) {
+        // Remove active class from all nav links
+        document.querySelectorAll(".nav-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        // Add active class to clicked link
+        element.classList.add("active");
+
+        // Hide all view sections
+        document.querySelectorAll(".view-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+        // Show target section
+        document.getElementById(tabId).classList.add("active");
+      }
+
+      // 3. Logout Function
+      function handleLogout() {
+        Swal.fire({
+          title: "Logout?",
+          text: "Are you sure you want to exit your store?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "var(--primary)",
+          cancelButtonColor: "var(--danger)",
+          confirmButtonText: "Yes, logout",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.clear();
+            window.location.href = "admin-login.html";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
