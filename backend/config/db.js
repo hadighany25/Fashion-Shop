@@ -7,7 +7,6 @@ const connectDB = async () => {
       "Check MONGO_URI on Server:",
       process.env.MONGO_URI ? "✅ មានតម្លៃ" : "❌ ទទេ (Undefined)",
     );
-
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ MongoDB Connected Successfully!");
   } catch (error) {
