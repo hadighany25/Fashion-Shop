@@ -25,15 +25,14 @@
         --accent-hover: #0369a1;
         --danger: #ef4444;
         --success: #10b981;
+        --warning: #f59e0b;
       }
-
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: "DM Sans", sans-serif;
       }
-
       body {
         display: flex;
         height: 100vh;
@@ -65,9 +64,6 @@
         list-style: none;
         flex: 1;
       }
-      .nav-menu li {
-        margin-bottom: 5px;
-      }
       .nav-menu a {
         display: flex;
         align-items: center;
@@ -76,6 +72,7 @@
         text-decoration: none;
         transition: 0.3s;
         gap: 15px;
+        cursor: pointer;
       }
       .nav-menu a:hover,
       .nav-menu a.active {
@@ -94,11 +91,8 @@
         font-weight: bold;
         transition: 0.3s;
       }
-      .logout-btn:hover {
-        background-color: #dc2626;
-      }
 
-      /* Main Content Styles */
+      /* Main Content */
       .main-content {
         flex: 1;
         overflow-y: auto;
@@ -110,13 +104,29 @@
         align-items: center;
         margin-bottom: 30px;
       }
-      .header h1 {
-        font-size: 1.8rem;
-      }
       .admin-profile {
         display: flex;
         align-items: center;
         gap: 10px;
+        font-weight: bold;
+      }
+
+      .view-section {
+        display: none;
+        animation: fadeIn 0.3s;
+      }
+      .view-section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       /* Stats Cards */
@@ -130,7 +140,6 @@
         background-color: var(--card-bg);
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
         gap: 20px;
@@ -149,12 +158,8 @@
       .stat-info h3 {
         font-size: 1.5rem;
       }
-      .stat-info p {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-      }
 
-      /* Action Section & Form */
+      /* Forms & Inputs */
       .action-section {
         background-color: var(--card-bg);
         padding: 25px;
@@ -163,15 +168,13 @@
       }
       .action-section h2 {
         margin-bottom: 20px;
-        font-size: 1.3rem;
         border-bottom: 1px solid #475569;
         padding-bottom: 10px;
       }
-
       .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
         align-items: end;
       }
       .input-group {
@@ -193,37 +196,38 @@
         outline: none;
       }
       .btn-primary {
-        padding: 12px 25px;
+        padding: 12px;
         background-color: var(--accent);
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        font-weight: 600;
-        height: 45px;
-        transition: 0.3s;
-      }
-      .btn-primary:hover {
-        background-color: var(--accent-hover);
-      }
-      .btn-primary:disabled {
-        background-color: #475569;
-        cursor: not-allowed;
+        font-weight: bold;
       }
       .full-width {
         grid-column: 1 / -1;
       }
-
-      /* លាក់ប្រអប់ Store ជាបណ្ដោះអាសន្ន */
       .store-field {
         display: none;
       }
 
-      /* Data Table */
+      /* Search Box */
+      .search-box {
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: 1px solid #475569;
+        background-color: var(--main-bg);
+        color: white;
+        margin-bottom: 20px;
+        font-size: 1rem;
+      }
+
+      /* Table */
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 15px;
+        margin-top: 10px;
       }
       th,
       td {
@@ -233,7 +237,6 @@
       }
       th {
         color: var(--text-muted);
-        font-weight: 500;
       }
       .badge {
         padding: 5px 10px;
@@ -242,7 +245,6 @@
         font-weight: bold;
         text-transform: capitalize;
       }
-      .badge.super_admin,
       .badge.admin {
         background-color: rgba(239, 68, 68, 0.2);
         color: var(--danger);
@@ -255,6 +257,13 @@
         background-color: rgba(148, 163, 184, 0.2);
         color: var(--text-muted);
       }
+      .btn-action {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-right: 10px;
+      }
     </style>
   </head>
   <body>
@@ -265,21 +274,19 @@
       </div>
       <ul class="nav-menu">
         <li>
-          <a href="#" class="active"
+          <a class="nav-link active" onclick="switchTab('dashboard', this)"
             ><i class="fas fa-chart-line"></i> Dashboard</a
           >
         </li>
         <li>
-          <a href="#"><i class="fas fa-users"></i> Manage Users</a>
+          <a class="nav-link" onclick="switchTab('create-account', this)"
+            ><i class="fas fa-user-plus"></i> Create Account</a
+          >
         </li>
         <li>
-          <a href="#"><i class="fas fa-box"></i> All Products</a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-shopping-cart"></i> Orders</a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-cog"></i> Settings</a>
+          <a class="nav-link" onclick="switchTab('manage-stores', this)"
+            ><i class="fas fa-store"></i> Store Management</a
+          >
         </li>
       </ul>
       <button class="logout-btn" onclick="handleLogout()">
@@ -290,354 +297,373 @@
     <!-- Main Content -->
     <main class="main-content">
       <header class="header">
-        <h1>Dashboard Overview</h1>
+        <h1>Admin Control Center</h1>
         <div class="admin-profile">
-          <i class="fas fa-user-circle fa-2x text-muted"></i>
+          <i class="fas fa-user-circle fa-2x"></i>
           <span id="admin-name">Loading...</span>
         </div>
       </header>
 
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-users"></i></div>
-          <div class="stat-info">
-            <h3 id="stat-total-users">0</h3>
-            <p>Total Users</p>
+      <!-- TAB 1: DASHBOARD -->
+      <div id="dashboard" class="view-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <h3 id="stat-total-users">0</h3>
+              <p>Total Users</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-icon"
+              style="color: var(--success); background: rgba(16, 185, 129, 0.2)"
+            >
+              <i class="fas fa-store"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="stat-total-sellers">0</h3>
+              <p>Active Sellers</p>
+            </div>
           </div>
         </div>
-        <div class="stat-card">
-          <div
-            class="stat-icon"
-            style="color: var(--success); background: rgba(16, 185, 129, 0.2)"
-          >
-            <i class="fas fa-store"></i>
-          </div>
-          <div class="stat-info">
-            <h3 id="stat-total-sellers">0</h3>
-            <p>Active Sellers</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div
-            class="stat-icon"
-            style="color: #f59e0b; background: rgba(245, 158, 11, 0.2)"
-          >
-            <i class="fas fa-box-open"></i>
-          </div>
-          <div class="stat-info">
-            <h3 id="stat-total-products">0</h3>
-            <p>Total Products</p>
-          </div>
-        </div>
+
+        <section class="action-section">
+          <h2><i class="fas fa-list"></i> Recent Users List</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="user-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
       </div>
 
-      <!-- Create New System Account & Store -->
-      <section class="action-section">
-        <h2><i class="fas fa-user-plus"></i> Create System Account & Store</h2>
-        <form id="createAccountForm" class="form-grid">
-          <div class="input-group">
-            <label>Username</label>
-            <input
-              type="text"
-              id="new-username"
-              required
-              placeholder="Enter username"
-            />
-          </div>
-          <div class="input-group">
-            <label>Password</label>
-            <input
-              type="password"
-              id="new-password"
-              required
-              placeholder="Enter password"
-            />
-          </div>
-          <div class="input-group">
-            <label>Role</label>
-            <!-- ហៅ Function toggleStoreFields ពេលមានការផ្លាស់ប្តូរ Role -->
-            <select id="new-role" onchange="toggleStoreFields()">
-              <option value="seller">Seller</option>
-              <option value="admin">Administrator</option>
-              <option value="buyer">Buyer</option>
-            </select>
-          </div>
+      <!-- TAB 2: CREATE ACCOUNT & STORE -->
+      <div id="create-account" class="view-section">
+        <section
+          class="action-section"
+          style="max-width: 800px; margin: 0 auto"
+        >
+          <h2><i class="fas fa-user-plus"></i> Create New Account & Store</h2>
+          <form id="createAccountForm" class="form-grid">
+            <div class="input-group">
+              <label>Username *</label>
+              <input
+                type="text"
+                id="new-username"
+                required
+                placeholder="Login username"
+              />
+            </div>
+            <div class="input-group">
+              <label>Password *</label>
+              <input
+                type="password"
+                id="new-password"
+                required
+                placeholder="Login password"
+              />
+            </div>
+            <div class="input-group">
+              <label>Phone Number</label>
+              <input type="text" id="new-phone" placeholder="e.g. 012345678" />
+            </div>
+            <div class="input-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="new-email"
+                placeholder="store@example.com"
+              />
+            </div>
+            <div class="input-group full-width">
+              <label>Account Role *</label>
+              <select id="new-role" onchange="toggleStoreFields()">
+                <option value="seller">Seller (Vendor)</option>
+                <option value="admin">Administrator</option>
+                <option value="buyer">Buyer</option>
+              </select>
+            </div>
 
-          <!-- ប្រអប់សម្រាប់ហាង (លោតចេញតែពេលរើស Seller ប៉ុណ្ណោះ) -->
-          <div class="input-group store-field" id="store-name-group">
-            <label>Store Name</label>
-            <input type="text" id="store-name" placeholder="Enter store name" />
-          </div>
-          <div class="input-group store-field" id="store-category-group">
-            <label>Store Category</label>
-            <select id="store-category">
-              <option value="Fashion">Fashion & Clothing</option>
-              <option value="Shoes">Shoes & Sneakers</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Beauty">Beauty & Cosmetics</option>
-            </select>
-          </div>
+            <!-- ប្រអប់ហាង (បង្ហាញពេលរើស Seller) -->
+            <div class="input-group store-field full-width">
+              <h3 style="margin: 15px 0 5px; color: var(--accent)">
+                <i class="fas fa-store"></i> Store Details
+              </h3>
+            </div>
+            <div class="input-group store-field">
+              <label>Store Name *</label>
+              <input
+                type="text"
+                id="store-name"
+                placeholder="e.g. Fashion KH"
+              />
+            </div>
+            <div class="input-group store-field">
+              <label>Store Category *</label>
+              <input
+                type="text"
+                id="store-category"
+                placeholder="e.g. Fashion, Shoes, Beauty..."
+              />
+            </div>
 
-          <button type="submit" id="btn-create" class="btn-primary full-width">
-            <i class="fas fa-plus"></i> Create Account
-          </button>
-        </form>
-      </section>
+            <button
+              type="submit"
+              id="btn-create"
+              class="btn-primary full-width"
+              style="margin-top: 15px"
+            >
+              <i class="fas fa-save"></i> Create Account
+            </button>
+          </form>
+        </section>
+      </div>
 
-      <!-- User List Table -->
-      <section class="action-section">
-        <h2><i class="fas fa-list"></i> System Users List</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="user-table-body">
-            <tr>
-              <td colspan="4" style="text-align: center">Loading users...</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+      <!-- TAB 3: STORE MANAGEMENT -->
+      <div id="manage-stores" class="view-section">
+        <section class="action-section">
+          <h2><i class="fas fa-store-alt"></i> Store Management</h2>
+          <input
+            type="text"
+            id="store-search"
+            class="search-box"
+            placeholder="Search by Store Name, Username, Phone, or Email..."
+            onkeyup="filterStores()"
+          />
+
+          <table>
+            <thead>
+              <tr>
+                <th>Store Name</th>
+                <th>Category</th>
+                <th>Owner (Username)</th>
+                <th>Contact (Phone/Email)</th>
+                <th>Wallet ($)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="store-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center">
+                  Loading stores...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
     </main>
 
     <script>
-      // ==========================================
-      // 1. កំណត់អថេរ និងពិនិត្យសិទ្ធិចូលប្រើ
-      // ==========================================
-      const API_BASE = "/api/admin"; // ដូរទៅតាម Route ពិតប្រាកដក្នុង Backend របស់បង
+      const API_BASE = "/api/admin";
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
-      const USERNAME = localStorage.getItem("username");
 
       document.addEventListener("DOMContentLoaded", () => {
-        // អនុញ្ញាតឱ្យតែ super_admin និង admin ប៉ុណ្ណោះ
         if (!TOKEN || (ROLE !== "admin" && ROLE !== "super_admin")) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "You do not have permission to view this page.",
-            allowOutsideClick: false,
-          }).then(() => {
-            window.location.href = "admin-login.html";
-          });
+          window.location.href = "admin-login.html";
           return;
         }
-
-        document.getElementById("admin-name").innerText = USERNAME;
-        toggleStoreFields(); // បង្ហាញ ឬលាក់ប្រអប់ Store តាមការកំណត់ដើម (Default ជា Seller)
-        loadDashboardData(); // ទាញទិន្នន័យពី API
+        document.getElementById("admin-name").innerText =
+          localStorage.getItem("username");
+        toggleStoreFields();
+        loadDashboardData();
+        loadStoresData();
       });
 
-      // ==========================================
-      // 2. មុខងារលាក់ ឬបង្ហាញប្រអប់បំពេញទិន្នន័យហាង
-      // ==========================================
+      // មុខងារប្ដូរ Tab
+      function switchTab(tabId, element) {
+        document
+          .querySelectorAll(".nav-link")
+          .forEach((link) => link.classList.remove("active"));
+        element.classList.add("active");
+        document
+          .querySelectorAll(".view-section")
+          .forEach((section) => section.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+
+        if (tabId === "dashboard") loadDashboardData();
+        if (tabId === "manage-stores") loadStoresData();
+      }
+
+      // លាក់/បង្ហាញប្រអប់ហាង
       function toggleStoreFields() {
         const role = document.getElementById("new-role").value;
         const storeGroups = document.querySelectorAll(".store-field");
-        const storeNameInput = document.getElementById("store-name");
-
         if (role === "seller") {
-          // បង្ហាញប្រអប់ និងបង្ខំឱ្យបំពេញ
           storeGroups.forEach((el) => (el.style.display = "flex"));
-          storeNameInput.required = true;
         } else {
-          // លាក់ប្រអប់ និងមិនបាច់បំពេញ
           storeGroups.forEach((el) => (el.style.display = "none"));
-          storeNameInput.required = false;
-          storeNameInput.value = "";
         }
       }
 
-      // ==========================================
-      // 3. ទាញទិន្នន័យពី MongoDB (Backend API)
-      // ==========================================
+      // ទាញទិន្នន័យ Users សរុបសម្រាប់ Dashboard
       async function loadDashboardData() {
         try {
           const res = await fetch(`${API_BASE}/users`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
+            headers: { Authorization: `Bearer ${TOKEN}` },
           });
-
           const data = await res.json();
-          const users = data.users || data || [];
+          const users = data.users || [];
 
-          // គណនាសរុប
-          const totalUsers = users.length || 0;
-          const totalSellers =
-            users.filter((u) => u.role === "seller").length || 0;
-
-          document.getElementById("stat-total-users").innerText = totalUsers;
+          document.getElementById("stat-total-users").innerText = users.length;
           document.getElementById("stat-total-sellers").innerText =
-            totalSellers;
+            users.filter((u) => u.role === "seller").length;
 
-          // បង្ហាញចូលក្នុង Table
-          const tbody = document.getElementById("user-table-body");
-
-          if (users.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No users found in database</td></tr>`;
-            return;
-          }
-
-          tbody.innerHTML = users
+          document.getElementById("user-table-body").innerHTML = users
             .map(
               (u) => `
             <tr>
               <td>${u.username}</td>
+              <td>${u.phone || "N/A"}</td>
               <td><span class="badge ${u.role}">${u.role}</span></td>
-              <td>Active</td>
               <td>
-                ${
-                  u.username === USERNAME || u.role === "super_admin"
-                    ? `<button disabled style="background:none;border:none;color:gray;cursor:not-allowed;" title="Cannot delete this user"><i class="fas fa-ban"></i></button>`
-                    : `<button onclick="deleteUser('${u._id}', '${u.username}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Delete User"><i class="fas fa-trash"></i></button>`
-                }
+                <button class="btn-action" style="color:var(--danger)" onclick="deleteUser('${u._id}')"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `,
             )
             .join("");
         } catch (error) {
-          console.error("Error fetching users:", error);
-          document.getElementById("user-table-body").innerHTML =
-            `<tr><td colspan="4" style="text-align: center; color: red;">Failed to load data from server.</td></tr>`;
+          console.error(error);
         }
       }
 
-      // ==========================================
-      // 4. បង្កើតគណនីថ្មី (និងហាងបើជារបស់ Seller)
-      // ==========================================
+      // ទាញទិន្នន័យ Stores ទាំងអស់សម្រាប់ Store Management Tab
+      let allStores = []; // រក្សាទុកសម្រាប់ធ្វើ Search
+      async function loadStoresData() {
+        try {
+          const res = await fetch(`${API_BASE}/stores`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          allStores = data.stores || [];
+          renderStoreTable(allStores);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      // Render តារាងហាង (មានមុខងារ Search)
+      function renderStoreTable(stores) {
+        const tbody = document.getElementById("store-table-body");
+        if (stores.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No stores found.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = stores
+          .map(
+            (s) => `
+          <tr>
+            <td><strong>${s.storeName}</strong></td>
+            <td>${s.storeCategory}</td>
+            <td><i class="fas fa-user text-muted"></i> ${s.owner?.username || "Unknown"}</td>
+            <td>${s.owner?.phone || "N/A"} <br> <small>${s.owner?.email || ""}</small></td>
+            <td style="color:var(--success); font-weight:bold;">$${s.walletBalance || 0}</td>
+            <td>
+              <button class="btn-action" style="color:var(--accent)" title="Edit Store" onclick="alert('មុខងារ Edit នឹងបន្ថែមនៅវគ្គក្រោយ')"><i class="fas fa-edit"></i></button>
+            </td>
+          </tr>
+        `,
+          )
+          .join("");
+      }
+
+      // មុខងារ Search រកហាង
+      function filterStores() {
+        const query = document
+          .getElementById("store-search")
+          .value.toLowerCase();
+        const filtered = allStores.filter((s) => {
+          const owner = s.owner || {};
+          return (
+            s.storeName.toLowerCase().includes(query) ||
+            (owner.username && owner.username.toLowerCase().includes(query)) ||
+            (owner.phone && owner.phone.toLowerCase().includes(query)) ||
+            (owner.email && owner.email.toLowerCase().includes(query))
+          );
+        });
+        renderStoreTable(filtered);
+      }
+
+      // Submit Form បង្កើតគណនី + ហាង
       document
         .getElementById("createAccountForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-          const usernameInput = document
-            .getElementById("new-username")
-            .value.trim();
-          const passwordInput = document.getElementById("new-password").value;
-          const roleInput = document.getElementById("new-role").value;
+          const payload = {
+            username: document.getElementById("new-username").value,
+            password: document.getElementById("new-password").value,
+            phone: document.getElementById("new-phone").value,
+            email: document.getElementById("new-email").value,
+            role: document.getElementById("new-role").value,
+            storeName: document.getElementById("store-name").value,
+            storeCategory: document.getElementById("store-category").value,
+          };
 
-          // ទាញយកទិន្នន័យហាង (វាមានតម្លៃទាល់តែ Role ជា Seller)
-          const storeNameInput = document
-            .getElementById("store-name")
-            .value.trim();
-          const storeCategoryInput =
-            document.getElementById("store-category").value;
-
-          const btnCreate = document.getElementById("btn-create");
-          btnCreate.disabled = true;
-          btnCreate.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating...`;
+          const btn = document.getElementById("btn-create");
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
 
           try {
             const res = await fetch(`${API_BASE}/users`, {
-              // ឬបងប្រើ "/api/auth/register" អាស្រ័យលើ Backend
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${TOKEN}`,
               },
-              body: JSON.stringify({
-                username: usernameInput,
-                password: passwordInput,
-                role: roleInput,
-                storeName: storeNameInput,
-                storeCategory: storeCategoryInput,
-              }),
+              body: JSON.stringify(payload),
             });
-
             const data = await res.json();
-
             if (res.ok) {
-              Swal.fire(
-                "Created!",
-                `Account ${usernameInput} has been created successfully.`,
-                "success",
-              );
-              document.getElementById("createAccountForm").reset();
-              toggleStoreFields(); // តម្រូវប្រអប់ហាងឱ្យត្រូវតាមស្ថានភាពដើម
-              loadDashboardData(); // Refresh table
+              Swal.fire("Success!", "Account & Store created.", "success");
+              this.reset();
+              toggleStoreFields();
+              loadDashboardData();
+              loadStoresData(); // Refresh Tables
             } else {
-              Swal.fire(
-                "Failed",
-                data.message || "Could not create user!",
-                "error",
-              );
+              Swal.fire("Failed", data.message, "error");
             }
           } catch (error) {
-            Swal.fire("Error", "Server error. Could not connect.", "error");
+            Swal.fire("Error", "Server connection failed.", "error");
           } finally {
-            btnCreate.disabled = false;
-            btnCreate.innerHTML = `<i class="fas fa-plus"></i> Create Account`;
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-save"></i> Create Account`;
           }
         });
 
-      // ==========================================
-      // 5. លុបគណនី
-      // ==========================================
-      function deleteUser(userId, username) {
+      function deleteUser(id) {
         Swal.fire({
-          title: `Delete ${username}?`,
-          text: "This action will remove the user from the database permanently!",
+          title: "Delete user?",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          cancelButtonColor: "#94a3b8",
-          confirmButtonText: "Yes, delete",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            try {
-              const res = await fetch(`${API_BASE}/users/${userId}`, {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${TOKEN}`,
-                },
-              });
-
-              if (res.ok) {
-                Swal.fire("Deleted!", "User has been removed.", "success");
-                loadDashboardData(); // Refresh table
-              } else {
-                const data = await res.json();
-                Swal.fire(
-                  "Failed!",
-                  data.message || "Could not delete user.",
-                  "error",
-                );
-              }
-            } catch (error) {
-              Swal.fire("Error", "Failed to communicate with server.", "error");
-            }
+            await fetch(`${API_BASE}/users/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            loadDashboardData();
+            loadStoresData();
           }
         });
       }
 
-      // ==========================================
-      // 6. មុខងារ Logout
-      // ==========================================
       function handleLogout() {
-        Swal.fire({
-          title: "Are you sure?",
-          text: "You will be logged out of the admin panel.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#0284c7",
-          cancelButtonColor: "#ef4444",
-          confirmButtonText: "Yes, logout!",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            localStorage.clear(); // លុបទិន្នន័យ (Token, Role) ចេញទាំងអស់
-            window.location.href = "admin-login.html";
-          }
-        });
+        localStorage.clear();
+        window.location.href = "admin-login.html";
       }
     </script>
   </body>
