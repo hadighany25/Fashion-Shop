@@ -28,14 +28,12 @@
         --warning: #f59e0b;
         --danger: #ef4444;
       }
-
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: "DM Sans", sans-serif;
       }
-
       body {
         display: flex;
         height: 100vh;
@@ -51,7 +49,6 @@
         display: flex;
         flex-direction: column;
         border-right: 1px solid var(--border-color);
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
         z-index: 10;
       }
       .sidebar-logo {
@@ -71,9 +68,6 @@
         list-style: none;
         flex: 1;
         padding: 20px 0;
-      }
-      .nav-menu li {
-        margin-bottom: 5px;
       }
       .nav-menu a {
         display: flex;
@@ -102,17 +96,12 @@
         border-radius: 8px;
         cursor: pointer;
         font-weight: bold;
-        transition: 0.3s;
         display: flex;
         justify-content: center;
         gap: 10px;
       }
-      .logout-btn:hover {
-        background-color: var(--danger);
-        color: #fff;
-      }
 
-      /* Main Content & Topbar */
+      /* Topbar & Profile */
       .main-wrapper {
         flex: 1;
         display: flex;
@@ -128,24 +117,43 @@
         align-items: center;
         padding: 0 30px;
       }
-      .topbar-search input {
-        padding: 10px 15px;
-        border-radius: 20px;
-        border: 1px solid var(--border-color);
-        width: 300px;
-        outline: none;
-        background-color: var(--bg-main);
-      }
       .topbar-right {
         display: flex;
         align-items: center;
         gap: 20px;
       }
+
+      .notification-bell {
+        position: relative;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--text-muted);
+      }
+      .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--danger);
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 5px;
+        border-radius: 50%;
+        font-weight: bold;
+        display: none;
+      }
+
       .store-profile {
         display: flex;
         align-items: center;
         gap: 10px;
         font-weight: 600;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: 0.3s;
+      }
+      .store-profile:hover {
+        background: var(--bg-main);
       }
       .store-avatar {
         width: 40px;
@@ -157,6 +165,12 @@
         align-items: center;
         justify-content: center;
         font-size: 1.2rem;
+        overflow: hidden;
+      }
+      .store-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
       /* Content Area */
@@ -167,7 +181,7 @@
       }
       .view-section {
         display: none;
-        animation: fadeIn 0.3s ease-in-out;
+        animation: fadeIn 0.3s;
       }
       .view-section.active {
         display: block;
@@ -175,11 +189,9 @@
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(10px);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
         }
       }
       .section-header {
@@ -187,9 +199,6 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 25px;
-      }
-      .section-header h2 {
-        font-size: 1.5rem;
       }
       .btn-primary {
         padding: 10px 20px;
@@ -199,46 +208,22 @@
         border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
-        transition: 0.3s;
       }
-      .btn-primary:hover {
-        background-color: var(--primary-hover);
+      .btn-success {
+        background-color: var(--success);
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
       }
-
-      /* Stats Grid */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-      }
-      .stat-card {
-        background: var(--bg-card);
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-        border: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-      .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-      }
-      .stat-info p {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        margin-bottom: 5px;
-      }
-      .stat-info h3 {
-        font-size: 1.4rem;
-        color: var(--text-dark);
+      .btn-danger {
+        background-color: var(--danger);
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
       }
 
       /* Kanban Board for Orders */
@@ -246,7 +231,7 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 20px;
-        height: calc(100vh - 200px);
+        min-height: 400px;
       }
       .kanban-column {
         background: #f9fafb;
@@ -271,32 +256,21 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         border: 1px solid var(--border-color);
-        cursor: grab;
       }
-      .order-card h4 {
-        margin-bottom: 5px;
-        color: var(--primary);
-      }
-      .order-card p {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-bottom: 10px;
-      }
-      .order-footer {
+      .order-actions {
+        margin-top: 10px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.9rem;
-        font-weight: bold;
+        gap: 5px;
+        justify-content: flex-end;
       }
 
-      /* Products Table */
+      /* Products Table & Forms */
       .table-container {
         background: var(--bg-card);
         border-radius: 12px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
         border: 1px solid var(--border-color);
         overflow: hidden;
+        padding: 20px;
       }
       table {
         width: 100%;
@@ -304,16 +278,11 @@
       }
       th,
       td {
-        padding: 15px 20px;
+        padding: 15px;
         text-align: left;
         border-bottom: 1px solid var(--border-color);
       }
-      th {
-        background-color: #f9fafb;
-        color: var(--text-muted);
-        font-weight: 600;
-      }
-      .product-row img {
+      .product-img {
         width: 50px;
         height: 50px;
         border-radius: 8px;
@@ -321,19 +290,24 @@
         margin-right: 15px;
         vertical-align: middle;
       }
-      .badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
+
+      /* Simple Form inputs */
+      .form-group {
+        margin-bottom: 15px;
       }
-      .badge.active {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
       }
-      .badge.out-stock {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        outline: none;
       }
     </style>
   </head>
@@ -343,29 +317,29 @@
       <div class="sidebar-logo"><i class="fas fa-store"></i> Seller Center</div>
       <ul class="nav-menu">
         <li>
-          <a class="nav-link active" onclick="switchTab('dashboard', this)">
-            <i class="fas fa-chart-pie"></i> Dashboard
-          </a>
+          <a class="nav-link active" onclick="switchTab('dashboard', this)"
+            ><i class="fas fa-chart-pie"></i> Dashboard</a
+          >
         </li>
         <li>
-          <a class="nav-link" onclick="switchTab('orders', this)">
-            <i class="fas fa-clipboard-list"></i> Manage Orders
-          </a>
+          <a class="nav-link" onclick="switchTab('orders', this)"
+            ><i class="fas fa-clipboard-list"></i> Orders</a
+          >
         </li>
         <li>
-          <a class="nav-link" onclick="switchTab('products', this)">
-            <i class="fas fa-box-open"></i> My Products
-          </a>
+          <a class="nav-link" onclick="switchTab('products', this)"
+            ><i class="fas fa-box-open"></i> Products</a
+          >
         </li>
         <li>
-          <a class="nav-link" onclick="switchTab('wallet', this)">
-            <i class="fas fa-wallet"></i> Store Wallet
-          </a>
+          <a class="nav-link" onclick="switchTab('wallet', this)"
+            ><i class="fas fa-wallet"></i> Wallet</a
+          >
         </li>
         <li>
-          <a class="nav-link" onclick="switchTab('settings', this)">
-            <i class="fas fa-cog"></i> Settings
-          </a>
+          <a class="nav-link" onclick="switchTab('settings', this)"
+            ><i class="fas fa-cog"></i> Settings</a
+          >
         </li>
       </ul>
       <button class="logout-btn" onclick="handleLogout()">
@@ -377,196 +351,86 @@
     <div class="main-wrapper">
       <!-- Topbar -->
       <header class="topbar">
-        <div class="topbar-search">
-          <input type="text" placeholder="Search orders, products..." />
-        </div>
+        <h3>Welcome back!</h3>
         <div class="topbar-right">
-          <i
-            class="fas fa-bell text-muted"
-            style="font-size: 1.2rem; cursor: pointer"
-          ></i>
-          <div class="store-profile">
-            <div class="store-avatar" id="avatar-initial">S</div>
-            <span id="store-name-display">My Store</span>
+          <!-- Notification Bell -->
+          <div
+            class="notification-bell"
+            onclick="
+              switchTab('orders', document.querySelectorAll('.nav-link')[1])
+            "
+          >
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="order-badge">0</span>
+          </div>
+          <!-- Profile Clickable -->
+          <div class="store-profile" onclick="showProfileOptions()">
+            <div class="store-avatar" id="avatar-container">
+              <span id="avatar-initial">S</span>
+            </div>
+            <span id="store-name-display">Loading...</span>
           </div>
         </div>
       </header>
 
       <!-- Content Area -->
       <div class="content-area">
-        <!-- 1. DASHBOARD VIEW -->
+        <!-- 1. DASHBOARD -->
         <div id="dashboard" class="view-section active">
-          <div class="section-header">
-            <h2>Overview</h2>
-            <button class="btn-primary">
-              <i class="fas fa-plus"></i> Add Product
-            </button>
-          </div>
-
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div
-                class="stat-icon"
-                style="
-                  background: rgba(79, 70, 229, 0.1);
-                  color: var(--primary);
-                "
-              >
-                <i class="fas fa-dollar-sign"></i>
-              </div>
-              <div class="stat-info">
-                <p>Today's Revenue</p>
-                <h3>$450.00</h3>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div
-                class="stat-icon"
-                style="
-                  background: rgba(249, 115, 22, 0.1);
-                  color: var(--accent);
-                "
-              >
-                <i class="fas fa-shopping-bag"></i>
-              </div>
-              <div class="stat-info">
-                <p>Pending Orders</p>
-                <h3>12</h3>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div
-                class="stat-icon"
-                style="
-                  background: rgba(16, 185, 129, 0.1);
-                  color: var(--success);
-                "
-              >
-                <i class="fas fa-box"></i>
-              </div>
-              <div class="stat-info">
-                <p>Active Products</p>
-                <h3>34</h3>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div
-                class="stat-icon"
-                style="
-                  background: rgba(245, 158, 11, 0.1);
-                  color: var(--warning);
-                "
-              >
-                <i class="fas fa-star"></i>
-              </div>
-              <div class="stat-info">
-                <p>Store Rating</p>
-                <h3>4.8 / 5</h3>
-              </div>
-            </div>
-          </div>
-          <div class="table-container" style="padding: 20px">
-            <h3 style="margin-bottom: 15px">Recent Activities</h3>
-            <p style="color: var(--text-muted)">No new activities today.</p>
-          </div>
+          <div class="section-header"><h2>Overview</h2></div>
+          <p>Dashboard statistics will fetch from database here...</p>
         </div>
 
-        <!-- 2. ORDERS VIEW (Kanban Board) -->
+        <!-- 2. ORDERS (KANBAN) -->
         <div id="orders" class="view-section">
-          <div class="section-header">
-            <h2>Order Management</h2>
-          </div>
+          <div class="section-header"><h2>Order Management</h2></div>
           <div class="kanban-board">
-            <!-- Column 1 -->
-            <div class="kanban-column">
+            <div class="kanban-column" id="col-new">
               <div class="kanban-header">
-                <span>New Orders</span>
-                <span
-                  class="badge"
-                  style="background: var(--accent); color: white"
-                  >2</span
-                >
+                <span>New</span> <span class="badge" id="count-new">0</span>
               </div>
-              <div class="order-card">
-                <h4>#ORD-001</h4>
-                <p>2x Vintage T-Shirt</p>
-                <div class="order-footer">
-                  <span>$45.00</span>
-                  <button
-                    class="btn-primary"
-                    style="padding: 5px 10px; font-size: 0.8rem"
-                  >
-                    Accept
-                  </button>
-                </div>
-              </div>
-              <div class="order-card">
-                <h4>#ORD-002</h4>
-                <p>1x Denim Jacket</p>
-                <div class="order-footer">
-                  <span>$89.00</span>
-                  <button
-                    class="btn-primary"
-                    style="padding: 5px 10px; font-size: 0.8rem"
-                  >
-                    Accept
-                  </button>
-                </div>
-              </div>
+              <div id="list-new">Loading...</div>
             </div>
-            <!-- Column 2 -->
-            <div class="kanban-column">
+            <div class="kanban-column" id="col-packing">
               <div class="kanban-header">
                 <span>Packing</span>
-                <span
-                  class="badge"
-                  style="background: var(--warning); color: white"
-                  >1</span
-                >
+                <span class="badge" id="count-packing">0</span>
               </div>
-              <div class="order-card">
-                <h4>#ORD-003</h4>
-                <p>Sneakers (White, 42)</p>
-                <div class="order-footer">
-                  <span>$120.00</span>
-                  <i class="fas fa-box text-muted"></i>
-                </div>
-              </div>
+              <div id="list-packing"></div>
             </div>
-            <!-- Column 3 -->
-            <div class="kanban-column">
+            <div class="kanban-column" id="col-shipping">
               <div class="kanban-header">
                 <span>Shipping</span>
-                <span
-                  class="badge"
-                  style="background: var(--primary); color: white"
-                  >0</span
-                >
+                <span class="badge" id="count-shipping">0</span>
               </div>
-              <!-- Empty State -->
+              <div id="list-shipping"></div>
             </div>
-            <!-- Column 4 -->
-            <div class="kanban-column">
+            <div class="kanban-column" id="col-completed">
               <div class="kanban-header">
                 <span>Completed</span>
-                <span
-                  class="badge"
-                  style="background: var(--success); color: white"
-                  >24</span
-                >
+                <span class="badge" id="count-completed">0</span>
               </div>
-              <!-- Completed items can be listed here -->
+              <div id="list-completed"></div>
             </div>
           </div>
         </div>
 
-        <!-- 3. PRODUCTS VIEW -->
+        <!-- 3. PRODUCTS -->
         <div id="products" class="view-section">
           <div class="section-header">
             <h2>My Products</h2>
-            <button class="btn-primary">
-              <i class="fas fa-plus"></i> Add New Product
-            </button>
+            <div>
+              <button
+                class="btn-primary"
+                style="background-color: var(--warning)"
+                onclick="manageCategories()"
+              >
+                <i class="fas fa-tags"></i> Categories
+              </button>
+              <button class="btn-primary" onclick="showAddProductModal()">
+                <i class="fas fa-plus"></i> Add Product
+              </button>
+            </div>
           </div>
           <div class="table-container">
             <table>
@@ -576,170 +440,429 @@
                   <th>Category</th>
                   <th>Price</th>
                   <th>Stock</th>
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr class="product-row">
-                  <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" />
-                    <strong>Classic Cotton T-Shirt</strong>
-                  </td>
-                  <td>Fashion</td>
-                  <td>$15.00</td>
-                  <td>120</td>
-                  <td><span class="badge active">Active</span></td>
-                  <td>
-                    <button
-                      style="
-                        border: none;
-                        background: none;
-                        cursor: pointer;
-                        color: var(--primary);
-                        margin-right: 10px;
-                      "
-                    >
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button
-                      style="
-                        border: none;
-                        background: none;
-                        cursor: pointer;
-                        color: var(--danger);
-                      "
-                    >
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr class="product-row">
-                  <td>
-                    <img src="https://via.placeholder.com/50" alt="Product" />
-                    <strong>Leather Handbag</strong>
-                  </td>
-                  <td>Accessories</td>
-                  <td>$45.00</td>
-                  <td>0</td>
-                  <td><span class="badge out-stock">Out of Stock</span></td>
-                  <td>
-                    <button
-                      style="
-                        border: none;
-                        background: none;
-                        cursor: pointer;
-                        color: var(--primary);
-                        margin-right: 10px;
-                      "
-                    >
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button
-                      style="
-                        border: none;
-                        background: none;
-                        cursor: pointer;
-                        color: var(--danger);
-                      "
-                    >
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
+              <tbody id="product-table-body">
+                <tr>
+                  <td colspan="5" text-align="center">Loading products...</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- 4. WALLET & SETTINGS (Placeholders) -->
+        <!-- 4. WALLET -->
         <div id="wallet" class="view-section">
           <div class="section-header"><h2>Store Wallet & Payouts</h2></div>
           <div
             class="table-container"
-            style="padding: 40px; text-align: center"
+            style="text-align: center; padding: 50px"
           >
-            <i
-              class="fas fa-wallet fa-3x"
-              style="color: var(--primary); margin-bottom: 20px"
-            ></i>
-            <h3>Wallet features coming soon...</h3>
+            <i class="fas fa-tools fa-3x text-muted"></i>
+            <p style="margin-top: 10px">Wallet feature is under development.</p>
           </div>
         </div>
+
+        <!-- 5. SETTINGS -->
         <div id="settings" class="view-section">
           <div class="section-header"><h2>Store Settings</h2></div>
-          <div
-            class="table-container"
-            style="padding: 40px; text-align: center"
-          >
-            <i
-              class="fas fa-tools fa-3x"
-              style="color: var(--text-muted); margin-bottom: 20px"
-            ></i>
-            <h3>Settings page coming soon...</h3>
+          <div class="table-container" style="max-width: 600px">
+            <form id="settingsForm" onsubmit="updateStoreSettings(event)">
+              <div class="form-group">
+                <label>Store Name</label>
+                <input type="text" id="set-store-name" required />
+              </div>
+              <div class="form-group">
+                <label>Store Logo (Image URL)</label>
+                <input
+                  type="url"
+                  id="set-store-logo"
+                  placeholder="https://example.com/logo.jpg"
+                />
+              </div>
+              <div class="form-group">
+                <label>Store Description</label>
+                <textarea id="set-store-desc" rows="4"></textarea>
+              </div>
+              <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      // 1. Check Authentication
+      // ==========================================
+      // SETUP & API CONFIGURATION
+      // ==========================================
+      const API_BASE = "/api/seller"; // Backend Routes សម្រាប់ Seller
       const TOKEN = localStorage.getItem("token");
-      const ROLE = localStorage.getItem("role");
-      const USERNAME = localStorage.getItem("username");
 
       document.addEventListener("DOMContentLoaded", () => {
-        if (!TOKEN || ROLE !== "seller") {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Only Sellers can access this portal.",
-            allowOutsideClick: false,
-          }).then(() => {
-            window.location.href = "admin-login.html";
-          });
+        if (!TOKEN) {
+          window.location.href = "admin-login.html";
           return;
         }
-
-        // Set User Info
-        document.getElementById("store-name-display").innerText = USERNAME;
-        document.getElementById("avatar-initial").innerText =
-          USERNAME.charAt(0).toUpperCase();
+        loadInitialData();
       });
 
-      // 2. Tab Switching Logic (Single Page Application behavior)
       function switchTab(tabId, element) {
-        // Remove active class from all nav links
-        document.querySelectorAll(".nav-link").forEach((link) => {
-          link.classList.remove("active");
-        });
-        // Add active class to clicked link
+        document
+          .querySelectorAll(".nav-link")
+          .forEach((link) => link.classList.remove("active"));
         element.classList.add("active");
-
-        // Hide all view sections
-        document.querySelectorAll(".view-section").forEach((section) => {
-          section.classList.remove("active");
-        });
-        // Show target section
+        document
+          .querySelectorAll(".view-section")
+          .forEach((section) => section.classList.remove("active"));
         document.getElementById(tabId).classList.add("active");
+
+        if (tabId === "orders") fetchOrders();
+        if (tabId === "products") fetchProducts();
       }
 
-      // 3. Logout Function
-      function handleLogout() {
+      // ==========================================
+      // FETCH DATA FROM DATABASE
+      // ==========================================
+      async function loadInitialData() {
+        // ទាញយក Profile ហាង
+        try {
+          const res = await fetch(`${API_BASE}/profile`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          if (res.ok) {
+            document.getElementById("store-name-display").innerText =
+              data.store.storeName;
+            document.getElementById("set-store-name").value =
+              data.store.storeName;
+
+            if (data.store.logoUrl) {
+              document.getElementById("avatar-container").innerHTML =
+                `<img src="${data.store.logoUrl}" alt="Logo">`;
+              document.getElementById("set-store-logo").value =
+                data.store.logoUrl;
+            } else {
+              document.getElementById("avatar-initial").innerText =
+                data.store.storeName.charAt(0).toUpperCase();
+            }
+          }
+        } catch (error) {
+          console.error("Profile fetch error");
+        }
+
+        fetchOrders(); // ទាញយក Order ដើម្បីលោត Notification Bell
+      }
+
+      // ==========================================
+      // PROFILE & PASSWORD
+      // ==========================================
+      function showProfileOptions() {
         Swal.fire({
-          title: "Logout?",
-          text: "Are you sure you want to exit your store?",
-          icon: "warning",
+          title: "Profile Options",
+          showDenyButton: true,
           showCancelButton: true,
-          confirmButtonColor: "var(--primary)",
-          cancelButtonColor: "var(--danger)",
-          confirmButtonText: "Yes, logout",
+          confirmButtonText: "View Profile",
+          denyButtonText: `Change Password`,
         }).then((result) => {
           if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = "admin-login.html";
+            switchTab("settings", document.querySelectorAll(".nav-link")[4]);
+          } else if (result.isDenied) {
+            changePasswordPrompt();
           }
         });
+      }
+
+      async function changePasswordPrompt() {
+        const { value: formValues } = await Swal.fire({
+          title: "Change Password",
+          html:
+            '<input id="old-pass" type="password" class="swal2-input" placeholder="Current Password">' +
+            '<input id="new-pass" type="password" class="swal2-input" placeholder="New Password">',
+          focusConfirm: false,
+          preConfirm: () => {
+            return {
+              oldPass: document.getElementById("old-pass").value,
+              newPass: document.getElementById("new-pass").value,
+            };
+          },
+        });
+        if (formValues && formValues.newPass) {
+          // Send to API
+          const res = await fetch(`${API_BASE}/change-password`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(formValues),
+          });
+          if (res.ok) Swal.fire("Success", "Password changed!", "success");
+          else Swal.fire("Error", "Failed to change password.", "error");
+        }
+      }
+
+      // ==========================================
+      // ORDER MANAGEMENT (Kanban Flow)
+      // ==========================================
+      async function fetchOrders() {
+        try {
+          const res = await fetch(`${API_BASE}/orders`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          const orders = data.orders || [];
+
+          // Reset Columns
+          let htmlNew = "",
+            htmlPacking = "",
+            htmlShipping = "",
+            htmlCompleted = "";
+          let countNew = 0,
+            countPacking = 0,
+            countShipping = 0,
+            countCompleted = 0;
+
+          orders.forEach((order) => {
+            const cardHtml = `
+              <div class="order-card">
+                <h4>#${order._id.substring(0, 6).toUpperCase()}</h4>
+                <p>Items: ${order.itemsCount} | Total: $${order.totalPrice}</p>
+                <div class="order-actions">
+                  ${getOrderButtons(order._id, order.status)}
+                </div>
+              </div>
+            `;
+            if (order.status === "new") {
+              htmlNew += cardHtml;
+              countNew++;
+            } else if (order.status === "packing") {
+              htmlPacking += cardHtml;
+              countPacking++;
+            } else if (order.status === "shipping") {
+              htmlShipping += cardHtml;
+              countShipping++;
+            } else if (order.status === "completed") {
+              htmlCompleted += cardHtml;
+              countCompleted++;
+            }
+          });
+
+          // Render DOM
+          document.getElementById("list-new").innerHTML =
+            htmlNew || "<p class='text-muted'>No orders</p>";
+          document.getElementById("list-packing").innerHTML = htmlPacking || "";
+          document.getElementById("list-shipping").innerHTML =
+            htmlShipping || "";
+          document.getElementById("list-completed").innerHTML =
+            htmlCompleted || "";
+
+          document.getElementById("count-new").innerText = countNew;
+          document.getElementById("count-packing").innerText = countPacking;
+          document.getElementById("count-shipping").innerText = countShipping;
+          document.getElementById("count-completed").innerText = countCompleted;
+
+          // Update Bell Notification
+          const badge = document.getElementById("order-badge");
+          if (countNew > 0) {
+            badge.style.display = "block";
+            badge.innerText = countNew;
+          } else {
+            badge.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Order fetch error");
+        }
+      }
+
+      function getOrderButtons(id, status) {
+        if (status === "new")
+          return `<button class="btn-danger" onclick="updateOrderStatus('${id}', 'cancelled')">Cancel</button> <button class="btn-success" onclick="updateOrderStatus('${id}', 'packing')">Accept</button>`;
+        if (status === "packing")
+          return `<button class="btn-primary" onclick="updateOrderStatus('${id}', 'shipping')">Ship Order</button>`;
+        if (status === "shipping")
+          return `<button class="btn-success" onclick="updateOrderStatus('${id}', 'completed')">Mark Complete</button>`;
+        return `<span><i class="fas fa-check-circle text-success"></i> Done</span>`;
+      }
+
+      function updateOrderStatus(orderId, newStatus) {
+        Swal.fire({
+          title: `Move to ${newStatus}?`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes, update it!",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await fetch(`${API_BASE}/orders/${orderId}/status`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+              },
+              body: JSON.stringify({ status: newStatus }),
+            });
+            fetchOrders(); // Refresh table
+          }
+        });
+      }
+
+      // ==========================================
+      // PRODUCTS & CATEGORIES
+      // ==========================================
+      async function fetchProducts() {
+        try {
+          const res = await fetch(`${API_BASE}/products`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          const products = data.products || [];
+          const tbody = document.getElementById("product-table-body");
+
+          if (products.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No products yet</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = products
+            .map(
+              (p) => `
+            <tr>
+              <td>
+                <img src="${p.imageUrl}" class="product-img" onerror="this.src='https://via.placeholder.com/50'">
+                <strong>${p.name}</strong>
+              </td>
+              <td>${p.category?.name || "Uncategorized"}</td>
+              <td>$${p.price}</td>
+              <td>${p.stock}</td>
+              <td>
+                <button class="btn-danger" onclick="deleteProduct('${p._id}')"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("Product fetch error");
+        }
+      }
+
+      async function showAddProductModal() {
+        // Fetch Categories to show in dropdown
+        let categoryOptions = "<option value=''>Select Category</option>";
+        try {
+          const res = await fetch(`${API_BASE}/categories`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          data.categories.forEach((c) => {
+            categoryOptions += `<option value="${c._id}">${c.name}</option>`;
+          });
+        } catch (e) {}
+
+        const { value: formValues } = await Swal.fire({
+          title: "Add New Product",
+          html:
+            `<input id="p-name" class="swal2-input" placeholder="Product Name">` +
+            `<input id="p-price" type="number" class="swal2-input" placeholder="Price ($)">` +
+            `<input id="p-stock" type="number" class="swal2-input" placeholder="Stock Quantity">` +
+            `<input id="p-image" type="url" class="swal2-input" placeholder="Image URL (Internet Link)">` +
+            `<select id="p-category" class="swal2-select">${categoryOptions}</select>`,
+          focusConfirm: false,
+          preConfirm: () => {
+            return {
+              name: document.getElementById("p-name").value,
+              price: document.getElementById("p-price").value,
+              stock: document.getElementById("p-stock").value,
+              imageUrl: document.getElementById("p-image").value,
+              category: document.getElementById("p-category").value,
+            };
+          },
+        });
+
+        if (formValues && formValues.name) {
+          const res = await fetch(`${API_BASE}/products`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(formValues),
+          });
+          if (res.ok) {
+            Swal.fire("Added!", "", "success");
+            fetchProducts();
+          }
+        }
+      }
+
+      async function manageCategories() {
+        const { value: catName } = await Swal.fire({
+          title: "Create Category",
+          input: "text",
+          inputPlaceholder: "Category Name (e.g. T-Shirts)",
+          showCancelButton: true,
+        });
+
+        if (catName) {
+          const res = await fetch(`${API_BASE}/categories`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify({ name: catName }),
+          });
+          if (res.ok) Swal.fire("Created!", "", "success");
+        }
+      }
+
+      function deleteProduct(id) {
+        Swal.fire({
+          title: "Delete Product?",
+          icon: "warning",
+          showCancelButton: true,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await fetch(`${API_BASE}/products/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            fetchProducts();
+          }
+        });
+      }
+
+      // ==========================================
+      // SETTINGS
+      // ==========================================
+      async function updateStoreSettings(event) {
+        event.preventDefault();
+        const name = document.getElementById("set-store-name").value;
+        const logoUrl = document.getElementById("set-store-logo").value;
+        const desc = document.getElementById("set-store-desc").value;
+
+        const res = await fetch(`${API_BASE}/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`,
+          },
+          body: JSON.stringify({
+            storeName: name,
+            logoUrl: logoUrl,
+            description: desc,
+          }),
+        });
+
+        if (res.ok) {
+          Swal.fire("Saved", "Settings updated successfully", "success");
+          loadInitialData(); // Refresh UI
+        }
+      }
+
+      function handleLogout() {
+        localStorage.clear();
+        window.location.href = "admin-login.html";
       }
     </script>
   </body>
