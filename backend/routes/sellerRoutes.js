@@ -1,36 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const sellerController = require("../controllers/sellerController");
-const verifyToken = require("../middleware/auth"); // ទាញយក Middleware របស់បងដែលប្រើសម្រាប់ឆែក Token
+const { verifyToken } = require("../middlewares/auth");
 
 // ==========================================
-// 1. Profile & Settings Routes
+// Profile & Settings
 // ==========================================
-router.get("/profile", verifyToken, sellerController.getProfile);
-router.put("/profile", verifyToken, sellerController.updateProfile);
-router.put("/change-password", verifyToken, sellerController.changePassword);
+router.get("/profile", sellerController.getProfile);
+router.put("/profile", sellerController.updateProfile);
+router.put("/change-password", sellerController.changePassword);
 
 // ==========================================
-// 2. Orders Routes (គ្រប់គ្រងការបញ្ជាទិញ)
+// Categories
 // ==========================================
-router.get("/orders", verifyToken, sellerController.getOrders);
-router.put(
-  "/orders/:id/status",
-  verifyToken,
-  sellerController.updateOrderStatus,
-);
+router.get("/categories", sellerController.getCategories);
+router.post("/categories", sellerController.createCategory);
 
 // ==========================================
-// 3. Categories Routes (គ្រប់គ្រងប្រភេទចំណាត់ថ្នាក់)
+// Products
 // ==========================================
-router.get("/categories", verifyToken, sellerController.getCategories);
-router.post("/categories", verifyToken, sellerController.createCategory);
+router.get("/products", sellerController.getProducts);
+router.post("/products", sellerController.createProduct);
+router.delete("/products/:id", sellerController.deleteProduct);
 
 // ==========================================
-// 4. Products Routes (គ្រប់គ្រងផលិតផល)
+// Orders
 // ==========================================
-router.get("/products", verifyToken, sellerController.getProducts);
-router.post("/products", verifyToken, sellerController.createProduct);
-router.delete("/products/:id", verifyToken, sellerController.deleteProduct);
+router.get("/orders", sellerController.getOrders);
+router.put("/orders/:id/status", sellerController.updateOrderStatus);
 
 module.exports = router;
