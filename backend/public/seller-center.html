@@ -623,24 +623,28 @@
       const token = localStorage.getItem("token");
       const role = localStorage.getItem("role");
 
-      // Global State
+      // ==========================================
+      // 1. GLOBAL STATE & AUTHENTICATION CHECK
+      // ==========================================
       let storeData = null;
       let products = [];
       let orders = [];
 
-      // 1. Auth Check
+      // Auth Check
       if (!token || role !== "seller") {
         window.location.href = "login.html";
       }
 
-      // 2. Fetch Data on Load
+      // Initialize Application on Load
       async function init() {
         await fetchProfile();
         await fetchProducts();
         await fetchOrders();
       }
 
-      // --- API CALLS ---
+      // ==========================================
+      // 2. API CALLS (FETCH DATA)
+      // ==========================================
       async function fetchProfile() {
         try {
           const res = await fetch(`${API_URL}/profile`, {
@@ -649,7 +653,6 @@
           const data = await res.json();
           if (data.success) {
             storeData = data.store;
-            // Ensure categories and paymentInfo exist to avoid undefined errors
             if (!storeData.categories) storeData.categories = [];
             if (!storeData.paymentInfo)
               storeData.paymentInfo = {
@@ -700,7 +703,9 @@
         }
       }
 
-      // --- RENDER FUNCTIONS ---
+      // ==========================================
+      // 3. RENDER FUNCTIONS (UI UPDATES)
+      // ==========================================
       function renderProfileInfo() {
         // Header
         document.getElementById("top-store-name").innerText =
@@ -708,11 +713,12 @@
         if (storeData.logoUrl)
           document.getElementById("top-store-logo").src = storeData.logoUrl;
 
-        // Settings Form
+        // Settings Form (រួមទាំង Cover URL ដែលទើបបន្ថែមថ្មី)
         document.getElementById("store-name").value = storeData.storeName;
-        document.getElementById("store-logo").value = storeData.logoUrl;
+        document.getElementById("store-logo").value = storeData.logoUrl || "";
         document.getElementById("store-cover").value = storeData.coverUrl || "";
-        document.getElementById("store-desc").value = storeData.description;
+        document.getElementById("store-desc").value =
+          storeData.description || "";
 
         // Payment Form
         document.getElementById("bank-name").value =
@@ -729,7 +735,6 @@
         document.getElementById("store-wallet").innerText =
           "$" + (storeData.walletBalance || 0).toFixed(2);
 
-        // Refresh Category Dropdown for products
         updateCategoryDropdown();
       }
 
@@ -750,26 +755,25 @@
         }
 
         filtered.forEach((p) => {
-          // Stock Warning Color
           const stockColor =
             p.stock < 5 ? "text-red-600 font-bold" : "text-gray-800";
           const imgUrl = p.imageUrl || "https://via.placeholder.com/50";
 
           tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="py-3 px-6 flex items-center space-x-3">
-                            <img src="${imgUrl}" class="w-10 h-10 rounded object-cover border">
-                            <span class="font-medium text-gray-800">${p.name}</span>
-                        </td>
-                        <td class="py-3 px-6 text-blue-600 font-medium">$${p.price.toFixed(2)}</td>
-                        <td class="py-3 px-6 ${stockColor}">${p.stock}</td>
-                        <td class="py-3 px-6"><span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">${p.category}</span></td>
-                        <td class="py-3 px-6 text-right">
-                            <button onclick="editProduct('${p._id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProduct('${p._id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+            <tr class="hover:bg-gray-50 transition">
+                <td class="py-3 px-6 flex items-center space-x-3">
+                    <img src="${imgUrl}" class="w-10 h-10 rounded object-cover border">
+                    <span class="font-medium text-gray-800">${p.name}</span>
+                </td>
+                <td class="py-3 px-6 text-blue-600 font-medium">$${p.price.toFixed(2)}</td>
+                <td class="py-3 px-6 ${stockColor}">${p.stock}</td>
+                <td class="py-3 px-6"><span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">${p.category}</span></td>
+                <td class="py-3 px-6 text-right">
+                    <button onclick="editProduct('${p._id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteProduct('${p._id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+          `;
         });
       }
 
@@ -779,10 +783,8 @@
         recentList.innerHTML = "";
 
         orders.forEach((o, index) => {
-          // Calculate revenue only from completed orders
           if (o.status === "completed") totalRevenue += o.totalPrice;
 
-          // Show only top 5 in recent
           if (index < 5) {
             let statusBadge = "";
             if (o.status === "new")
@@ -799,13 +801,13 @@
                 '<span class="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">Completed</span>';
 
             recentList.innerHTML += `
-                        <tr class="border-b last:border-0 hover:bg-gray-50">
-                            <td class="py-3 font-mono text-xs text-gray-500">...${o._id.slice(-6)}</td>
-                            <td class="py-3 font-medium">${o.shippingAddress?.fullName || "N/A"}</td>
-                            <td class="py-3 text-blue-600">$${o.totalPrice.toFixed(2)}</td>
-                            <td class="py-3">${statusBadge}</td>
-                        </tr>
-                    `;
+              <tr class="border-b last:border-0 hover:bg-gray-50">
+                  <td class="py-3 font-mono text-xs text-gray-500">...${o._id.slice(-6)}</td>
+                  <td class="py-3 font-medium">${o.shippingAddress?.fullName || "N/A"}</td>
+                  <td class="py-3 text-blue-600">$${o.totalPrice.toFixed(2)}</td>
+                  <td class="py-3">${statusBadge}</td>
+              </tr>
+            `;
           }
         });
 
@@ -815,13 +817,11 @@
       }
 
       function renderKanbanBoard() {
-        // Arrays for columns
         const cols = { new: [], packing: [], shipping: [], completed: [] };
         orders.forEach((o) => {
           if (cols[o.status]) cols[o.status].push(o);
         });
 
-        // Update Counts
         document.getElementById("count-new").innerText = cols.new.length;
         document.getElementById("count-packing").innerText =
           cols.packing.length;
@@ -830,21 +830,20 @@
         document.getElementById("count-completed").innerText =
           cols.completed.length;
 
-        // Render Function for Cards
         const createCardHTML = (o, btnHTML) => `
-                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs text-gray-400 font-mono">#...${o._id.slice(-6)}</span>
-                        <span class="text-blue-600 font-bold">$${o.totalPrice.toFixed(2)}</span>
-                    </div>
-                    <div class="text-sm font-medium text-gray-800 mb-1"><i class="fas fa-user text-gray-400 w-4"></i> ${o.shippingAddress?.fullName}</div>
-                    <div class="text-xs text-gray-500 mb-3"><i class="fas fa-phone text-gray-400 w-4"></i> ${o.shippingAddress?.phone}</div>
-                    <div class="flex space-x-2">
-                        <button onclick="viewOrderDetails('${o._id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs py-1.5 rounded transition">មើលលម្អិត</button>
-                        ${btnHTML}
-                    </div>
-                </div>
-            `;
+          <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
+              <div class="flex justify-between items-start mb-2">
+                  <span class="text-xs text-gray-400 font-mono">#...${o._id.slice(-6)}</span>
+                  <span class="text-blue-600 font-bold">$${o.totalPrice.toFixed(2)}</span>
+              </div>
+              <div class="text-sm font-medium text-gray-800 mb-1"><i class="fas fa-user text-gray-400 w-4"></i> ${o.shippingAddress?.fullName}</div>
+              <div class="text-xs text-gray-500 mb-3"><i class="fas fa-phone text-gray-400 w-4"></i> ${o.shippingAddress?.phone}</div>
+              <div class="flex space-x-2">
+                  <button onclick="viewOrderDetails('${o._id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs py-1.5 rounded transition">មើលលម្អិត</button>
+                  ${btnHTML}
+              </div>
+          </div>
+        `;
 
         document.getElementById("board-new").innerHTML = cols.new
           .map((o) =>
@@ -854,7 +853,6 @@
             ),
           )
           .join("");
-
         document.getElementById("board-packing").innerHTML = cols.packing
           .map((o) =>
             createCardHTML(
@@ -863,7 +861,6 @@
             ),
           )
           .join("");
-
         document.getElementById("board-shipping").innerHTML = cols.shipping
           .map((o) =>
             createCardHTML(
@@ -872,26 +869,26 @@
             ),
           )
           .join("");
-
         document.getElementById("board-completed").innerHTML = cols.completed
-          .map(
-            (o) => createCardHTML(o, ``), // No next action after completed
-          )
+          .map((o) => createCardHTML(o, ``))
           .join("");
       }
 
-      // --- STORE SETTINGS (UPDATE) ---
+      // ==========================================
+      // 4. STORE SETTINGS MANAGEMENT (UPDATE PROFILE)
+      // ==========================================
       async function saveStoreSettings() {
         const payload = {
           storeName: document.getElementById("store-name").value,
           logoUrl: document.getElementById("store-logo").value,
+          coverUrl: document.getElementById("store-cover").value, // 👈 បញ្ចូល Cover URL ទៅ Backend
           description: document.getElementById("store-desc").value,
           paymentInfo: {
             bankName: document.getElementById("bank-name").value,
             accountName: document.getElementById("account-name").value,
             accountNumber: document.getElementById("account-number").value,
           },
-          categories: storeData.categories, // Keep existing categories!
+          categories: storeData.categories,
         };
 
         try {
@@ -914,7 +911,9 @@
         }
       }
 
-      // --- CATEGORY MANAGEMENT ---
+      // ==========================================
+      // 5. CATEGORY MANAGEMENT
+      // ==========================================
       function openCategoryModal() {
         document.getElementById("category-modal").classList.remove("hidden");
         renderCategoryList();
@@ -927,10 +926,10 @@
         list.innerHTML = storeData.categories
           .map(
             (c, i) => `
-                <li class="py-2 px-3 flex justify-between items-center bg-white mb-1 rounded border">
-                    <span class="text-sm font-medium text-gray-700">${c}</span>
-                    <button onclick="removeCategory(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
-                </li>
+              <li class="py-2 px-3 flex justify-between items-center bg-white mb-1 rounded border">
+                  <span class="text-sm font-medium text-gray-700">${c}</span>
+                  <button onclick="removeCategory(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+              </li>
             `,
           )
           .join("");
@@ -940,9 +939,7 @@
         const catName = input.value.trim();
         if (!catName) return;
 
-        // Add to array
         storeData.categories.push(catName);
-        // Save to DB via profile update
         await silentSaveCategories();
         input.value = "";
         renderCategoryList();
@@ -955,10 +952,10 @@
         updateCategoryDropdown();
       }
       async function silentSaveCategories() {
-        // Function to save profile without popup alert
         const payload = {
           storeName: storeData.storeName,
           logoUrl: storeData.logoUrl,
+          coverUrl: storeData.coverUrl, // 👈 រក្សាទុក Cover URL ពេលកែប្រែ Category
           description: storeData.description,
           paymentInfo: storeData.paymentInfo,
           categories: storeData.categories,
@@ -983,7 +980,9 @@
         }
       }
 
-      // --- PRODUCT ACTIONS ---
+      // ==========================================
+      // 6. PRODUCT MANAGEMENT (CRUD)
+      // ==========================================
       function openProductModal(id = null) {
         if (storeData.categories.length === 0) {
           Swal.fire(
@@ -1055,20 +1054,18 @@
         }
       }
 
-      // កូដសម្រាប់បើកផ្ទាំង Edit
       function editProduct(id) {
         openProductModal(id);
       }
 
-      // កូដសម្រាប់លុបទំនិញ ដោយប្រើផ្ទាំង SweetAlert2 ស្អាតៗ
       function deleteProduct(id) {
         Swal.fire({
           title: "តើអ្នកប្រាកដឬទេ?",
           text: "តើអ្នកពិតជាចង់លុបទំនិញនេះមែនទេ? (លុបហើយមិនអាចយកវិញបានទេ)",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#ef4444", // ពណ៌ក្រហម (ប៊ូតុងលុប)
-          cancelButtonColor: "#6b7280", // ពណ៌ប្រផេះ (ប៊ូតុងបោះបង់)
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#6b7280",
           confirmButtonText: "បាទ/ចាស លុបវា!",
           cancelButtonText: "បោះបង់",
         }).then(async (result) => {
@@ -1086,7 +1083,7 @@
                   "ទំនិញត្រូវបានលុបចេញពីឃ្លាំង។",
                   "success",
                 );
-                fetchProducts(); // Refresh ព័ត៌មានទំនិញថ្មី
+                fetchProducts();
               } else {
                 Swal.fire("បរាជ័យ", data.message, "error");
               }
@@ -1097,7 +1094,9 @@
         });
       }
 
-      // --- ORDER ACTIONS ---
+      // ==========================================
+      // 7. ORDER ACTIONS (STATUS & DETAILS)
+      // ==========================================
       async function updateOrderStatus(orderId, newStatus) {
         try {
           const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
@@ -1110,7 +1109,7 @@
           });
           const data = await res.json();
           if (data.success) {
-            fetchOrders(); // Refresh Kanban
+            fetchOrders();
           }
         } catch (err) {
           console.error(err);
@@ -1125,42 +1124,39 @@
         Swal.fire({
           title: "លម្អិតការកុម្ម៉ង់",
           html: `
-                    <div class="text-left text-sm">
-                        <p><b>អ្នកទិញ:</b> ${order.shippingAddress.fullName}</p>
-                        <p><b>ទូរស័ព្ទ:</b> ${order.shippingAddress.phone}</p>
-                        <p><b>ទីតាំង:</b> ${order.shippingAddress.address}</p>
-                        <hr class="my-2">
-                        <ul class="list-disc pl-5">${itemsHTML}</ul>
-                        <hr class="my-2">
-                        <p class="text-lg text-blue-600 font-bold">សរុប: $${order.totalPrice.toFixed(2)}</p>
-                    </div>
-                `,
+            <div class="text-left text-sm">
+                <p><b>អ្នកទិញ:</b> ${order.shippingAddress.fullName}</p>
+                <p><b>ទូរស័ព្ទ:</b> ${order.shippingAddress.phone}</p>
+                <p><b>ទីតាំង:</b> ${order.shippingAddress.address}</p>
+                <hr class="my-2">
+                <ul class="list-disc pl-5">${itemsHTML}</ul>
+                <hr class="my-2">
+                <p class="text-lg text-blue-600 font-bold">សរុប: $${order.totalPrice.toFixed(2)}</p>
+            </div>
+          `,
           confirmButtonColor: "#2563eb",
           confirmButtonText: "បិទ",
         });
       }
 
-      // --- NAVIGATION ---
+      // ==========================================
+      // 8. NAVIGATION & UTILITIES
+      // ==========================================
       function switchTab(tabId) {
-        // Hide all tabs
         document
           .querySelectorAll(".tab-content")
           .forEach((el) => el.classList.remove("active"));
-        // Remove active classes from nav
         document.querySelectorAll(".nav-btn").forEach((el) => {
           el.classList.remove("bg-gray-800", "text-white", "border-blue-500");
           el.classList.add("border-transparent");
         });
 
-        // Show selected tab
         document.getElementById(`${tabId}-tab`).classList.add("active");
 
-        // Highlight nav button
         const activeBtn = document.getElementById(`nav-${tabId}`);
         activeBtn.classList.remove("border-transparent");
         activeBtn.classList.add("bg-gray-800", "text-white", "border-blue-500");
 
-        // Update Header Title
         const titles = {
           dashboard: "ទិដ្ឋភាពទូទៅ",
           orders: "គ្រប់គ្រងការលក់",
@@ -1175,7 +1171,7 @@
         window.location.href = "admin-login.html";
       }
 
-      // Start App
+      // Start Application
       init();
     </script>
   </body>
