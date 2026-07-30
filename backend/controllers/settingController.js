@@ -21,7 +21,8 @@ exports.getSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res) => {
   try {
-    const { logoUrl, section1, section2, section3 } = req.body;
+    const { logoUrl, section1, section2, section3, flashSale, topStores } =
+      req.body;
 
     let setting = await Setting.findOne();
     if (!setting) setting = new Setting({});
