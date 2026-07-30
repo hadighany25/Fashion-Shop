@@ -7,9 +7,10 @@ const bannerItemSchema = new mongoose.Schema({
   endDate: { type: Date }, // 👈 កាលបរិច្ឆេទឈប់បង្ហាញ
 });
 
+// ស្វែងរកកូដ bannerSectionSchema ហើយកែត្រង់បន្ទាត់នេះ៖
 const bannerSectionSchema = new mongoose.Schema({
-  intervalMinutes: { type: Number, default: 1 }, // 👈 កំណត់ចំនួននាទីដូររូប
-  slideDirection: { type: String, default: "left" }, // left ឬ right
+  intervalSeconds: { type: Number, default: 3 }, // 👈 ប្ដូរពី intervalMinutes មក intervalSeconds
+  slideDirection: { type: String, default: "left" },
   items: [bannerItemSchema],
 });
 

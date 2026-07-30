@@ -504,8 +504,8 @@
               </h3>
               <div class="form-grid" style="margin-bottom: 15px">
                 <div class="input-group">
-                  <label>Duration (នាទីដូររូប)</label>
-                  <input type="number" id="sec1-interval" value="1" min="1" />
+                  <label>Duration (វិនាទីដូររូប)</label>
+                  <input type="number" id="sec1-interval" value="3" min="1" />
                 </div>
                 <div class="input-group">
                   <label>Animation Direction</label>
@@ -881,7 +881,7 @@
             // Section 1
             if (s.section1) {
               document.getElementById("sec1-interval").value =
-                s.section1.intervalMinutes || 1;
+                s.section1.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
               document.getElementById("sec1-direction").value =
                 s.section1.slideDirection || "left";
               document.getElementById("sec1-items-container").innerHTML = "";
@@ -891,7 +891,7 @@
             // Section 2
             if (s.section2) {
               document.getElementById("sec2-interval").value =
-                s.section2.intervalMinutes || 1;
+                s.section2.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
               document.getElementById("sec2-direction").value =
                 s.section2.slideDirection || "left";
               document.getElementById("sec2-items-container").innerHTML = "";
@@ -901,7 +901,7 @@
             // Section 3
             if (s.section3) {
               document.getElementById("sec3-interval").value =
-                s.section3.intervalMinutes || 1;
+                s.section3.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
               document.getElementById("sec3-direction").value =
                 s.section3.slideDirection || "left";
               document.getElementById("sec3-items-container").innerHTML = "";
@@ -929,8 +929,8 @@
           });
         });
         return {
-          intervalMinutes:
-            parseInt(document.getElementById(`sec${num}-interval`).value) || 1,
+          intervalSeconds:
+            parseInt(document.getElementById(`sec${num}-interval`).value) || 3,
           slideDirection: document.getElementById(`sec${num}-direction`).value,
           items: items,
         };
