@@ -20,6 +20,20 @@ const settingSchema = new mongoose.Schema(
     section1: bannerSectionSchema, // ផ្ទាំងទី ១ (ធំខាងឆ្វេង)
     section2: bannerSectionSchema, // ផ្ទាំងទី ២ (ស្ដាំលើ)
     section3: bannerSectionSchema, // ផ្ទាំងទី ៣ (ស្ដាំក្រោម)
+
+    // 👇 ថែម ២ នេះថ្មីសម្រាប់ Flash Sale និង ហាងល្បី
+    flashSale: {
+      endTime: { type: Date },
+      items: [
+        {
+          productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+          discountPercent: Number, // ភាគរយបញ្ចុះតម្លៃ (ឧ. 40)
+          soldCount: Number, // ចំនួនលក់ចេញហើយ (សម្រាប់ Progress Bar)
+          totalStock: Number, // ចំនួនកំណត់លក់សរុប
+        },
+      ],
+    },
+    topStores: [{ type: mongoose.Schema.Types.ObjectId, ref: "Store" }],
   },
   { timestamps: true },
 );

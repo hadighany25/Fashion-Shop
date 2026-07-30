@@ -293,6 +293,11 @@
             ><i class="fas fa-sliders-h"></i> Storefront Settings</a
           >
         </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('promotions-settings', this)">
+            <i class="fas fa-fire"></i> Flash Sale & Top Stores
+          </a>
+        </li>
       </ul>
       <button class="logout-btn" onclick="handleLogout()">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -609,6 +614,88 @@
               <i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់
             </button>
           </form>
+        </section>
+      </div>
+      <!-- TAB 5: PROMOTIONS & TOP STORES -->
+      <div id="promotions-settings" class="view-section">
+        <section
+          class="action-section"
+          style="max-width: 900px; margin: 0 auto"
+        >
+          <h2>
+            <i class="fas fa-fire"></i> រៀបចំ Flash Sale & ហាងល្បីប្រចាំសប្ដាហ៍
+          </h2>
+
+          <!-- Flash Sale Config -->
+          <div
+            class="banner-box"
+            style="
+              background: var(--main-bg);
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+            "
+          >
+            <h3 style="color: #ef4444; margin-bottom: 10px">
+              <i class="fas fa-bolt"></i> ការកំណត់ម៉ោង និងទំនិញ Flash Sale
+            </h3>
+            <div
+              class="input-group"
+              style="margin-bottom: 15px; max-width: 300px"
+            >
+              <label>ថ្ងៃ និងម៉ោងបញ្ចប់ (End Time)</label>
+              <!-- color-scheme: dark ជួយអោយកាលីបលោតមកពណ៌ខ្មៅស៊ីគ្នាជាមួយ Admin -->
+              <input
+                type="datetime-local"
+                id="flash-endTime"
+                style="color-scheme: dark"
+              />
+            </div>
+
+            <div id="flash-items-container"></div>
+            <button
+              type="button"
+              class="btn-primary"
+              style="background: var(--success); margin-top: 10px"
+              onclick="addFlashSaleRow()"
+            >
+              + បន្ថែមទំនិញ Flash Sale
+            </button>
+          </div>
+
+          <!-- Top Stores Config -->
+          <div
+            class="banner-box"
+            style="
+              background: var(--main-bg);
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+            "
+          >
+            <h3 style="color: var(--warning); margin-bottom: 10px">
+              <i class="fas fa-award"></i> ជ្រើសរើសហាងល្បីប្រចាំសប្ដាហ៍
+            </h3>
+            <div id="top-stores-container"></div>
+            <button
+              type="button"
+              class="btn-primary"
+              style="background: var(--success); margin-top: 10px"
+              onclick="addTopStoreRow()"
+            >
+              + បន្ថែមហាងល្បី
+            </button>
+          </div>
+
+          <button
+            type="button"
+            id="btn-save-promotions"
+            class="btn-primary full-width"
+            style="margin-top: 20px; padding: 15px"
+            onclick="savePromotionsData()"
+          >
+            <i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores
+          </button>
         </section>
       </div>
     </main>
@@ -979,6 +1066,175 @@
             btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់`;
           }
         });
+
+      let allProductsForDropdown = [];
+
+      // កែប្រែ switchTab បន្តិច ដើម្បីឱ្យវា Load ទិន្នន័យពេលចូល Tab នេះ
+      const originalSwitchTab = switchTab;
+      switchTab = function (tabId, element) {
+        originalSwitchTab(tabId, element);
+        if (tabId === "promotions-settings") {
+          loadPromotionsData();
+        }
+      };
+
+      // ទាញយកផលិតផល និងហាងទាំងអស់ មកធ្វើជា Dropdown ឱ្យ Admin រើស
+      async function loadDropdownOptions() {
+        await loadStoresData(); // ហៅ Function ចាស់ដែលទាញ Store
+        storesListForDropdown = allStores;
+        try {
+          const res = await fetch("/api/public/products");
+          const data = await res.json();
+          allProductsForDropdown = data.products || [];
+        } catch (error) {
+          console.error("Error loading products", error);
+        }
+      }
+
+      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសទំនិញ Flash Sale
+      function addFlashSaleRow(data = {}) {
+        const container = document.getElementById("flash-items-container");
+        const div = document.createElement("div");
+        div.className = "flash-item-row";
+        div.style =
+          "border:1px solid #475569; padding:10px; border-radius:6px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; align-items:end;";
+
+        let productOpts = `<option value="">-- ជ្រើសរើសទំនិញ --</option>`;
+        allProductsForDropdown.forEach((p) => {
+          const sel =
+            data.productId === p._id || data.productId?._id === p._id
+              ? "selected"
+              : "";
+          productOpts += `<option value="${p._id}" ${sel}>${p.name} ($${p.price})</option>`;
+        });
+
+        div.innerHTML = `
+          <div class="input-group">
+            <label>ទំនិញ (Product)</label>
+            <select class="f-product">${productOpts}</select>
+          </div>
+          <div class="input-group">
+            <label>បញ្ចុះ (%)</label>
+            <input type="number" class="f-discount" value="${data.discountPercent || 20}" min="1" max="99" />
+          </div>
+          <div class="input-group">
+            <label>លក់បាន (Sold)</label>
+            <input type="number" class="f-sold" value="${data.soldCount || 10}" min="0" />
+          </div>
+          <div class="input-group">
+            <label>ស្តុកសរុប</label>
+            <input type="number" class="f-total" value="${data.totalStock || 100}" min="1" />
+          </div>
+          <button type="button" class="btn-action" style="color:var(--danger); height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(div);
+      }
+
+      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសហាងល្បី
+      function addTopStoreRow(storeId = "") {
+        const container = document.getElementById("top-stores-container");
+        const div = document.createElement("div");
+        div.className = "top-store-row";
+        div.style =
+          "display:flex; gap:10px; margin-bottom:10px; align-items:center;";
+
+        let storeOpts = `<option value="">-- ជ្រើសរើសហាង --</option>`;
+        storesListForDropdown.forEach((s) => {
+          const sel =
+            storeId === s._id || storeId?._id === s._id ? "selected" : "";
+          storeOpts += `<option value="${s._id}" ${sel}>${s.storeName}</option>`;
+        });
+
+        div.innerHTML = `
+          <select class="ts-select" style="flex:1; padding:10px; border-radius:6px; border:1px solid #475569; background:var(--main-bg); color:white;">${storeOpts}</select>
+          <button type="button" class="btn-action" style="color:var(--danger);" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(div);
+      }
+
+      // ទាញយកទិន្នន័យចាស់មកបង្ហាញ
+      async function loadPromotionsData() {
+        await loadDropdownOptions();
+        try {
+          const res = await fetch("/api/settings");
+          const data = await res.json();
+          if (data.success && data.setting) {
+            const s = data.setting;
+            // Load Flash Sale
+            if (s.flashSale) {
+              if (s.flashSale.endTime) {
+                // បំប្លែងម៉ោងឲ្យត្រូវ Format `YYYY-MM-DDThh:mm` របស់ input[type=datetime-local]
+                document.getElementById("flash-endTime").value = new Date(
+                  s.flashSale.endTime,
+                )
+                  .toISOString()
+                  .slice(0, 16);
+              }
+              document.getElementById("flash-items-container").innerHTML = "";
+              if (s.flashSale.items)
+                s.flashSale.items.forEach((item) => addFlashSaleRow(item));
+            }
+            // Load Top Stores
+            if (s.topStores) {
+              document.getElementById("top-stores-container").innerHTML = "";
+              s.topStores.forEach((stId) => addTopStoreRow(stId));
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      // Save ទិន្នន័យទៅ DB
+      async function savePromotionsData() {
+        const flashItems = [];
+        document.querySelectorAll(".flash-item-row").forEach((row) => {
+          if (row.querySelector(".f-product").value) {
+            flashItems.push({
+              productId: row.querySelector(".f-product").value,
+              discountPercent: parseInt(row.querySelector(".f-discount").value),
+              soldCount: parseInt(row.querySelector(".f-sold").value),
+              totalStock: parseInt(row.querySelector(".f-total").value),
+            });
+          }
+        });
+
+        const topStores = [];
+        document
+          .querySelectorAll(".top-store-row .ts-select")
+          .forEach((sel) => {
+            if (sel.value) topStores.push(sel.value);
+          });
+
+        const payload = {
+          flashSale: {
+            endTime: document.getElementById("flash-endTime").value || null,
+            items: flashItems,
+          },
+          topStores: topStores,
+        };
+
+        const btn = document.getElementById("btn-save-promotions");
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
+
+        try {
+          const res = await fetch("/api/settings", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (res.ok) Swal.fire("ជោគជ័យ!", "រក្សាទុកដោយជោគជ័យ!", "success");
+          else Swal.fire("បរាជ័យ", data.message, "error");
+        } catch (error) {
+          Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ", "error");
+        } finally {
+          btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores`;
+        }
+      }
 
       function handleLogout() {
         localStorage.clear();

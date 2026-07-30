@@ -30,6 +30,8 @@ exports.updateSettings = async (req, res) => {
     if (section1) setting.section1 = section1;
     if (section2) setting.section2 = section2;
     if (section3) setting.section3 = section3;
+    if (flashSale) setting.flashSale = flashSale; // 👈 ថែមបន្ទាត់នេះ
+    if (topStores) setting.topStores = topStores; // 👈 ថែមបន្ទាត់នេះ
 
     await setting.save();
     res
