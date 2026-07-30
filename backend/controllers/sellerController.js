@@ -9,18 +9,21 @@ const Order = require("../models/Order");
 // ==========================================
 exports.getProfile = async (req, res) => {
   try {
-    // ស្វែងរកហាងតាមរយៈ User ID ដែលបាន Login
-    const store = await Store.findOne({ owner: req.user._id });
+    // ធានាថាទាញយក ID បានត្រឹមត្រូវទោះ Middleware បោះមកជា id ឬ _id
+    const userId = req.user.id || req.user._id;
+    console.log("🔍 កំពុងស្វែងរកហាងសម្រាប់ User ID:", userId);
 
-    // បើរកមិនឃើញ (មានន័យថា Admin អត់ទាន់បង្កើតឱ្យ)
+    const store = await Store.findOne({ owner: userId });
+
     if (!store) {
+      console.log("❌ រកមិនឃើញហាងសម្រាប់ User ID:", userId);
       return res.status(404).json({
         success: false,
         message: "រកមិនឃើញហាងទេ! សូមទាក់ទង Admin ដើម្បីបង្កើតហាងឱ្យអ្នក។",
       });
     }
 
-    // បើរកឃើញ បញ្ជូនទិន្នន័យហាងទៅកាន់ Frontend
+    console.log("✅ រកឃើញហាង:", store.storeName);
     res.json({ success: true, store });
   } catch (error) {
     console.error("Error fetching profile:", error);
@@ -32,13 +35,13 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    // បន្ថែម paymentInfo និង categories ចូលមកក្នុងនេះ
+    const userId = req.user.id || req.user._id;
     const { storeName, logoUrl, description, paymentInfo, categories } =
       req.body;
 
     const store = await Store.findOneAndUpdate(
-      { owner: req.user._id },
-      { storeName, logoUrl, description, paymentInfo, categories }, // ដាក់ឱ្យវា Save ចូល DB
+      { owner: userId },
+      { storeName, logoUrl, description, paymentInfo, categories },
       { new: true },
     );
 
@@ -50,8 +53,9 @@ exports.updateProfile = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
+    const userId = req.user.id || req.user._id;
     const { oldPass, newPass } = req.body;
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(userId);
 
     const isMatch = await bcrypt.compare(oldPass, user.password);
     if (!isMatch)
@@ -73,8 +77,11 @@ exports.changePassword = async (req, res) => {
 // ==========================================
 exports.getProducts = async (req, res) => {
   try {
-    const store = await Store.findOne({ owner: req.user._id });
-    // ដក populate ចេញ ព្រោះឥឡូវ Category គ្រាន់តែជា String ធម្មតា
+    const userId = req.user.id || req.user._id;
+    const store = await Store.findOne({ owner: userId });
+
+    if (!store) return res.json({ success: true, products: [] });
+
     const products = await Product.find({ store: store._id });
     res.json({ success: true, products });
   } catch (error) {
@@ -84,15 +91,16 @@ exports.getProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
+    const userId = req.user.id || req.user._id;
     const { name, price, stock, imageUrl, category } = req.body;
-    const store = await Store.findOne({ owner: req.user._id });
+    const store = await Store.findOne({ owner: userId });
 
     const product = new Product({
       name,
       price,
       stock,
       imageUrl,
-      category, // category ឥឡូវចូលជា String ធម្មតា
+      category,
       store: store._id,
     });
     await product.save();
@@ -117,7 +125,11 @@ exports.deleteProduct = async (req, res) => {
 // ==========================================
 exports.getOrders = async (req, res) => {
   try {
-    const store = await Store.findOne({ owner: req.user._id });
+    const userId = req.user.id || req.user._id;
+    const store = await Store.findOne({ owner: userId });
+
+    if (!store) return res.json({ success: true, orders: [] });
+
     const orders = await Order.find({ store: store._id }).sort({
       createdAt: -1,
     });
@@ -129,7 +141,7 @@ exports.getOrders = async (req, res) => {
 
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body; // 'packing', 'shipping', 'completed', 'cancelled'
+    const { status } = req.body;
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       { status },
