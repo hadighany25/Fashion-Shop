@@ -4,14 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>U-Mall - ផ្សារអនឡាញរបស់អ្នក</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -35,7 +32,6 @@
         scrollbar-width: none;
       }
 
-      /* Product Card Animation */
       @media (min-width: 1024px) {
         .product-card .add-to-cart-btn {
           opacity: 0;
@@ -51,13 +47,13 @@
         transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
 
-      /* Banner Slideshow Animation */
+      /* Banner Slideshow */
       .slider-container {
         position: relative;
         overflow: hidden;
         width: 100%;
         height: 100%;
-        border-radius: 0.75rem; /* rounded-xl */
+        border-radius: 0.75rem;
       }
       .slide {
         position: absolute;
@@ -67,12 +63,85 @@
         height: 100%;
         transition: transform 0.5s ease-in-out;
       }
+      /* ប៊ូតុងចុចបញ្ជាផ្ទាំងពាណិជ្ជកម្ម */
+      .slider-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.7);
+        color: #333;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .slider-container:hover .slider-nav-btn {
+        opacity: 1;
+      }
+      .slider-nav-btn:hover {
+        background: white;
+      }
+      .nav-left {
+        left: 10px;
+      }
+      .nav-right {
+        right: 10px;
+      }
+
+      /* មុខងារហាងរត់ (Marquee) */
+      .marquee-wrapper {
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100%;
+        background: white;
+        padding: 15px 0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      .marquee-content {
+        display: flex;
+        gap: 40px; /* គម្លាតប្រហែល 8cm លើអេក្រង់ */
+        animation: scrollMarquee 20s linear infinite;
+      }
+      .marquee-content:hover {
+        animation-play-state: paused;
+      }
+      .marquee-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        cursor: pointer;
+        padding: 5px 15px;
+        border-radius: 50px;
+        border: 1px solid #f3f4f6;
+        transition: all 0.3s;
+      }
+      .marquee-item:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+      }
+      @keyframes scrollMarquee {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        } /* -50% ព្រោះយើងនឹង Duplicate Data ឱ្យវារត់រលូន */
+      }
     </style>
   </head>
   <body class="text-gray-800 antialiased flex flex-col min-h-screen">
-    <!-- 🌟 ១. Smart Header (Responsive) -->
+    <!-- 🌟 ១. Smart Header -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
-      <!-- Top bar (លាក់នៅលើទូរស័ព្ទ) -->
       <div class="hidden md:block bg-blue-700 text-white text-xs py-1.5">
         <div class="max-w-7xl mx-auto px-4 flex justify-between">
           <div class="flex space-x-4">
@@ -87,11 +156,14 @@
         </div>
       </div>
 
-      <!-- Main Navbar -->
       <div class="max-w-7xl mx-auto px-4 py-3">
         <div class="flex items-center justify-between gap-4">
-          <!-- Logo -->
-          <a href="/" class="flex items-center space-x-2 flex-shrink-0">
+          <!-- Logo (នឹងដូរស្វ័យប្រវត្តិបើសិនមាន logoUrl ពី Admin) -->
+          <a
+            href="/"
+            class="flex items-center space-x-2 flex-shrink-0"
+            id="main-logo-container"
+          >
             <div
               class="bg-blue-600 text-white p-1.5 md:p-2 rounded-lg font-bold text-xl md:text-2xl leading-none"
             >
@@ -103,16 +175,18 @@
             >
           </a>
 
-          <!-- Search Bar (ពង្រីកពេញនៅលើទូរស័ព្ទ) -->
+          <!-- Search Bar -->
           <div class="flex-1 max-w-2xl">
             <div class="relative flex w-full">
               <input
                 type="text"
                 id="search-input"
+                onkeypress="handleSearch(event)"
                 class="w-full border border-blue-600 rounded-l-lg py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                 placeholder="ស្វែងរកអីវ៉ាន់នៅទីនេះ..."
               />
               <button
+                onclick="executeSearch()"
                 class="bg-blue-600 text-white px-4 md:px-6 rounded-r-lg hover:bg-blue-700 transition"
               >
                 <i class="fas fa-search"></i>
@@ -124,7 +198,6 @@
           <div class="flex items-center space-x-4 md:space-x-6 flex-shrink-0">
             <a
               href="#"
-              onclick="alert('មុខងារកន្ត្រកទំនិញនឹងមកដល់ឆាប់ៗនេះ!')"
               class="relative text-gray-600 hover:text-blue-600 transition"
             >
               <i class="fas fa-shopping-cart text-xl md:text-2xl"></i>
@@ -136,12 +209,14 @@
             </a>
             <div class="hidden md:flex border-l pl-6 space-x-3 items-center">
               <a
-                href="#"
+                href="login.html"
+                id="auth-login-link"
                 class="text-sm font-medium text-gray-600 hover:text-blue-600"
                 >ចូលគណនី</a
               >
               <a
                 href="admin-login.html"
+                id="auth-history-link"
                 class="text-sm font-medium text-white bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 shadow-sm transition"
                 >ហាងរបស់ខ្ញុំ</a
               >
@@ -152,11 +227,10 @@
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 py-6 space-y-8 w-full">
-      <!-- 🖼️ ២. Hero Banner (Dynamic Banners) -->
+      <!-- 🖼️ ២. Hero Banners -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-auto lg:h-[350px]">
-        <!-- Main Slide (Section 1) -->
         <div
-          class="lg:col-span-2 bg-gray-200 rounded-xl shadow-sm h-[200px] sm:h-[300px] lg:h-full group"
+          class="lg:col-span-2 bg-gray-200 rounded-xl shadow-sm h-[200px] sm:h-[300px] lg:h-full group relative"
         >
           <div id="hero-banner-container" class="slider-container">
             <div
@@ -166,33 +240,27 @@
             </div>
           </div>
         </div>
-
-        <!-- Sub Banners (Section 2 & 3) -->
         <div class="hidden sm:flex lg:flex-col gap-4 h-[150px] lg:h-full">
-          <!-- Sub Banner 1 (Section 2) -->
           <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
-            <div id="sub-banner-1-container" class="slider-container">
-              <div
-                class="flex items-center justify-center w-full h-full text-gray-500"
-              >
-                <i class="fas fa-spinner fa-spin"></i>
-              </div>
-            </div>
+            <div id="sub-banner-1-container" class="slider-container"></div>
           </div>
-          <!-- Sub Banner 2 (Section 3) -->
           <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
-            <div id="sub-banner-2-container" class="slider-container">
-              <div
-                class="flex items-center justify-center w-full h-full text-gray-500"
-              >
-                <i class="fas fa-spinner fa-spin"></i>
-              </div>
-            </div>
+            <div id="sub-banner-2-container" class="slider-container"></div>
           </div>
         </div>
       </div>
 
-      <!-- ⚡ ៣. Flash Sale Section (Scroll ផ្ដេកលើទូរស័ព្ទ) -->
+      <!-- 🏬 ៣. ហាងរត់ (Store Marquee - New) -->
+      <div>
+        <div class="marquee-wrapper">
+          <div class="marquee-content" id="store-marquee-content">
+            <!-- វានឹង Generate ស្វ័យប្រវត្តិនៅទីនេះ -->
+            <span class="text-gray-400 text-sm italic">កំពុងទាញយកហាង...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⚡ ៤. Flash Sale (Dynamic) -->
       <div
         class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-t-4 border-red-500"
       >
@@ -205,13 +273,16 @@
             </h2>
             <div
               class="flex items-center space-x-1 text-white font-bold text-sm md:text-base"
+              id="flash-countdown-container"
             >
-              <span class="bg-gray-800 px-2 py-1 rounded">02</span
+              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-hrs"
+                >00</span
               ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded">45</span
+              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-mins"
+                >00</span
               ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-seconds"
-                >30</span
+              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-secs"
+                >00</span
               >
             </div>
           </div>
@@ -220,165 +291,52 @@
           ></a>
         </div>
 
-        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x">
-          <!-- Flash Sale Item Mockup (១) -->
-          <div
-            class="min-w-[140px] md:min-w-[180px] snap-start bg-white border border-gray-100 rounded-lg p-2 md:p-3 hover:shadow-md transition cursor-pointer relative shrink-0"
-          >
-            <div
-              class="absolute top-0 right-0 bg-yellow-400 text-red-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg z-10"
-            >
-              -40%
-            </div>
-            <img
-              src="https://via.placeholder.com/150"
-              alt="Product"
-              class="w-full h-28 md:h-36 object-cover rounded mb-2 md:mb-3"
-            />
-            <div
-              class="text-base md:text-lg font-bold text-red-600 mb-1 md:mb-2"
-            >
-              $15.00
-              <span
-                class="text-[10px] md:text-xs text-gray-400 line-through font-normal"
-                >$25.00</span
-              >
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-1.5 md:h-2 mb-1">
-              <div
-                class="bg-red-500 h-1.5 md:h-2 rounded-full"
-                style="width: 85%"
-              ></div>
-            </div>
-            <div class="text-[9px] md:text-[10px] text-gray-500 text-center">
-              លក់បាន 85 គ្រឿង
-            </div>
-          </div>
-          <!-- Flash Sale Item Mockup (២) -->
-          <div
-            class="min-w-[140px] md:min-w-[180px] snap-start bg-white border border-gray-100 rounded-lg p-2 md:p-3 hover:shadow-md transition cursor-pointer relative shrink-0"
-          >
-            <div
-              class="absolute top-0 right-0 bg-yellow-400 text-red-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg z-10"
-            >
-              -20%
-            </div>
-            <img
-              src="https://via.placeholder.com/150/10b981"
-              alt="Product"
-              class="w-full h-28 md:h-36 object-cover rounded mb-2 md:mb-3"
-            />
-            <div
-              class="text-base md:text-lg font-bold text-red-600 mb-1 md:mb-2"
-            >
-              $9.99
-              <span
-                class="text-[10px] md:text-xs text-gray-400 line-through font-normal"
-                >$12.50</span
-              >
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-1.5 md:h-2 mb-1">
-              <div
-                class="bg-red-500 h-1.5 md:h-2 rounded-full"
-                style="width: 45%"
-              ></div>
-            </div>
-            <div class="text-[9px] md:text-[10px] text-gray-500 text-center">
-              លក់បាន 12 គ្រឿង
-            </div>
+        <div
+          class="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x"
+          id="flash-sale-grid"
+        >
+          <div class="text-gray-500 py-4 w-full text-center">
+            មិនទាន់មានកម្មវិធី Flash Sale ទេពេលនេះ។
           </div>
         </div>
       </div>
 
-      <!-- 🏬 ៤. Top Stores (U-Mall Official) -->
+      <!-- 🏆 ៥. Top Stores (Dynamic) -->
       <div>
         <h2
           class="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center"
         >
           <i class="fas fa-award text-yellow-500 mr-2"></i> ហាងល្បីប្រចាំសប្ដាហ៍
         </h2>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <!-- Store Card 1 -->
-          <div
-            class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer border border-gray-100"
-          >
-            <div class="h-16 md:h-24 bg-gray-300 w-full relative">
-              <img
-                src="https://via.placeholder.com/300x100/4f46e5/ffffff"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div
-              class="px-3 md:px-4 pb-3 md:pb-4 pt-6 md:pt-8 relative text-center"
-            >
-              <div
-                class="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-12 h-12 md:w-16 md:h-16 bg-white rounded-full p-1 shadow-md"
-              >
-                <img
-                  src="https://via.placeholder.com/60"
-                  class="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <h3
-                class="font-bold text-sm md:text-base text-gray-800 flex justify-center items-center"
-              >
-                Fashion Pro
-                <i
-                  class="fas fa-check-circle text-blue-500 ml-1 text-[10px] md:text-xs"
-                  title="Verified Store"
-                ></i>
-              </h3>
-              <p class="text-[10px] md:text-xs text-gray-500 mt-1">
-                អ្នកតាមដាន 12K
-              </p>
-            </div>
-          </div>
-          <!-- Store Card 2 -->
-          <div
-            class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer border border-gray-100"
-          >
-            <div class="h-16 md:h-24 bg-gray-300 w-full relative">
-              <img
-                src="https://via.placeholder.com/300x100/ec4899/ffffff"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div
-              class="px-3 md:px-4 pb-3 md:pb-4 pt-6 md:pt-8 relative text-center"
-            >
-              <div
-                class="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-12 h-12 md:w-16 md:h-16 bg-white rounded-full p-1 shadow-md"
-              >
-                <img
-                  src="https://via.placeholder.com/60"
-                  class="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <h3
-                class="font-bold text-sm md:text-base text-gray-800 flex justify-center items-center"
-              >
-                Tech Store
-                <i
-                  class="fas fa-check-circle text-blue-500 ml-1 text-[10px] md:text-xs"
-                  title="Verified Store"
-                ></i>
-              </h3>
-              <p class="text-[10px] md:text-xs text-gray-500 mt-1">
-                អ្នកតាមដាន 8.5K
-              </p>
-            </div>
+        <div
+          class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
+          id="top-stores-grid"
+        >
+          <!-- Dynamic Stores -->
+          <div class="col-span-full text-center text-gray-500 py-4">
+            កំពុងទាញយកហាង...
           </div>
         </div>
       </div>
 
-      <!-- 🛍️ ៥. Daily Discover (Dynamic Real Data Section) -->
-      <div>
+      <!-- 🛍️ ៦. Daily Discover -->
+      <div id="products-section">
         <div
-          class="bg-white rounded-t-xl border-b-2 border-blue-600 inline-block px-4 md:px-6 py-2 md:py-3 mb-4"
+          class="bg-white rounded-t-xl border-b-2 border-blue-600 inline-block px-4 md:px-6 py-2 md:py-3 mb-4 flex items-center space-x-3"
         >
-          <h2 class="text-lg md:text-xl font-bold text-blue-600">
+          <h2
+            class="text-lg md:text-xl font-bold text-blue-600"
+            id="product-section-title"
+          >
             ទំនិញសម្រាប់អ្នក
           </h2>
+          <button
+            id="clear-search-btn"
+            onclick="clearSearch()"
+            class="hidden bg-gray-200 text-gray-600 px-2 py-1 rounded text-xs hover:bg-red-100 hover:text-red-600 transition"
+          >
+            <i class="fas fa-times"></i> លុបការស្វែងរក
+          </button>
         </div>
 
         <div
@@ -387,15 +345,15 @@
         >
           <div class="col-span-full text-center py-10 text-gray-500">
             <i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i
-            ><br />
-            កំពុងទាញយកទំនិញពិតពីប្រព័ន្ធ...
+            ><br />កំពុងទាញយកទំនិញពិតពីប្រព័ន្ធ...
           </div>
         </div>
       </div>
     </main>
 
-    <!-- 🌟 ៦. Beautiful Footer -->
+    <!-- Footer ... ដូចចាស់ ... -->
     <footer class="bg-white border-t mt-auto">
+      <!-- ខ្លឹមសារ Footer រក្សាទុកដូចចាស់ដដែល -->
       <div
         class="max-w-7xl mx-auto px-4 pt-10 pb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
       >
@@ -415,35 +373,15 @@
             ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
-
         <div>
           <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
             សេវាកម្មអតិថិជន
           </h4>
           <ul class="space-y-2 text-sm text-gray-600">
-            <li>
-              <a href="#" class="hover:text-blue-600 transition"
-                >មជ្ឈមណ្ឌលជំនួយ</a
-              >
-            </li>
-            <li>
-              <a href="#" class="hover:text-blue-600 transition"
-                >របៀបទិញទំនិញ</a
-              >
-            </li>
-            <li>
-              <a href="#" class="hover:text-blue-600 transition"
-                >ការដឹកជញ្ជូន</a
-              >
-            </li>
-            <li>
-              <a href="#" class="hover:text-blue-600 transition"
-                >ការបង្វិលប្រាក់មកវិញ</a
-              >
-            </li>
+            <li><a href="#" class="hover:text-blue-600">មជ្ឈមណ្ឌលជំនួយ</a></li>
+            <li><a href="#" class="hover:text-blue-600">របៀបទិញទំនិញ</a></li>
           </ul>
         </div>
-
         <div>
           <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
             ការទូទាត់ប្រាក់
@@ -459,34 +397,6 @@
             >
               ACLEDA
             </div>
-            <div
-              class="w-12 h-8 bg-red-500 rounded flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
-            >
-              Wing
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
-            តាមដានពួកយើង
-          </h4>
-          <div class="flex space-x-4">
-            <a
-              href="#"
-              class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition"
-              ><i class="fab fa-facebook-f"></i
-            ></a>
-            <a
-              href="#"
-              class="w-8 h-8 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition"
-              ><i class="fab fa-instagram"></i
-            ></a>
-            <a
-              href="#"
-              class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition"
-              ><i class="fab fa-tiktok"></i
-            ></a>
           </div>
         </div>
       </div>
@@ -497,37 +407,28 @@
 
     <!-- Scripts -->
     <script>
-      // ---------------------------------------------
-      // UI Animations (Search Placeholder & Flash Sale)
-      // ---------------------------------------------
-      const searchInput = document.getElementById("search-input");
-      const placeholders = [
-        "ស្វែងរកអាវយឺតបុរស...",
-        "ស្វែងរកនាឡិកាឆ្លាតវៃ...",
-        "ស្វែងរកផលិតផលថែរក្សាស្បែក...",
-        "ស្វែងរកអីវ៉ាន់នៅទីនេះ...",
-      ];
-      let pIndex = 0;
-      setInterval(() => {
-        searchInput.placeholder = placeholders[pIndex];
-        pIndex = (pIndex + 1) % placeholders.length;
-      }, 3000);
-
-      const flashSecs = document.getElementById("flash-seconds");
-      let sec = 30;
-      setInterval(() => {
-        sec--;
-        if (sec < 0) sec = 59;
-        flashSecs.innerText = sec < 10 ? "0" + sec : sec;
-      }, 1000);
-
-      // ---------------------------------------------
-      // Data Fetching Logic (Products & Banners)
-      // ---------------------------------------------
       const API_BASE_PUBLIC = "/api/public";
+      let allProductsGlobal = [];
+      let allStoresMap = {}; // រក្សាទុក Store Data ដើម្បីងាយស្រួលទាញយក
+      let flashSaleData = null;
 
-      // ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage (ឱ្យវាស្គាល់គ្នាគ្រប់ Page)
+      // ---------------------------------------------
+      // ១. ប្រព័ន្ធកន្ត្រក និង Auth ឆ្លាតវៃ
+      // ---------------------------------------------
       let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
+
+      function checkAuthUI() {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (token) {
+          document.getElementById("auth-login-link").style.display = "none";
+          const historyBtn = document.getElementById("auth-history-link");
+          historyBtn.innerText = "ប្រវត្តិការទិញ";
+          historyBtn.href = "history.html"; // ដូរ Link ទៅប្រវត្តិទិញ
+          historyBtn.className =
+            "text-sm font-medium text-white bg-green-600 px-4 py-1.5 rounded-md hover:bg-green-700 shadow-sm transition";
+        }
+      }
 
       function updateCartBadge() {
         const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
@@ -535,30 +436,107 @@
         if (badge) badge.innerText = totalItems;
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
-        fetchProducts();
-        fetchSettings(); // ហៅទាញយក Banner
-        updateCartBadge(); // ពេល Load Page ភ្លាម ទាញលេខកន្ត្រកមកបង្ហាញ
+      document.addEventListener("DOMContentLoaded", async () => {
+        checkAuthUI();
+        updateCartBadge();
+
+        // ទាញទិន្នន័យ (រង់ចាំទំនិញដើរចប់សិន ព្រោះយើងត្រូវយក Product Data ទៅតម្រៀប FlashSale)
+        await fetchProducts();
+        fetchSettings();
       });
 
-      // --- ផ្នែក Banners ---
-      async function fetchSettings() {
+      // ---------------------------------------------
+      // ២. មុខងារ Search ចាប់ពាក្យ & អូសទៅក្រោម
+      // ---------------------------------------------
+      function handleSearch(event) {
+        if (event.key === "Enter") executeSearch();
+      }
+
+      function executeSearch() {
+        const term = document
+          .getElementById("search-input")
+          .value.trim()
+          .toLowerCase();
+        if (!term) return;
+
+        document
+          .getElementById("products-section")
+          .scrollIntoView({ behavior: "smooth" });
+        document.getElementById("product-section-title").innerHTML =
+          `លទ្ធផលស្វែងរក: "<span class="text-gray-800">${term}</span>"`;
+        document.getElementById("clear-search-btn").classList.remove("hidden");
+
+        const filtered = allProductsGlobal.filter(
+          (p) => p.name && p.name.toLowerCase().includes(term),
+        );
+        renderProducts(filtered);
+      }
+
+      function clearSearch() {
+        document.getElementById("search-input").value = "";
+        document.getElementById("product-section-title").innerText =
+          "ទំនិញសម្រាប់អ្នក";
+        document.getElementById("clear-search-btn").classList.add("hidden");
+        renderProducts(allProductsGlobal);
+      }
+
+      // ---------------------------------------------
+      // ៣. Fetch Data (Products & Store Extraction)
+      // ---------------------------------------------
+      async function fetchProducts() {
         try {
-          const res = await fetch("/api/settings"); // ទាញយក Setting ពី Backend
+          const res = await fetch(`${API_BASE_PUBLIC}/products`);
           const data = await res.json();
-          if (data.success && data.setting) {
-            setupSlider("hero-banner-container", data.setting.section1);
-            setupSlider("sub-banner-1-container", data.setting.section2);
-            setupSlider("sub-banner-2-container", data.setting.section3);
+
+          if (data.products) {
+            allProductsGlobal = data.products;
+
+            // Extract Unique Stores from Products
+            allProductsGlobal.forEach((p) => {
+              if (p.store && p.store._id) {
+                allStoresMap[p.store._id] = p.store;
+              }
+            });
+
+            renderProducts(allProductsGlobal);
+            renderStoreMarquee(); // ពេលបាន Store ដើរមុខងារ Marquee
           }
         } catch (error) {
-          console.error("Error fetching banners:", error);
+          console.error("Error products:", error);
         }
       }
 
-      function setupSlider(containerId, sectionData) {
-        const container = document.getElementById(containerId);
+      // ---------------------------------------------
+      // ៤. មុខងារ Banners + Flash Sale + Top Stores
+      // ---------------------------------------------
+      async function fetchSettings() {
+        try {
+          const res = await fetch("/api/settings");
+          const data = await res.json();
+          if (data.success && data.setting) {
+            const s = data.setting;
 
+            // ដូរ Logo ពិតប្រាកដ
+            if (s.logoUrl) {
+              document.getElementById("main-logo-container").innerHTML =
+                `<img src="${s.logoUrl}" alt="U-Mall" class="h-8 md:h-10 object-contain" />`;
+            }
+
+            setupSlider("hero-banner-container", s.section1, true); // true = អោយបង្ហាញសញ្ញា < >
+            setupSlider("sub-banner-1-container", s.section2, false);
+            setupSlider("sub-banner-2-container", s.section3, false);
+
+            if (s.flashSale) renderFlashSale(s.flashSale);
+            if (s.topStores) renderTopStores(s.topStores);
+          }
+        } catch (error) {
+          console.error("Error setting:", error);
+        }
+      }
+
+      // --- Slider ---
+      function setupSlider(containerId, sectionData, showArrows) {
+        const container = document.getElementById(containerId);
         if (
           !sectionData ||
           !sectionData.items ||
@@ -568,94 +546,216 @@
           return;
         }
 
-        const now = new Date();
-        const validItems = sectionData.items.filter((item) => {
-          if (!item.endDate) return true;
-          return new Date(item.endDate) >= now;
-        });
+        const validItems = sectionData.items.filter(
+          (i) => !i.endDate || new Date(i.endDate) >= new Date(),
+        );
+        if (validItems.length === 0) return;
 
-        if (validItems.length === 0) {
-          container.innerHTML = `<img src="https://via.placeholder.com/800x400/2563eb/ffffff?text=Promo+Ended" class="w-full h-full object-cover" />`;
-          return;
-        }
-
-        container.innerHTML = validItems
+        let slidesHTML = validItems
           .map((item, index) => {
-            let linkUrl = "javascript:void(0)";
-            if (item.storeId) {
-              const sId =
-                typeof item.storeId === "object"
-                  ? item.storeId._id
-                  : item.storeId;
-              linkUrl = `store.html?id=${sId}`;
-            }
-            return `
-            <a href="${linkUrl}" class="slide" title="${item.title || ""}" 
-               style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};">
-                <img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://via.placeholder.com/800x400'" />
-            </a>
-          `;
+            const link = item.storeId
+              ? `store.html?id=${typeof item.storeId === "object" ? item.storeId._id : item.storeId}`
+              : "javascript:void(0)";
+            return `<a href="${link}" class="slide" style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};"><img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500"/></a>`;
           })
           .join("");
 
+        // បញ្ចូលសញ្ញាព្រួញ (Arrows) បើវាជា Hero Banner
+        if (showArrows && validItems.length > 1) {
+          slidesHTML += `
+              <div class="slider-nav-btn nav-left" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
+              <div class="slider-nav-btn nav-right" onclick="moveSlide('${containerId}', 1, event)"><i class="fas fa-chevron-right"></i></div>
+            `;
+        }
+        container.innerHTML = slidesHTML;
+
         if (validItems.length > 1) {
-          let currentIndex = 0;
-          const intervalMs = (sectionData.intervalSeconds || 3) * 1000;
-          const direction = sectionData.slideDirection || "left";
-
-          setInterval(() => {
-            const slides = container.querySelectorAll(".slide");
-            const nextIndex = (currentIndex + 1) % slides.length;
-
-            slides[nextIndex].style.transition = "none";
-            slides[nextIndex].style.display = "block";
-            slides[nextIndex].style.transform =
-              direction === "left" ? "translateX(100%)" : "translateX(-100%)";
-
-            void container.offsetWidth;
-
-            slides[currentIndex].style.transition =
-              "transform 0.5s ease-in-out";
-            slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
-
-            slides[currentIndex].style.transform =
-              direction === "left" ? "translateX(-100%)" : "translateX(100%)";
-            slides[nextIndex].style.transform = "translateX(0)";
-
-            setTimeout(() => {
-              slides[currentIndex].style.display = "none";
-              currentIndex = nextIndex;
-            }, 500);
-          }, intervalMs);
+          container.dataset.currentIndex = 0;
+          container.dataset.total = validItems.length;
+          container.dataset.direction = sectionData.slideDirection || "left";
+          container.dataset.intervalId = setInterval(
+            () => moveSlide(containerId, 1),
+            (sectionData.intervalSeconds || 3) * 1000,
+          );
         }
       }
 
-      // --- ផ្នែក Products ---
-      async function fetchProducts() {
-        const container = document.getElementById("products-grid");
-        try {
-          const res = await fetch(`${API_BASE_PUBLIC}/products`);
-          const data = await res.json();
+      // Manual Move Slide Function
+      function moveSlide(containerId, step, event) {
+        if (event) event.preventDefault(); // ការពារកុំអោយលោត Link ពេលចុចព្រួញ
+        const container = document.getElementById(containerId);
+        let currentIndex = parseInt(container.dataset.currentIndex);
+        const total = parseInt(container.dataset.total);
+        const slides = container.querySelectorAll(".slide");
 
-          if (data.products && data.products.length > 0) {
-            renderProducts(data.products);
-          } else {
-            container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">មិនទាន់មានផលិតផលដាក់លក់នៅឡើយទេ។</div>`;
+        let nextIndex = currentIndex + step;
+        if (nextIndex >= total) nextIndex = 0;
+        if (nextIndex < 0) nextIndex = total - 1;
+
+        // បញ្ឈប់ Auto ពេលគេចុចព្រួញ
+        if (event) {
+          clearInterval(parseInt(container.dataset.intervalId));
+        }
+
+        slides[nextIndex].style.transition = "none";
+        slides[nextIndex].style.display = "block";
+        slides[nextIndex].style.transform =
+          step === 1 ? "translateX(100%)" : "translateX(-100%)";
+
+        void container.offsetWidth; // trigger reflow
+
+        slides[currentIndex].style.transition = "transform 0.5s ease-in-out";
+        slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
+
+        slides[currentIndex].style.transform =
+          step === 1 ? "translateX(-100%)" : "translateX(100%)";
+        slides[nextIndex].style.transform = "translateX(0)";
+
+        setTimeout(() => {
+          slides[currentIndex].style.display = "none";
+        }, 500);
+        container.dataset.currentIndex = nextIndex;
+      }
+
+      // --- Marquee ហាង (Store Running) ---
+      function renderStoreMarquee() {
+        const stores = Object.values(allStoresMap);
+        const container = document.getElementById("store-marquee-content");
+
+        if (stores.length === 0) {
+          container.parentElement.style.display = "none";
+          return;
+        }
+
+        // បង្កើត HTML មួយឈុតសិន
+        let itemsHTML = stores
+          .map(
+            (s) => `
+            <div class="marquee-item" onclick="window.location.href='store.html?id=${s._id}'">
+               <img src="${s.logoUrl || "https://via.placeholder.com/40"}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
+               <span class="font-medium text-gray-700 text-sm whitespace-nowrap">${s.storeName}</span>
+            </div>
+         `,
+          )
+          .join("");
+
+        // បើហាងមានតិច វានឹងដាច់ យើងត្រូវ Duplicate (គុណ) Data ដើម្បីអោយវារត់តៗគ្នា (Loop) ស្អាត
+        let loopCount = stores.length < 5 ? 6 : 3;
+        let finalHTML = "";
+        for (let i = 0; i < loopCount; i++) {
+          finalHTML += itemsHTML;
+        }
+
+        container.innerHTML = finalHTML;
+      }
+
+      // --- Flash Sale Real Data ---
+      function renderFlashSale(fsData) {
+        if (!fsData.endTime || !fsData.items || fsData.items.length === 0)
+          return;
+
+        // Setup Countdown
+        const endTime = new Date(fsData.endTime).getTime();
+        setInterval(() => {
+          const now = new Date().getTime();
+          const distance = endTime - now;
+          if (distance < 0) {
+            document.getElementById("flash-countdown-container").innerHTML =
+              "ផុតកំណត់";
+            return;
           }
-        } catch (error) {
-          console.error("Error fetching products:", error);
-          container.innerHTML = `<div class="col-span-full text-center py-10 text-red-500">បរាជ័យក្នុងការទាញយកទិន្នន័យ។ សូមពិនិត្យអ៊ិនធឺណិតរបស់អ្នក!</div>`;
-        }
+          const h = Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+          );
+          const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const s = Math.floor((distance % (1000 * 60)) / 1000);
+          document.getElementById("flash-hrs").innerText = h < 10 ? "0" + h : h;
+          document.getElementById("flash-mins").innerText =
+            m < 10 ? "0" + m : m;
+          document.getElementById("flash-secs").innerText =
+            s < 10 ? "0" + s : s;
+        }, 1000);
+
+        // Render FS Items (Map via allProductsGlobal to get product details)
+        const fsHTML = fsData.items
+          .map((item) => {
+            const pId =
+              typeof item.productId === "object"
+                ? item.productId._id
+                : item.productId;
+            const p = allProductsGlobal.find((x) => x._id === pId);
+            if (!p) return "";
+
+            const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
+            const oldPrice = p.price;
+            const newPrice = oldPrice - oldPrice * (item.discountPercent / 100);
+            const pCent = Math.min(
+              100,
+              Math.round((item.soldCount / item.totalStock) * 100),
+            );
+
+            return `
+             <div class="min-w-[140px] md:min-w-[180px] snap-start bg-white border border-gray-100 rounded-lg p-2 md:p-3 hover:shadow-md transition cursor-pointer relative shrink-0" onclick="window.location.href='store.html?id=${p.store?._id}'">
+                <div class="absolute top-0 right-0 bg-yellow-400 text-red-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg z-10">-${item.discountPercent}%</div>
+                <img src="${p.imageUrl || "https://via.placeholder.com/150"}" class="w-full h-28 md:h-36 object-cover rounded mb-2 md:mb-3" />
+                <div class="text-base md:text-lg font-bold text-red-600 mb-1 md:mb-2">$${newPrice.toFixed(2)}
+                  <span class="text-[10px] md:text-xs text-gray-400 line-through font-normal">$${oldPrice.toFixed(2)}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5 md:h-2 mb-1">
+                  <div class="bg-red-500 h-1.5 md:h-2 rounded-full" style="width: ${pCent}%"></div>
+                </div>
+                <div class="text-[9px] md:text-[10px] text-gray-500 text-center">លក់បាន ${item.soldCount} គ្រឿង</div>
+                
+                <div class="mt-2" onclick="event.stopPropagation()">
+                   <button onclick="addToCart('${p._id}', '${safeName}', ${newPrice.toFixed(2)}, '${p.store?._id}')" class="w-full bg-red-50 text-red-600 text-xs py-1 rounded hover:bg-red-500 hover:text-white transition">ទិញឥឡូវនេះ</button>
+                </div>
+             </div>
+             `;
+          })
+          .join("");
+
+        document.getElementById("flash-sale-grid").innerHTML = fsHTML;
       }
 
+      // --- Top Stores Real Data ---
+      function renderTopStores(storeIds) {
+        if (!storeIds || storeIds.length === 0) return;
+        let html = "";
+        storeIds.forEach((id) => {
+          const realId = typeof id === "object" ? id._id : id;
+          const s = allStoresMap[realId];
+          if (s) {
+            html += `
+                <div onclick="window.location.href='store.html?id=${s._id}'" class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer border border-gray-100">
+                  <div class="h-16 md:h-24 bg-blue-100 w-full relative">
+                    <img src="https://via.placeholder.com/300x100/3b82f6/ffffff?text=Cover" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="px-3 md:px-4 pb-3 md:pb-4 pt-6 md:pt-8 relative text-center">
+                    <div class="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-12 h-12 md:w-16 md:h-16 bg-white rounded-full p-1 shadow-md">
+                      <img src="${s.logoUrl || "https://via.placeholder.com/60"}" class="w-full h-full rounded-full object-cover" />
+                    </div>
+                    <h3 class="font-bold text-sm md:text-base text-gray-800 flex justify-center items-center">
+                      ${s.storeName} <i class="fas fa-check-circle text-blue-500 ml-1 text-[10px]" title="Verified"></i>
+                    </h3>
+                  </div>
+                </div>`;
+          }
+        });
+        if (html) document.getElementById("top-stores-grid").innerHTML = html;
+      }
+
+      // --- Normal Render Products ---
       function renderProducts(products) {
         const container = document.getElementById("products-grid");
+        if (products.length === 0) {
+          container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">រកមិនឃើញទំនិញតាមការស្វែងរករបស់អ្នកទេ។</div>`;
+          return;
+        }
+
         container.innerHTML = products
           .map((p) => {
             const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
-            const storeName = p.store?.storeName
-              ? p.store.storeName
-              : "U-Mall Official";
+            const storeName = p.store?.storeName || "U-Mall Official";
             const image = p.imageUrl || "https://via.placeholder.com/200";
 
             return `
@@ -663,7 +763,6 @@
                     <div class="relative w-full pb-[100%]">
                         <img src="${image}" alt="Product" class="absolute top-0 left-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/200'">
                     </div>
-                    
                     <div class="p-2 md:p-3 flex-1 flex flex-col">
                         <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1 md:mb-2" title="${p.name}">${p.name}</h3>
                         <div class="mt-auto">
@@ -677,32 +776,23 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="add-to-cart-btn lg:absolute bottom-0 left-0 w-full p-2 bg-white lg:bg-opacity-95 mt-auto">
                         <button onclick="addToCart('${p._id}', '${safeName}', ${p.price}, '${p.store?._id}')" class="w-full bg-blue-600 text-white py-1.5 md:py-2 rounded shadow hover:bg-blue-700 text-xs md:text-sm font-medium transition flex items-center justify-center gap-1 md:gap-2">
                             <i class="fas fa-cart-plus"></i> <span class="hidden sm:inline">បញ្ចូលកន្ត្រក</span>
                         </button>
                     </div>
-                </div>
-                `;
+                </div>`;
           })
           .join("");
       }
 
-      // --- ផ្នែក Add to Cart (ប្រើ LocalStorage) ---
       function addToCart(productId, name, price, storeId) {
         cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
-
         const existingItem = cart.find((item) => item.productId === productId);
-        if (existingItem) {
-          existingItem.qty = (existingItem.qty || 1) + 1;
-        } else {
-          cart.push({ productId, name, price, storeId, qty: 1 });
-        }
-
+        if (existingItem) existingItem.qty = (existingItem.qty || 1) + 1;
+        else cart.push({ productId, name, price, storeId, qty: 1 });
         localStorage.setItem("umall_cart", JSON.stringify(cart));
         updateCartBadge();
-
         const badge = document.getElementById("cart-count");
         if (badge) {
           badge.style.transform = "scale(1.5)";
