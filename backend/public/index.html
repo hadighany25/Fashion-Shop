@@ -525,11 +525,20 @@
       // Data Fetching Logic (Products & Banners)
       // ---------------------------------------------
       const API_BASE_PUBLIC = "/api/public";
-      let cart = [];
+
+      // ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage (ឱ្យវាស្គាល់គ្នាគ្រប់ Page)
+      let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
+
+      function updateCartBadge() {
+        const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+        const badge = document.getElementById("cart-count");
+        if (badge) badge.innerText = totalItems;
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
         fetchProducts();
         fetchSettings(); // ហៅទាញយក Banner
+        updateCartBadge(); // ពេល Load Page ភ្លាម ទាញលេខកន្ត្រកមកបង្ហាញ
       });
 
       // --- ផ្នែក Banners ---
@@ -680,20 +689,25 @@
           .join("");
       }
 
+      // --- ផ្នែក Add to Cart (ប្រើ LocalStorage) ---
       function addToCart(productId, name, price, storeId) {
+        cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
+
         const existingItem = cart.find((item) => item.productId === productId);
         if (existingItem) {
-          existingItem.qty += 1;
+          existingItem.qty = (existingItem.qty || 1) + 1;
         } else {
           cart.push({ productId, name, price, storeId, qty: 1 });
         }
 
-        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-        const badge = document.getElementById("cart-count");
-        badge.innerText = totalItems;
+        localStorage.setItem("umall_cart", JSON.stringify(cart));
+        updateCartBadge();
 
-        badge.style.transform = "scale(1.5)";
-        setTimeout(() => (badge.style.transform = "scale(1)"), 200);
+        const badge = document.getElementById("cart-count");
+        if (badge) {
+          badge.style.transform = "scale(1.5)";
+          setTimeout(() => (badge.style.transform = "scale(1)"), 200);
+        }
       }
     </script>
   </body>
