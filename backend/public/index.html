@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>U-Mall - Your online marketplace</title>
+    <title>U-Mall - ផ្សារអនឡាញរបស់អ្នក</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -27,7 +27,6 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      /* Hide scrollbar for horizontal scroll */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -35,7 +34,8 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      /* Product Card Hover */
+
+      /* Product Card Hover Effect */
       .product-card:hover .add-to-cart-btn {
         opacity: 1;
         transform: translateY(0);
@@ -45,12 +45,16 @@
         transform: translateY(10px);
         transition: all 0.3s ease;
       }
+
+      /* Cart Animation */
+      #cart-count {
+        transition: transform 0.2s ease-in-out;
+      }
     </style>
   </head>
   <body class="text-gray-800 antialiased">
-    <!-- 🌟 ១. Smart Header (Sticky) -->
+    <!-- 🌟 ១. Smart Header -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
-      <!-- Top bar (Contact/Lang) -->
       <div class="bg-blue-600 text-white text-xs py-1">
         <div class="max-w-7xl mx-auto px-4 flex justify-between">
           <div class="flex space-x-4">
@@ -58,7 +62,6 @@
               ><i class="fas fa-bullhorn mr-1"></i> ក្លាយជាអ្នកលក់នៅលើ
               U-Mall</span
             >
-            <span><i class="fas fa-download mr-1"></i> ទាញយកកម្មវិធី</span>
           </div>
           <div class="flex space-x-4">
             <a href="#" class="hover:text-gray-200">ជំនួយ</a>
@@ -67,11 +70,9 @@
         </div>
       </div>
 
-      <!-- Main Navbar -->
       <div
         class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between"
       >
-        <!-- Logo (កន្លែងនេះ Admin នឹងអាចកែបានតាម Link ពេលក្រោយ) -->
         <a href="/" class="flex items-center space-x-2 w-1/4">
           <div
             class="bg-blue-600 text-white p-2 rounded-lg font-bold text-2xl leading-none"
@@ -83,7 +84,6 @@
           >
         </a>
 
-        <!-- Smart Search Bar -->
         <div class="w-2/4 px-4">
           <div class="relative flex w-full">
             <input
@@ -98,37 +98,27 @@
               <i class="fas fa-search"></i>
             </button>
           </div>
-          <!-- Popular keywords -->
-          <div class="flex space-x-3 text-xs text-gray-500 mt-2">
-            <a href="#" class="hover:text-blue-600">អាវយឺតបុរស</a>
-            <a href="#" class="hover:text-blue-600">កាស Bluetooth</a>
-            <a href="#" class="hover:text-blue-600">នាឡិកាឆ្លាតវៃ</a>
-            <a href="#" class="hover:text-blue-600">ស្បែកជើងប៉ាតា</a>
-          </div>
         </div>
 
-        <!-- Cart & Auth -->
         <div class="w-1/4 flex justify-end items-center space-x-6">
+          <!-- 🛒 កន្ត្រកទំនិញ (ភ្ជាប់ ID សម្រាប់ JS) -->
           <a
-            href="cart.html"
+            href="#"
+            onclick="alert('មុខងារកន្ត្រកទំនិញនឹងមកដល់ឆាប់ៗនេះ!')"
             class="relative text-gray-600 hover:text-blue-600 transition"
           >
             <i class="fas fa-shopping-cart text-2xl"></i>
             <span
+              id="cart-count"
               class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white"
-              >3</span
+              >0</span
             >
           </a>
           <div class="border-l pl-6 flex space-x-3">
             <a
-              href="login.html"
-              class="text-sm font-medium text-gray-600 hover:text-blue-600"
-              >ចូលគណនី</a
-            >
-            <a
-              href="register.html"
+              href="admin-login.html"
               class="text-sm font-medium text-white bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 shadow-sm transition"
-              >ចុះឈ្មោះ</a
+              >ចូលគណនីហាង</a
             >
           </div>
         </div>
@@ -136,293 +126,141 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
-      <!-- 🖼️ ២. Hero Banner (Grid Layout) -->
-      <!-- កន្លែងនេះ Admin នឹងបញ្ចូល Link រូបភាពតាមក្រោយ -->
+      <!-- 🖼️ ២. Hero Banner & Flash Sale (នៅរក្សាទុកសិនចាំ Admin ប្ដូរ) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[350px]">
         <div
-          class="md:col-span-2 bg-gray-200 rounded-xl overflow-hidden relative group cursor-pointer shadow-sm"
+          class="md:col-span-2 bg-gray-200 rounded-xl overflow-hidden relative shadow-sm"
         >
           <img
-            src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall+Mega+Sale+50%25"
-            alt="Main Banner"
-            class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+            src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall+Mega+Sale"
+            class="w-full h-full object-cover"
           />
         </div>
         <div class="flex flex-col gap-4">
-          <div
-            class="flex-1 bg-gray-200 rounded-xl overflow-hidden relative group cursor-pointer shadow-sm"
-          >
+          <div class="flex-1 bg-gray-200 rounded-xl overflow-hidden shadow-sm">
             <img
               src="https://via.placeholder.com/400x190/ef4444/ffffff?text=Free+Delivery"
-              alt="Promo 1"
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+              class="w-full h-full object-cover"
             />
           </div>
-          <div
-            class="flex-1 bg-gray-200 rounded-xl overflow-hidden relative group cursor-pointer shadow-sm"
-          >
+          <div class="flex-1 bg-gray-200 rounded-xl overflow-hidden shadow-sm">
             <img
               src="https://via.placeholder.com/400x190/10b981/ffffff?text=New+Arrivals"
-              alt="Promo 2"
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+              class="w-full h-full object-cover"
             />
           </div>
         </div>
       </div>
 
-      <!-- ⚡ ៣. Flash Sale Section -->
-      <div
-        class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-red-500 relative overflow-hidden"
-      >
-        <div class="flex justify-between items-end mb-6">
-          <div class="flex items-center space-x-4">
-            <h2
-              class="text-2xl font-bold text-red-600 italic flex items-center"
-            >
-              <i class="fas fa-bolt mr-2"></i> FLASH SALE
-            </h2>
-            <div class="flex items-center space-x-2 text-white font-bold">
-              <span class="bg-gray-800 px-2 py-1 rounded">02</span
-              ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded">45</span
-              ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded" id="seconds-timer"
-                >30</span
-              >
-            </div>
-          </div>
-          <a href="#" class="text-blue-600 text-sm font-medium hover:underline"
-            >មើលទាំងអស់ <i class="fas fa-chevron-right text-xs"></i
-          ></a>
-        </div>
-
-        <div class="flex space-x-4 overflow-x-auto no-scrollbar pb-4">
-          <!-- Flash Sale Item 1 -->
-          <div
-            class="min-w-[180px] bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition cursor-pointer relative"
-          >
-            <div
-              class="absolute top-0 right-0 bg-yellow-400 text-red-700 text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg z-10"
-            >
-              -40%
-            </div>
-            <img
-              src="https://via.placeholder.com/150"
-              alt="Product"
-              class="w-full h-36 object-cover rounded mb-3"
-            />
-            <div class="text-lg font-bold text-red-600 mb-2">
-              $15.00
-              <span class="text-xs text-gray-400 line-through font-normal"
-                >$25.00</span
-              >
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
-              <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
-            </div>
-            <div class="text-[10px] text-gray-500 text-center">
-              លក់បាន 85 គ្រឿង
-            </div>
-          </div>
-          <!-- បន្ថែម Item បន្តទៀតឱ្យវាអាចអូសបាន (ទីនេះខ្ញុំដាក់តំណាង ១ សិន) -->
-        </div>
-      </div>
-
-      <!-- 🏬 ៤. Top Stores (U-Mall Official) -->
-      <div>
-        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-          <i class="fas fa-award text-yellow-500 mr-2"></i> ហាងល្បីប្រចាំសប្ដាហ៍
-        </h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <!-- Store Card 1 -->
-          <div
-            class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer border border-gray-100"
-          >
-            <div class="h-24 bg-gray-300 w-full relative">
-              <img
-                src="https://via.placeholder.com/300x100"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="px-4 pb-4 pt-8 relative text-center">
-              <div
-                class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full p-1 shadow-md"
-              >
-                <img
-                  src="https://via.placeholder.com/60"
-                  class="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <h3
-                class="font-bold text-gray-800 flex justify-center items-center"
-              >
-                Fashion Pro
-                <i
-                  class="fas fa-check-circle text-blue-500 ml-1 text-xs"
-                  title="Verified Store"
-                ></i>
-              </h3>
-              <p class="text-xs text-gray-500 mt-1">អ្នកតាមដាន 12K</p>
-              <button
-                class="mt-3 w-full border border-blue-600 text-blue-600 text-sm py-1 rounded hover:bg-blue-50 transition"
-              >
-                ចូលមើលហាង
-              </button>
-            </div>
-          </div>
-          <!-- អាច Copy Store Card នេះដាក់បន្ថែមបាន -->
-        </div>
-      </div>
-
-      <!-- 🛍️ ៥. Daily Discover (ទំនិញសម្រាប់អ្នក) -->
+      <!-- 🛍️ ៥. Daily Discover (កន្លែងបាញ់ទិន្នន័យពិត) -->
       <div>
         <div
-          class="bg-white rounded-t-xl border-b-2 border-blue-600 inline-block px-6 py-3"
+          class="bg-white rounded-t-xl border-b-2 border-blue-600 inline-block px-6 py-3 mb-4"
         >
           <h2 class="text-xl font-bold text-blue-600">ទំនិញសម្រាប់អ្នក</h2>
         </div>
 
-        <div
-          class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4"
-          id="products-grid"
-        >
-          <!-- Product Card (Hover Effect) -->
-          <div
-            class="product-card bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full"
-          >
-            <img
-              src="https://via.placeholder.com/200"
-              alt="Product"
-              class="w-full h-48 object-cover"
-            />
-            <div class="p-3 flex-1 flex flex-col">
-              <h3 class="text-sm text-gray-700 line-clamp-2 leading-snug mb-2">
-                អាវយឺតបុរសសាច់ត្រជាក់ ម៉ូតថ្មីទាន់សម័យ ខោអាវបុរស
-              </h3>
-              <div class="mt-auto">
-                <div class="text-lg font-bold text-blue-600 mb-1">$12.50</div>
-                <div
-                  class="flex justify-between items-center text-xs text-gray-500"
-                >
-                  <div><i class="fas fa-star text-yellow-400"></i> 4.8</div>
-                  <div>លក់បាន 1.2k</div>
-                </div>
-                <div class="text-[10px] text-gray-400 mt-2 border-t pt-1">
-                  <i class="fas fa-store"></i> Fashion Pro
-                </div>
-              </div>
-            </div>
-            <!-- Add to Cart Overlay Button -->
-            <div
-              class="absolute bottom-0 left-0 w-full p-2 add-to-cart-btn bg-white bg-opacity-90"
-            >
-              <button
-                class="w-full bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 text-sm font-medium transition"
-              >
-                <i class="fas fa-cart-plus mr-1"></i> បញ្ចូលកន្ត្រក
-              </button>
-            </div>
+        <!-- នេះជា Grid ដែល JS នឹងចាក់ទិន្នន័យចូល -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="products-grid">
+          <div class="col-span-full text-center py-10 text-gray-500">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i
+            ><br />
+            កំពុងទាញយកទំនិញពិតពីប្រព័ន្ធ...
           </div>
-          <!-- យើងនឹងប្រើ JS ទាញទិន្នន័យពិតមកដាក់ត្រង់នេះនៅពេលក្រោយ -->
-        </div>
-
-        <!-- Load More Button -->
-        <div class="text-center mt-8">
-          <button
-            class="bg-white border border-gray-300 text-gray-700 px-8 py-2.5 rounded-lg shadow-sm hover:bg-gray-50 transition font-medium"
-          >
-            មើលបន្ថែមទៀត (Load More)
-          </button>
         </div>
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t mt-12 pt-12 pb-6">
-      <div
-        class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8"
-      >
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4">សេវាកម្មអតិថិជន</h4>
-          <ul class="space-y-2 text-sm text-gray-600">
-            <li><a href="#" class="hover:text-blue-600">មជ្ឈមណ្ឌលជំនួយ</a></li>
-            <li><a href="#" class="hover:text-blue-600">របៀបទិញទំនិញ</a></li>
-            <li><a href="#" class="hover:text-blue-600">ការដឹកជញ្ជូន</a></li>
-            <li>
-              <a href="#" class="hover:text-blue-600">ការបង្វិលប្រាក់មកវិញ</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4">អំពី U-Mall</h4>
-          <ul class="space-y-2 text-sm text-gray-600">
-            <li><a href="#" class="hover:text-blue-600">អំពីយើង</a></li>
-            <li><a href="#" class="hover:text-blue-600">គោលការណ៍ឯកជនភាព</a></li>
-            <li>
-              <a href="#" class="hover:text-blue-600">លក្ខខណ្ឌប្រើប្រាស់</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4">ការទូទាត់ប្រាក់</h4>
-          <div class="flex space-x-2">
-            <div
-              class="w-12 h-8 bg-blue-900 rounded flex items-center justify-center text-white text-xs font-bold"
-            >
-              ABA
-            </div>
-            <div
-              class="w-12 h-8 bg-green-600 rounded flex items-center justify-center text-white text-xs font-bold"
-            >
-              ACLEDA
-            </div>
-          </div>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4">ទាញយកកម្មវិធី</h4>
-          <div class="flex space-x-2">
-            <img
-              src="https://via.placeholder.com/100x30"
-              alt="App Store"
-              class="cursor-pointer"
-            />
-            <img
-              src="https://via.placeholder.com/100x30"
-              alt="Google Play"
-              class="cursor-pointer"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="border-t pt-6 text-center text-sm text-gray-500">
-        &copy; 2024 U-Mall. រក្សាសិទ្ធិគ្រប់យ៉ាង។
-      </div>
-    </footer>
-
     <script>
-      // JS សម្រាប់ Animation អក្សរនៅក្នុងប្រអប់ Search
-      const searchInput = document.getElementById("search-input");
-      const placeholders = [
-        "ស្វែងរកអាវយឺតបុរស...",
-        "ស្វែងរកនាឡិកាឆ្លាតវៃ...",
-        "ស្វែងរកផលិតផលថែរក្សាស្បែក...",
-        "ស្វែងរកអីវ៉ាន់នៅទីនេះ...",
-      ];
-      let pIndex = 0;
+      // ----------------------------------------------------
+      // Logic ទាញយកទិន្នន័យពី Backend ដែលបងបានសរសេរ
+      // ----------------------------------------------------
+      const API_BASE_PUBLIC = "/api/public";
+      let cart = []; // តួអង្គកន្ត្រកទំនិញ
 
-      setInterval(() => {
-        searchInput.placeholder = placeholders[pIndex];
-        pIndex = (pIndex + 1) % placeholders.length;
-      }, 3000);
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchProducts();
+      });
 
-      // JS សម្រាប់ម៉ោងរាប់ថយក្រោយ (Flash Sale Timer - ចុះវិនាទី)
-      const secondsTimer = document.getElementById("seconds-timer");
-      let sec = 30;
-      setInterval(() => {
-        sec--;
-        if (sec < 0) sec = 59; // រីសិតមក 59 វិញដើម្បីធ្វើជាឧទាហរណ៍
-        secondsTimer.innerText = sec < 10 ? "0" + sec : sec;
-      }, 1000);
+      // ១. ទាញទិន្នន័យពិត
+      async function fetchProducts() {
+        const container = document.getElementById("products-grid");
+        try {
+          const res = await fetch(`${API_BASE_PUBLIC}/products`);
+          const data = await res.json();
+
+          if (data.products && data.products.length > 0) {
+            renderProducts(data.products);
+          } else {
+            container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">មិនទាន់មានផលិតផលដាក់លក់នៅឡើយទេ។</div>`;
+          }
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          container.innerHTML = `<div class="col-span-full text-center py-10 text-red-500">បរាជ័យក្នុងការទាញយកទិន្នន័យ។ សូមពិនិត្យអ៊ិនធឺណិតរបស់អ្នក!</div>`;
+        }
+      }
+
+      // ២. បញ្ចេញទិន្នន័យក្នុងទម្រង់ UI ថ្មី (U-Mall Card)
+      function renderProducts(products) {
+        const container = document.getElementById("products-grid");
+        container.innerHTML = products
+          .map((p) => {
+            // ការពារកុំឱ្យបញ្ហាសញ្ញា (') ពេលបញ្ជូនឈ្មោះទំនិញទៅក្នុង Function addToCart
+            const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
+            const storeName = p.store?.storeName
+              ? p.store.storeName
+              : "U-Mall Official";
+            const image = p.imageUrl || "https://via.placeholder.com/200";
+
+            return `
+                <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
+                    <img src="${image}" alt="Product" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/200'">
+                    
+                    <div class="p-3 flex-1 flex flex-col">
+                        <h3 class="text-sm text-gray-700 line-clamp-2 leading-snug mb-2" title="${p.name}">${p.name}</h3>
+                        <div class="mt-auto">
+                            <div class="text-lg font-bold text-blue-600 mb-1">$${p.price.toFixed(2)}</div>
+                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                <div><i class="fas fa-star text-yellow-400"></i> 5.0</div>
+                                <div><i class="fas fa-box-open"></i> ថ្មី</div>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-2 border-t pt-1">
+                                <i class="fas fa-store text-blue-500"></i> ${storeName}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ប៊ូតុង Add to Cart បែប Hover -->
+                    <div class="absolute bottom-0 left-0 w-full p-2 add-to-cart-btn bg-white bg-opacity-95">
+                        <button onclick="addToCart('${p._id}', '${safeName}', ${p.price}, '${p.store?._id}')" class="w-full bg-blue-600 text-white py-2 rounded shadow hover:bg-blue-700 text-sm font-medium transition flex items-center justify-center gap-2">
+                            <i class="fas fa-cart-plus"></i> បញ្ចូលកន្ត្រក
+                        </button>
+                    </div>
+                </div>
+                `;
+          })
+          .join("");
+      }
+
+      // ៣. បញ្ចូលអីវ៉ាន់ទៅកន្ត្រក និងលោត Animation
+      function addToCart(productId, name, price, storeId) {
+        const existingItem = cart.find((item) => item.productId === productId);
+
+        if (existingItem) {
+          existingItem.qty += 1;
+        } else {
+          cart.push({ productId, name, price, storeId, qty: 1 });
+        }
+
+        // Update លេខនៅលើ Badge កន្ត្រកខាងលើ
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        const badge = document.getElementById("cart-count");
+        badge.innerText = totalItems;
+
+        // បញ្ចេញ Animation អោយកន្ត្រកលោតឌឹបៗ
+        badge.style.transform = "scale(1.5)";
+        setTimeout(() => (badge.style.transform = "scale(1)"), 200);
+      }
     </script>
   </body>
 </html>
