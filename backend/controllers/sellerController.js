@@ -36,12 +36,18 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
-    const { storeName, logoUrl, description, paymentInfo, categories } =
-      req.body;
+    const {
+      storeName,
+      logoUrl,
+      coverUrl,
+      description,
+      paymentInfo,
+      categories,
+    } = req.body;
 
     const store = await Store.findOneAndUpdate(
       { owner: userId },
-      { storeName, logoUrl, description, paymentInfo, categories },
+      { storeName, logoUrl, coverUrl, description, paymentInfo, categories },
       { new: true },
     );
 

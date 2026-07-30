@@ -25,6 +25,11 @@ const storeSchema = new mongoose.Schema(
       type: String,
       default: "", // ទុកចំហរឱ្យ Admin ឬ Seller ដាក់ Link រូបតាមក្រោយ
     },
+    coverUrl: {
+      // 👈 បន្ថែមថ្មីនៅទីនេះ
+      type: String,
+      default: "", // ទុកចំហរឱ្យ Seller ដាក់ Link រូប Cover
+    },
     address: {
       type: String,
       default: "", // ទីតាំងហាង
