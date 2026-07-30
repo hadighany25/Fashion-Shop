@@ -15,7 +15,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const sellerRoutes = require("./routes/sellerRoutes");
-
+const publicRoutes = require("./routes/publicRoutes");
+app.use("/api/public", publicRoutes); // Public API មិនត្រូវការ verifyToken ទេ
 // ២. ទាញយក User Model សម្រាប់បង្កើត Super Admin
 const User = require("./models/User");
 

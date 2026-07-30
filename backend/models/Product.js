@@ -2,17 +2,10 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
-    store: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Store", // ភ្ជាប់ទៅកាន់ Store (បញ្ជាក់ថាទំនិញនេះជារបស់ហាងណា)
-      required: true,
-    },
     name: {
       type: String,
       required: true,
-    },
-    description: {
-      type: String,
+      trim: true,
     },
     price: {
       type: Number,
@@ -25,17 +18,26 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
-    category: {
+    imageUrl: {
       type: String,
-      required: true,
+      default: "", // Link រូបភាព
     },
-    image: {
-      type: String, // ទុក URL របស់រូបភាព
-      default: "https://via.placeholder.com/300",
+    description: {
+      type: String,
+      default: "",
+    },
+    store: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true, // ផលិតផលនីមួយៗដាច់ខាតត្រូវតែជារបស់ហាងណាមួយ
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category", // ភ្ជាប់ទៅកាន់ Category (បងអាចប្ដូរទៅជា String ធម្មតាក៏បាន បើអត់ចង់ប្រើ Category Model)
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // វានឹងបង្កើតថ្ងៃខែបន្ថែម (createdAt, updatedAt) ដោយស្វ័យប្រវត្តិ
   },
 );
 
