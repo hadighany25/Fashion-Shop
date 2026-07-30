@@ -1,11 +1,7 @@
 const User = require("../models/User");
 const Store = require("../models/Store");
 const bcrypt = require("bcryptjs");
-
-// ចំណាំ៖ បងត្រូវប្រាកដថាបងមាន File Models ទាំង ៣ នេះ។
-// បើមិនទាន់មាន ខ្ញុំមានប្រាប់ពីរបៀបបង្កើតខ្លីៗនៅខាងក្រោម។
 const Product = require("../models/Product");
-const Category = require("../models/Category");
 const Order = require("../models/Order");
 
 // ==========================================
@@ -28,12 +24,14 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { storeName, logoUrl, description } = req.body;
+    // បន្ថែម paymentInfo និង categories ចូលមកក្នុងនេះ
+    const { storeName, logoUrl, description, paymentInfo, categories } =
+      req.body;
 
     const store = await Store.findOneAndUpdate(
       { owner: req.user._id },
-      { storeName, logoUrl, description },
-      { new: true }, // Return ទិន្នន័យថ្មី
+      { storeName, logoUrl, description, paymentInfo, categories }, // ដាក់ឱ្យវា Save ចូល DB
+      { new: true },
     );
 
     res.json({ success: true, store, message: "បានកែប្រែដោយជោគជ័យ" });
@@ -63,43 +61,13 @@ exports.changePassword = async (req, res) => {
 };
 
 // ==========================================
-// CATEGORIES
-// ==========================================
-exports.getCategories = async (req, res) => {
-  try {
-    const store = await Store.findOne({ owner: req.user._id });
-    const categories = await Category.find({ store: store._id });
-    res.json({ success: true, categories });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-exports.createCategory = async (req, res) => {
-  try {
-    const { name } = req.body;
-    const store = await Store.findOne({ owner: req.user._id });
-
-    const category = new Category({ name, store: store._id });
-    await category.save();
-
-    res.status(201).json({ success: true, category });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// ==========================================
 // PRODUCTS
 // ==========================================
 exports.getProducts = async (req, res) => {
   try {
     const store = await Store.findOne({ owner: req.user._id });
-    // ទាញយក Products ហើយ Populate (ភ្ជាប់) ឈ្មោះ Category មកជាមួយ
-    const products = await Product.find({ store: store._id }).populate(
-      "category",
-      "name",
-    );
+    // ដក populate ចេញ ព្រោះឥឡូវ Category គ្រាន់តែជា String ធម្មតា
+    const products = await Product.find({ store: store._id });
     res.json({ success: true, products });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -116,7 +84,7 @@ exports.createProduct = async (req, res) => {
       price,
       stock,
       imageUrl,
-      category,
+      category, // category ឥឡូវចូលជា String ធម្មតា
       store: store._id,
     });
     await product.save();

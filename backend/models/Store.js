@@ -17,7 +17,6 @@ const storeSchema = new mongoose.Schema(
       required: true,
       trim: true, // Admin អាចវាយបញ្ចូលប្រភេទអីក៏បានតាមចិត្ត
     },
-    // បន្ថែមថ្មី សម្រាប់ Profile ហាងពេញលេញ
     description: {
       type: String,
       default: "",
@@ -30,7 +29,21 @@ const storeSchema = new mongoose.Schema(
       type: String,
       default: "", // ទីតាំងហាង
     },
-    // បន្ថែមថ្មី សម្រាប់ប្រព័ន្ធលុយកាក់ (Admin គ្រប់គ្រង)
+
+    // ==========================================
+    // ចំណុចដែលទើបតែបន្ថែមថ្មីសម្រាប់ Seller Center
+    // ==========================================
+    categories: {
+      type: [String], // ទម្រង់ Array សម្រាប់ទុកឈ្មោះ Category ច្រើន (ឧ. ["អាវ", "ខោ", "ស្បែកជើង"])
+      default: [],
+    },
+    paymentInfo: {
+      bankName: { type: String, default: "" }, // ឈ្មោះធនាគារ (ឧ. ABA, ACLEDA)
+      accountName: { type: String, default: "" }, // ឈ្មោះម្ចាស់គណនី
+      accountNumber: { type: String, default: "" }, // លេខគណនី
+    },
+    // ==========================================
+
     commissionRate: {
       type: Number,
       default: 10, // ឧទាហរណ៍៖ ប្រព័ន្ធកាត់កុង ១០% ពីរាល់ការលក់

@@ -1,935 +1,1137 @@
 <!doctype html>
-<html lang="en">
+<html lang="km">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seller Center | Fashion Shop</title>
+    <title>Seller Center - Fashion Shop</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts (Kantumruy Pro) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <!-- SweetAlert2 (សម្រាប់ផ្ទាំង Alert ស្អាតៗ) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
-      :root {
-        --primary: #4f46e5;
-        --primary-hover: #4338ca;
-        --accent: #f97316;
-        --bg-main: #f3f4f6;
-        --bg-card: #ffffff;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-        --border-color: #e5e7eb;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-      }
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "DM Sans", sans-serif;
-      }
       body {
-        display: flex;
-        height: 100vh;
-        background-color: var(--bg-main);
-        color: var(--text-dark);
-        overflow: hidden;
+        font-family: "Kantumruy Pro", sans-serif;
+        background-color: #f3f4f6;
       }
-
-      /* Sidebar */
-      .sidebar {
-        width: 260px;
-        background-color: var(--bg-card);
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid var(--border-color);
-        z-index: 10;
-      }
-      .sidebar-logo {
-        padding: 25px 20px;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border-bottom: 1px solid var(--border-color);
-      }
-      .sidebar-logo i {
-        color: var(--accent);
-      }
-      .nav-menu {
-        list-style: none;
-        flex: 1;
-        padding: 20px 0;
-      }
-      .nav-menu a {
-        display: flex;
-        align-items: center;
-        padding: 15px 25px;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 500;
-        transition: 0.3s;
-        gap: 15px;
-        border-left: 4px solid transparent;
-        cursor: pointer;
-      }
-      .nav-menu a:hover,
-      .nav-menu a.active {
-        background-color: rgba(79, 70, 229, 0.05);
-        color: var(--primary);
-        border-left: 4px solid var(--primary);
-      }
-      .logout-btn {
-        margin: 20px;
-        padding: 12px;
-        background-color: #fff;
-        color: var(--danger);
-        border: 1px solid var(--danger);
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        transition: 0.2s;
-      }
-      .logout-btn:hover {
-        background-color: var(--danger);
-        color: white;
-      }
-
-      /* Topbar & Profile */
-      .main-wrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
-      .topbar {
-        height: 70px;
-        background-color: var(--bg-card);
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 30px;
-      }
-      .topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-      }
-
-      .notification-bell {
-        position: relative;
-        cursor: pointer;
-        font-size: 1.2rem;
-        color: var(--text-muted);
-      }
-      .notification-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: var(--danger);
-        color: white;
-        font-size: 0.7rem;
-        padding: 2px 5px;
-        border-radius: 50%;
-        font-weight: bold;
+      .tab-content {
         display: none;
       }
-
-      .store-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 8px;
-        transition: 0.3s;
-      }
-      .store-profile:hover {
-        background: var(--bg-main);
-      }
-      .store-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: var(--primary);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        overflow: hidden;
-      }
-      .store-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      /* Content Area */
-      .content-area {
-        flex: 1;
-        padding: 30px;
-        overflow-y: auto;
-      }
-      .view-section {
-        display: none;
-        animation: fadeIn 0.3s;
-      }
-      .view-section.active {
+      .tab-content.active {
         display: block;
       }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-      }
-      .btn-primary {
-        padding: 10px 20px;
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .btn-success {
-        background-color: var(--success);
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .btn-danger {
-        background-color: var(--danger);
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      /* Kanban Board for Orders */
-      .kanban-board {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
+      .kanban-col {
         min-height: 400px;
       }
-      .kanban-column {
-        background: #f9fafb;
-        border-radius: 12px;
-        padding: 15px;
-        border: 1px solid var(--border-color);
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
       }
-      .kanban-header {
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--border-color);
-      }
-      .order-card {
-        background: var(--bg-card);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--border-color);
-      }
-      .order-actions {
-        margin-top: 10px;
-        display: flex;
-        gap: 5px;
-        justify-content: flex-end;
-      }
-
-      /* Products Table & Forms */
-      .table-container {
-        background: var(--bg-card);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        padding: 20px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid var(--border-color);
-      }
-      .product-img {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        object-fit: cover;
-        margin-right: 15px;
-        vertical-align: middle;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-      }
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        outline: none;
+      ::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
       }
     </style>
   </head>
-  <body>
+  <body class="flex h-screen overflow-hidden text-gray-800">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo"><i class="fas fa-store"></i> Seller Center</div>
-      <ul class="nav-menu">
-        <li>
-          <a class="nav-link active" onclick="switchTab('dashboard', this)"
-            ><i class="fas fa-chart-pie"></i> Dashboard</a
-          >
-        </li>
-        <li>
-          <a class="nav-link" onclick="switchTab('orders', this)"
-            ><i class="fas fa-clipboard-list"></i> Orders</a
-          >
-        </li>
-        <li>
-          <a class="nav-link" onclick="switchTab('products', this)"
-            ><i class="fas fa-box-open"></i> Products</a
-          >
-        </li>
-        <li>
-          <a class="nav-link" onclick="switchTab('wallet', this)"
-            ><i class="fas fa-wallet"></i> Wallet</a
-          >
-        </li>
-        <li>
-          <a class="nav-link" onclick="switchTab('settings', this)"
-            ><i class="fas fa-cog"></i> Settings</a
-          >
-        </li>
-      </ul>
-      <button class="logout-btn" onclick="handleLogout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
+    <aside
+      class="w-64 bg-gray-900 text-white flex flex-col transition-all duration-300"
+    >
+      <div
+        class="h-16 flex items-center justify-center border-b border-gray-800"
+      >
+        <h1 class="text-xl font-bold text-white">
+          <i class="fas fa-store text-blue-400 mr-2"></i> Seller Center
+        </h1>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1">
+          <li>
+            <a
+              href="#"
+              onclick="switchTab('dashboard')"
+              id="nav-dashboard"
+              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white bg-gray-800 text-white border-l-4 border-blue-500"
+            >
+              <i class="fas fa-chart-line w-5"></i> ទិដ្ឋភាពទូទៅ
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              onclick="switchTab('orders')"
+              id="nav-orders"
+              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+            >
+              <i class="fas fa-shopping-bag w-5"></i> គ្រប់គ្រងការលក់ (Orders)
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              onclick="switchTab('products')"
+              id="nav-products"
+              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+            >
+              <i class="fas fa-box w-5"></i> ឃ្លាំងទំនិញ
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              onclick="switchTab('settings')"
+              id="nav-settings"
+              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+            >
+              <i class="fas fa-cog w-5"></i> កំណត់ទម្រង់ហាង
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="p-4 border-t border-gray-800">
+        <button
+          onclick="logout()"
+          class="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 rounded transition"
+        >
+          <i class="fas fa-sign-out-alt mr-2"></i> ចាកចេញ
+        </button>
+      </div>
     </aside>
 
-    <!-- Main Wrapper -->
-    <div class="main-wrapper">
-      <header class="topbar">
-        <h3>Welcome to Seller Center</h3>
-        <div class="topbar-right">
-          <!-- Notification Bell -->
-          <div
-            class="notification-bell"
-            onclick="
-              switchTab('orders', document.querySelectorAll('.nav-link')[1])
-            "
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50">
+      <!-- Top Header -->
+      <header
+        class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10"
+      >
+        <h2 id="header-title" class="text-xl font-semibold text-gray-800">
+          ទិដ្ឋភាពទូទៅ
+        </h2>
+        <div class="flex items-center space-x-4">
+          <a
+            href="/"
+            target="_blank"
+            class="text-sm text-blue-600 hover:underline"
+            ><i class="fas fa-external-link-alt mr-1"></i> មើលហាង</a
           >
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge" id="order-badge">0</span>
-          </div>
-          <!-- Profile Clickable -->
-          <div class="store-profile" onclick="showProfileOptions()">
-            <div class="store-avatar" id="avatar-container">
-              <span id="avatar-initial"
-                ><i class="fas fa-spinner fa-spin"></i
-              ></span>
-            </div>
-            <span id="store-name-display">Loading...</span>
+          <div class="flex items-center space-x-2 border-l pl-4">
+            <img
+              id="top-store-logo"
+              src="https://via.placeholder.com/40"
+              class="w-8 h-8 rounded-full object-cover border"
+              alt="Logo"
+            />
+            <span id="top-store-name" class="font-medium text-sm"
+              >កំពុងផ្ទុក...</span
+            >
           </div>
         </div>
       </header>
 
-      <!-- Content Area -->
-      <div class="content-area">
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="view-section active">
-          <div class="section-header"><h2>Overview</h2></div>
-          <div class="table-container">
-            <p id="dashboard-text">
-              Welcome! Check your orders and products from the sidebar menu.
-            </p>
+      <!-- Dynamic Content Area -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- 1. DASHBOARD TAB -->
+        <div id="dashboard-tab" class="tab-content active">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div
+              class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500"
+            >
+              <div class="text-gray-500 text-sm mb-1">
+                ចំណូលសរុបគិតជាលុយ ($)
+              </div>
+              <div class="text-3xl font-bold text-gray-800" id="dash-revenue">
+                $0.00
+              </div>
+            </div>
+            <div
+              class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500"
+            >
+              <div class="text-gray-500 text-sm mb-1">
+                ការកុម្ម៉ង់សរុប (Orders)
+              </div>
+              <div class="text-3xl font-bold text-gray-800" id="dash-orders">
+                0
+              </div>
+            </div>
+            <div
+              class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-500"
+            >
+              <div class="text-gray-500 text-sm mb-1">ទំនិញកំពុងលក់</div>
+              <div class="text-3xl font-bold text-gray-800" id="dash-products">
+                0
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b">
+              <h3 class="font-semibold text-gray-800">
+                ការកុម្ម៉ង់ថ្មីៗ (Recent Orders)
+              </h3>
+            </div>
+            <div class="p-6">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-gray-500 text-sm border-b">
+                    <th class="pb-3">លេខ Order</th>
+                    <th class="pb-3">អតិថិជន</th>
+                    <th class="pb-3">សរុបទឹកប្រាក់</th>
+                    <th class="pb-3">ស្ថានភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-list">
+                  <!-- JS នឹងបញ្ចូលទិន្នន័យទីនេះ -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <!-- ORDERS (KANBAN) -->
-        <div id="orders" class="view-section">
-          <div class="section-header"><h2>Order Management</h2></div>
-          <div class="kanban-board">
-            <div class="kanban-column" id="col-new">
-              <div class="kanban-header">
-                <span>New</span> <span class="badge" id="count-new">0</span>
-              </div>
-              <div id="list-new"><p class="text-muted">Loading...</p></div>
+        <!-- 2. ORDERS TAB (KANBAN BOARD) -->
+        <div id="orders-tab" class="tab-content">
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
+            <!-- Column: New -->
+            <div
+              class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-blue-400"
+            >
+              <h3 class="font-semibold mb-3 text-blue-700 flex justify-between">
+                <span>🆕 ថ្មី (New)</span>
+                <span
+                  id="count-new"
+                  class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full"
+                  >0</span
+                >
+              </h3>
+              <div
+                id="board-new"
+                class="flex-1 space-y-3 overflow-y-auto"
+              ></div>
             </div>
-            <div class="kanban-column" id="col-packing">
-              <div class="kanban-header">
-                <span>Packing</span>
-                <span class="badge" id="count-packing">0</span>
-              </div>
-              <div id="list-packing"></div>
-            </div>
-            <div class="kanban-column" id="col-shipping">
-              <div class="kanban-header">
-                <span>Shipping</span>
-                <span class="badge" id="count-shipping">0</span>
-              </div>
-              <div id="list-shipping"></div>
-            </div>
-            <div class="kanban-column" id="col-completed">
-              <div class="kanban-header">
-                <span>Completed</span>
-                <span class="badge" id="count-completed">0</span>
-              </div>
-              <div id="list-completed"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRODUCTS -->
-        <div id="products" class="view-section">
-          <div class="section-header">
-            <h2>My Products</h2>
-            <div>
-              <button
-                class="btn-primary"
-                style="background-color: var(--warning)"
-                onclick="manageCategories()"
+            <!-- Column: Packing -->
+            <div
+              class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-yellow-400"
+            >
+              <h3
+                class="font-semibold mb-3 text-yellow-700 flex justify-between"
               >
-                <i class="fas fa-tags"></i> Categories
+                <span>📦 កំពុងខ្ចប់ (Packing)</span>
+                <span
+                  id="count-packing"
+                  class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded-full"
+                  >0</span
+                >
+              </h3>
+              <div
+                id="board-packing"
+                class="flex-1 space-y-3 overflow-y-auto"
+              ></div>
+            </div>
+            <!-- Column: Shipping -->
+            <div
+              class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-purple-400"
+            >
+              <h3
+                class="font-semibold mb-3 text-purple-700 flex justify-between"
+              >
+                <span>🚚 កំពុងដឹក (Shipping)</span>
+                <span
+                  id="count-shipping"
+                  class="bg-purple-200 text-purple-800 text-xs px-2 py-1 rounded-full"
+                  >0</span
+                >
+              </h3>
+              <div
+                id="board-shipping"
+                class="flex-1 space-y-3 overflow-y-auto"
+              ></div>
+            </div>
+            <!-- Column: Completed -->
+            <div
+              class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-green-400"
+            >
+              <h3
+                class="font-semibold mb-3 text-green-700 flex justify-between"
+              >
+                <span>✅ ជោគជ័យ (Done)</span>
+                <span
+                  id="count-completed"
+                  class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded-full"
+                  >0</span
+                >
+              </h3>
+              <div
+                id="board-completed"
+                class="flex-1 space-y-3 overflow-y-auto"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PRODUCTS TAB -->
+        <div id="products-tab" class="tab-content">
+          <div
+            class="bg-white rounded-xl shadow-sm p-6 mb-6 flex justify-between items-center"
+          >
+            <div>
+              <input
+                type="text"
+                id="search-product"
+                placeholder="ស្វែងរកទំនិញ..."
+                class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:border-blue-500"
+                onkeyup="renderProducts()"
+              />
+            </div>
+            <div class="space-x-2">
+              <button
+                onclick="openCategoryModal()"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition"
+              >
+                <i class="fas fa-tags mr-1"></i> រៀបចំ Category
               </button>
-              <button class="btn-primary" onclick="showAddProductModal()">
-                <i class="fas fa-plus"></i> Add Product
+              <button
+                onclick="openProductModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition shadow"
+              >
+                <i class="fas fa-plus mr-1"></i> បន្ថែមទំនិញ
               </button>
             </div>
           </div>
-          <div class="table-container">
-            <table>
-              <thead>
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-gray-50 text-gray-600 text-sm">
                 <tr>
-                  <th>Product Details</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Action</th>
+                  <th class="py-3 px-6">ទំនិញ</th>
+                  <th class="py-3 px-6">តម្លៃ</th>
+                  <th class="py-3 px-6">ស្តុក</th>
+                  <th class="py-3 px-6">Category</th>
+                  <th class="py-3 px-6 text-right">កំណត់</th>
                 </tr>
               </thead>
-              <tbody id="product-table-body">
-                <tr>
-                  <td colspan="5" style="text-align: center">
-                    Loading products...
-                  </td>
-                </tr>
+              <tbody id="products-table-body" class="divide-y divide-gray-100">
+                <!-- JS នឹងបញ្ចូលទិន្នន័យទីនេះ -->
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- WALLET -->
-        <div id="wallet" class="view-section">
-          <div class="section-header"><h2>Store Wallet & Payouts</h2></div>
-          <div
-            class="table-container"
-            style="text-align: center; padding: 50px"
-          >
-            <i class="fas fa-tools fa-3x text-muted"></i>
-            <p style="margin-top: 10px">Wallet feature is coming soon.</p>
+        <!-- 4. SETTINGS TAB -->
+        <div id="settings-tab" class="tab-content">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Profile Info -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+              <h3 class="text-lg font-bold mb-4 border-b pb-2">
+                ១. ព័ត៌មានហាងទូទៅ
+              </h3>
+              <form id="profile-form" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >ឈ្មោះហាង (Store Name) *</label
+                  >
+                  <input
+                    type="text"
+                    id="store-name"
+                    required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >រូបតំណាងហាង (Logo URL)</label
+                  >
+                  <input
+                    type="url"
+                    id="store-logo"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                    placeholder="https://example.com/logo.jpg"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >សេចក្ដីពណ៌នា (Description)</label
+                  >
+                  <textarea
+                    id="store-desc"
+                    rows="3"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+
+            <!-- Payment Info & System Info -->
+            <div class="space-y-6">
+              <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2 text-green-600">
+                  ២. ព័ត៌មានទូទាត់ប្រាក់ (Payment Info)
+                </h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >ឈ្មោះធនាគារ (Bank Name)</label
+                    >
+                    <input
+                      type="text"
+                      id="bank-name"
+                      placeholder="ឧ. ABA Bank"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >ឈ្មោះម្ចាស់គណនី (Account Name)</label
+                    >
+                    <input
+                      type="text"
+                      id="account-name"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >លេខគណនី (Account Number)</label
+                    >
+                    <input
+                      type="text"
+                      id="account-number"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- System Info (Readonly) -->
+              <div class="bg-gray-50 rounded-xl border p-6">
+                <h3
+                  class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider"
+                >
+                  ព័ត៌មានប្រព័ន្ធ (ផ្ដល់ដោយ Admin)
+                </h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="text-gray-500">ស្ថានភាព៖</span>
+                    <span
+                      id="store-status"
+                      class="font-medium text-green-600 uppercase"
+                      >ACTIVE</span
+                    >
+                  </div>
+                  <div>
+                    <span class="text-gray-500">កម្រៃជើងសារ៖</span>
+                    <span id="store-commission" class="font-medium text-red-500"
+                      >10%</span
+                    >
+                  </div>
+                  <div>
+                    <span class="text-gray-500">លុយអាចដកបាន៖</span>
+                    <span
+                      id="store-wallet"
+                      class="font-bold text-blue-600 text-lg"
+                      >$0.00</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onclick="saveStoreSettings()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition"
+              >
+                <i class="fas fa-save mr-2"></i> រក្សាទុកការផ្លាស់ប្ដូរ (Save
+                Settings)
+              </button>
+            </div>
           </div>
         </div>
+      </div>
+    </main>
 
-        <!-- SETTINGS -->
-        <div id="settings" class="view-section">
-          <div class="section-header"><h2>Store Settings</h2></div>
-          <div class="table-container" style="max-width: 600px">
-            <form id="settingsForm" onsubmit="updateStoreSettings(event)">
-              <div class="form-group">
-                <label>Store Name <span style="color: red">*</span></label>
-                <input
-                  type="text"
-                  id="set-store-name"
-                  required
-                  placeholder="Enter your store name"
-                />
-              </div>
-              <div class="form-group">
-                <label>Store Logo (Image URL from Internet)</label>
-                <input
-                  type="url"
-                  id="set-store-logo"
-                  placeholder="https://example.com/logo.jpg"
-                />
-              </div>
-              <div class="form-group">
-                <label>Store Description</label>
-                <textarea
-                  id="set-store-desc"
-                  rows="4"
-                  placeholder="Tell customers about your store..."
-                ></textarea>
-              </div>
-              <button type="submit" class="btn-primary">
-                <i class="fas fa-save"></i> Save Changes
-              </button>
-            </form>
+    <!-- ================= MODALS ================= -->
+
+    <!-- Product Modal (Add/Edit) -->
+    <div
+      id="product-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+      >
+        <div
+          class="px-6 py-4 border-b flex justify-between items-center bg-gray-50"
+        >
+          <h3 class="font-bold text-lg text-gray-800" id="product-modal-title">
+            បន្ថែមទំនិញថ្មី
+          </h3>
+          <button
+            onclick="closeProductModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <form
+          id="product-form"
+          onsubmit="saveProduct(event)"
+          class="p-6 space-y-4"
+        >
+          <input type="hidden" id="prod-id" />
+          <div>
+            <label class="block text-sm font-medium mb-1">ឈ្មោះទំនិញ *</label>
+            <input
+              type="text"
+              id="prod-name"
+              required
+              class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            />
           </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">តម្លៃ ($) *</label>
+              <input
+                type="number"
+                step="0.01"
+                id="prod-price"
+                required
+                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">ចំនួនស្តុក *</label>
+              <input
+                type="number"
+                id="prod-stock"
+                required
+                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              >Category (ប្រភេទ) *</label
+            >
+            <select
+              id="prod-category"
+              required
+              class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 bg-white"
+            >
+              <!-- Options លោតមកពី Store Categories -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              >Link រូបភាពទំនិញ (URL)</label
+            >
+            <input
+              type="url"
+              id="prod-image"
+              class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <div class="pt-4 flex justify-end space-x-2">
+            <button
+              type="button"
+              onclick="closeProductModal()"
+              class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg"
+            >
+              បោះបង់
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow"
+            >
+              រក្សាទុកទំនិញ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Category Manager Modal -->
+    <div
+      id="category-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden"
+      >
+        <div
+          class="px-6 py-4 border-b flex justify-between items-center bg-gray-50"
+        >
+          <h3 class="font-bold text-lg text-gray-800">
+            រៀបចំ Category របស់ហាង
+          </h3>
+          <button
+            onclick="closeCategoryModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <div class="flex space-x-2 mb-4">
+            <input
+              type="text"
+              id="new-cat-name"
+              placeholder="ឈ្មោះ Category ថ្មី..."
+              class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            />
+            <button
+              onclick="addNewCategory()"
+              class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900"
+            >
+              បន្ថែម
+            </button>
+          </div>
+          <div
+            class="bg-gray-50 border rounded-lg p-2 max-h-48 overflow-y-auto"
+          >
+            <ul id="cat-list" class="divide-y divide-gray-200">
+              <!-- បញ្ជី Category -->
+            </ul>
+          </div>
+          <p class="text-xs text-gray-500 mt-3 text-center">
+            Category ដែលបានបង្កើត នឹងលោតចូលពេលអ្នកបន្ថែមទំនិញ។
+          </p>
         </div>
       </div>
     </div>
 
+    <!-- JavaScript Logic -->
     <script>
-      // ==========================================
-      // SETUP & API CONFIGURATION
-      // ==========================================
-      const API_BASE = "/api/seller";
-      const TOKEN = localStorage.getItem("token");
+      const API_URL = "/api/seller";
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
 
-      document.addEventListener("DOMContentLoaded", () => {
-        if (!TOKEN) {
-          // បើគ្មាន Token ទេ ដេញឱ្យទៅ Login វិញ
-          window.location.href = "admin-login.html";
-          return;
-        }
-        loadInitialData();
-      });
+      // Global State
+      let storeData = null;
+      let products = [];
+      let orders = [];
 
-      function switchTab(tabId, element) {
-        document
-          .querySelectorAll(".nav-link")
-          .forEach((link) => link.classList.remove("active"));
-        element.classList.add("active");
-        document
-          .querySelectorAll(".view-section")
-          .forEach((section) => section.classList.remove("active"));
-        document.getElementById(tabId).classList.add("active");
-
-        if (tabId === "orders") fetchOrders();
-        if (tabId === "products") fetchProducts();
+      // 1. Auth Check
+      if (!token || role !== "seller") {
+        window.location.href = "login.html";
       }
 
-      // ==========================================
-      // FETCH PROFILE DATA
-      // ==========================================
-      async function loadInitialData() {
+      // 2. Fetch Data on Load
+      async function init() {
+        await fetchProfile();
+        await fetchProducts();
+        await fetchOrders();
+      }
+
+      // --- API CALLS ---
+      async function fetchProfile() {
         try {
-          const res = await fetch(`${API_BASE}/profile`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
+          const res = await fetch(`${API_URL}/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
+          if (data.success) {
+            storeData = data.store;
+            // Ensure categories and paymentInfo exist to avoid undefined errors
+            if (!storeData.categories) storeData.categories = [];
+            if (!storeData.paymentInfo)
+              storeData.paymentInfo = {
+                bankName: "",
+                accountName: "",
+                accountNumber: "",
+              };
 
-          if (res.ok && data.store) {
-            // ករណីមាន Store រួចហើយ
-            document.getElementById("store-name-display").innerText =
-              data.store.storeName;
-            document.getElementById("set-store-name").value =
-              data.store.storeName;
-            document.getElementById("set-store-desc").value =
-              data.store.description || "";
-
-            if (data.store.logoUrl) {
-              document.getElementById("avatar-container").innerHTML =
-                `<img src="${data.store.logoUrl}" alt="Logo">`;
-              document.getElementById("set-store-logo").value =
-                data.store.logoUrl;
-            } else {
-              document.getElementById("avatar-container").innerHTML =
-                `<span id="avatar-initial">${data.store.storeName.charAt(0).toUpperCase()}</span>`;
-            }
+            renderProfileInfo();
           } else {
-            // ករណី Login ចូលបាន តែអត់ទាន់មានទិន្នន័យហាង (Store Profile)
-            document.getElementById("store-name-display").innerText =
-              "New Store (Click to Setup)";
-            document.getElementById("avatar-container").innerHTML =
-              `<span id="avatar-initial">!</span>`;
-
-            // ប្រាប់អ្នកប្រើប្រាស់ឱ្យទៅបំពេញពត៌មានហាង
-            Swal.fire({
-              icon: "info",
-              title: "Welcome Seller!",
-              text: "Please set up your store information first.",
-              confirmButtonText: "Go to Settings",
-              allowOutsideClick: false,
-            }).then(() => {
-              switchTab("settings", document.querySelectorAll(".nav-link")[4]);
-            });
+            Swal.fire("Error", data.message, "error");
           }
-        } catch (error) {
-          // ករណី Server Error ដាច់អ៉ីនធឺណិត ឬ Error ផ្សេងៗ
-          console.error("Profile fetch error", error);
-          document.getElementById("store-name-display").innerText =
-            "Connection Error";
-          document.getElementById("avatar-container").innerHTML =
-            `<span id="avatar-initial">X</span>`;
+        } catch (err) {
+          console.error(err);
         }
-
-        fetchOrders(); // ហៅមកដើម្បីលោតកណ្ដឹង Notification
       }
 
-      // ==========================================
-      // PROFILE OPTIONS (Password Change)
-      // ==========================================
-      function showProfileOptions() {
-        Swal.fire({
-          title: "Store Options",
-          showDenyButton: true,
-          showCancelButton: true,
-          confirmButtonText: "Store Settings",
-          denyButtonText: `Change Password`,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            switchTab("settings", document.querySelectorAll(".nav-link")[4]);
-          } else if (result.isDenied) {
-            changePasswordPrompt();
-          }
-        });
-      }
-
-      async function changePasswordPrompt() {
-        const { value: formValues } = await Swal.fire({
-          title: "Change Password",
-          html:
-            '<input id="old-pass" type="password" class="swal2-input" placeholder="Current Password">' +
-            '<input id="new-pass" type="password" class="swal2-input" placeholder="New Password">',
-          focusConfirm: false,
-          preConfirm: () => {
-            return {
-              oldPass: document.getElementById("old-pass").value,
-              newPass: document.getElementById("new-pass").value,
-            };
-          },
-        });
-        if (formValues && formValues.newPass) {
-          const res = await fetch(`${API_BASE}/change-password`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
-            body: JSON.stringify(formValues),
+      async function fetchProducts() {
+        try {
+          const res = await fetch(`${API_URL}/products`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
-          if (res.ok)
-            Swal.fire("Success", "Password changed successfully!", "success");
-          else
-            Swal.fire(
-              "Error",
-              data.message || "Failed to change password.",
-              "error",
-            );
+          if (data.success) {
+            products = data.products;
+            renderProducts();
+            document.getElementById("dash-products").innerText =
+              products.length;
+          }
+        } catch (err) {
+          console.error(err);
         }
       }
 
-      // ==========================================
-      // ORDERS FUNCTIONALITY
-      // ==========================================
       async function fetchOrders() {
         try {
-          const res = await fetch(`${API_BASE}/orders`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
+          const res = await fetch(`${API_URL}/orders`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
-          const orders = data.orders || [];
+          if (data.success) {
+            orders = data.orders;
+            renderDashboardOrders();
+            renderKanbanBoard();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
 
-          let htmlNew = "",
-            htmlPacking = "",
-            htmlShipping = "",
-            htmlCompleted = "";
-          let countNew = 0,
-            countPacking = 0,
-            countShipping = 0,
-            countCompleted = 0;
+      // --- RENDER FUNCTIONS ---
+      function renderProfileInfo() {
+        // Header
+        document.getElementById("top-store-name").innerText =
+          storeData.storeName;
+        if (storeData.logoUrl)
+          document.getElementById("top-store-logo").src = storeData.logoUrl;
 
-          orders.forEach((order) => {
-            const cardHtml = `
-              <div class="order-card">
-                <h4>#${order._id.substring(0, 6).toUpperCase()}</h4>
-                <p>Items: ${order.itemsCount || 0} | Total: $${order.totalPrice || 0}</p>
-                <div class="order-actions">
-                  ${getOrderButtons(order._id, order.status)}
+        // Settings Form
+        document.getElementById("store-name").value = storeData.storeName;
+        document.getElementById("store-logo").value = storeData.logoUrl;
+        document.getElementById("store-desc").value = storeData.description;
+
+        // Payment Form
+        document.getElementById("bank-name").value =
+          storeData.paymentInfo.bankName;
+        document.getElementById("account-name").value =
+          storeData.paymentInfo.accountName;
+        document.getElementById("account-number").value =
+          storeData.paymentInfo.accountNumber;
+
+        // Readonly Info
+        document.getElementById("store-status").innerText = storeData.status;
+        document.getElementById("store-commission").innerText =
+          storeData.commissionRate + "%";
+        document.getElementById("store-wallet").innerText =
+          "$" + (storeData.walletBalance || 0).toFixed(2);
+
+        // Refresh Category Dropdown for products
+        updateCategoryDropdown();
+      }
+
+      function renderProducts() {
+        const searchTerm = document
+          .getElementById("search-product")
+          .value.toLowerCase();
+        const tbody = document.getElementById("products-table-body");
+        tbody.innerHTML = "";
+
+        const filtered = products.filter((p) =>
+          p.name.toLowerCase().includes(searchTerm),
+        );
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">មិនមានទិន្នន័យទេ</td></tr>`;
+          return;
+        }
+
+        filtered.forEach((p) => {
+          // Stock Warning Color
+          const stockColor =
+            p.stock < 5 ? "text-red-600 font-bold" : "text-gray-800";
+          const imgUrl = p.imageUrl || "https://via.placeholder.com/50";
+
+          tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-6 flex items-center space-x-3">
+                            <img src="${imgUrl}" class="w-10 h-10 rounded object-cover border">
+                            <span class="font-medium text-gray-800">${p.name}</span>
+                        </td>
+                        <td class="py-3 px-6 text-blue-600 font-medium">$${p.price.toFixed(2)}</td>
+                        <td class="py-3 px-6 ${stockColor}">${p.stock}</td>
+                        <td class="py-3 px-6"><span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">${p.category}</span></td>
+                        <td class="py-3 px-6 text-right">
+                            <button onclick="editProduct('${p._id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteProduct('${p._id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+        });
+      }
+
+      function renderDashboardOrders() {
+        let totalRevenue = 0;
+        const recentList = document.getElementById("recent-orders-list");
+        recentList.innerHTML = "";
+
+        orders.forEach((o, index) => {
+          // Calculate revenue only from completed orders
+          if (o.status === "completed") totalRevenue += o.totalPrice;
+
+          // Show only top 5 in recent
+          if (index < 5) {
+            let statusBadge = "";
+            if (o.status === "new")
+              statusBadge =
+                '<span class="text-blue-600 bg-blue-100 px-2 py-1 rounded-full text-xs">New</span>';
+            else if (o.status === "packing")
+              statusBadge =
+                '<span class="text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs">Packing</span>';
+            else if (o.status === "shipping")
+              statusBadge =
+                '<span class="text-purple-600 bg-purple-100 px-2 py-1 rounded-full text-xs">Shipping</span>';
+            else if (o.status === "completed")
+              statusBadge =
+                '<span class="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs">Completed</span>';
+
+            recentList.innerHTML += `
+                        <tr class="border-b last:border-0 hover:bg-gray-50">
+                            <td class="py-3 font-mono text-xs text-gray-500">...${o._id.slice(-6)}</td>
+                            <td class="py-3 font-medium">${o.shippingAddress?.fullName || "N/A"}</td>
+                            <td class="py-3 text-blue-600">$${o.totalPrice.toFixed(2)}</td>
+                            <td class="py-3">${statusBadge}</td>
+                        </tr>
+                    `;
+          }
+        });
+
+        document.getElementById("dash-revenue").innerText =
+          "$" + totalRevenue.toFixed(2);
+        document.getElementById("dash-orders").innerText = orders.length;
+      }
+
+      function renderKanbanBoard() {
+        // Arrays for columns
+        const cols = { new: [], packing: [], shipping: [], completed: [] };
+        orders.forEach((o) => {
+          if (cols[o.status]) cols[o.status].push(o);
+        });
+
+        // Update Counts
+        document.getElementById("count-new").innerText = cols.new.length;
+        document.getElementById("count-packing").innerText =
+          cols.packing.length;
+        document.getElementById("count-shipping").innerText =
+          cols.shipping.length;
+        document.getElementById("count-completed").innerText =
+          cols.completed.length;
+
+        // Render Function for Cards
+        const createCardHTML = (o, btnHTML) => `
+                <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-gray-400 font-mono">#...${o._id.slice(-6)}</span>
+                        <span class="text-blue-600 font-bold">$${o.totalPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="text-sm font-medium text-gray-800 mb-1"><i class="fas fa-user text-gray-400 w-4"></i> ${o.shippingAddress?.fullName}</div>
+                    <div class="text-xs text-gray-500 mb-3"><i class="fas fa-phone text-gray-400 w-4"></i> ${o.shippingAddress?.phone}</div>
+                    <div class="flex space-x-2">
+                        <button onclick="viewOrderDetails('${o._id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs py-1.5 rounded transition">មើលលម្អិត</button>
+                        ${btnHTML}
+                    </div>
                 </div>
-              </div>
             `;
-            if (order.status === "new") {
-              htmlNew += cardHtml;
-              countNew++;
-            } else if (order.status === "packing") {
-              htmlPacking += cardHtml;
-              countPacking++;
-            } else if (order.status === "shipping") {
-              htmlShipping += cardHtml;
-              countShipping++;
-            } else if (order.status === "completed") {
-              htmlCompleted += cardHtml;
-              countCompleted++;
-            }
-          });
 
-          // ប្រសិនបើគ្មាន Order ឱ្យវាបង្ហាញពាក្យថា No orders yet ជំនួស Loading...
-          document.getElementById("list-new").innerHTML =
-            htmlNew ||
-            "<p style='color:var(--text-muted); font-size:14px;'>No orders yet</p>";
-          document.getElementById("list-packing").innerHTML = htmlPacking || "";
-          document.getElementById("list-shipping").innerHTML =
-            htmlShipping || "";
-          document.getElementById("list-completed").innerHTML =
-            htmlCompleted || "";
+        document.getElementById("board-new").innerHTML = cols.new
+          .map((o) =>
+            createCardHTML(
+              o,
+              `<button onclick="updateOrderStatus('${o._id}', 'packing')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 rounded shadow transition">📦 Pack</button>`,
+            ),
+          )
+          .join("");
 
-          document.getElementById("count-new").innerText = countNew;
-          document.getElementById("count-packing").innerText = countPacking;
-          document.getElementById("count-shipping").innerText = countShipping;
-          document.getElementById("count-completed").innerText = countCompleted;
+        document.getElementById("board-packing").innerHTML = cols.packing
+          .map((o) =>
+            createCardHTML(
+              o,
+              `<button onclick="updateOrderStatus('${o._id}', 'shipping')" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs py-1.5 rounded shadow transition">🚚 Ship</button>`,
+            ),
+          )
+          .join("");
 
-          const badge = document.getElementById("order-badge");
-          if (countNew > 0) {
-            badge.style.display = "block";
-            badge.innerText = countNew;
-          } else {
-            badge.style.display = "none";
-          }
-        } catch (error) {
-          document.getElementById("list-new").innerHTML =
-            "<p style='color:red;'>Failed to load orders</p>";
-        }
+        document.getElementById("board-shipping").innerHTML = cols.shipping
+          .map((o) =>
+            createCardHTML(
+              o,
+              `<button onclick="updateOrderStatus('${o._id}', 'completed')" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-1.5 rounded shadow transition">✅ Done</button>`,
+            ),
+          )
+          .join("");
+
+        document.getElementById("board-completed").innerHTML = cols.completed
+          .map(
+            (o) => createCardHTML(o, ``), // No next action after completed
+          )
+          .join("");
       }
 
-      function getOrderButtons(id, status) {
-        if (status === "new")
-          return `<button class="btn-danger" onclick="updateOrderStatus('${id}', 'cancelled')">Cancel</button> <button class="btn-success" onclick="updateOrderStatus('${id}', 'packing')">Accept</button>`;
-        if (status === "packing")
-          return `<button class="btn-primary" onclick="updateOrderStatus('${id}', 'shipping')">Ship Order</button>`;
-        if (status === "shipping")
-          return `<button class="btn-success" onclick="updateOrderStatus('${id}', 'completed')">Mark Complete</button>`;
-        return `<span><i class="fas fa-check-circle text-success"></i> Done</span>`;
-      }
-
-      function updateOrderStatus(orderId, newStatus) {
-        Swal.fire({
-          title: `Move order to ${newStatus}?`,
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: "Yes, update it!",
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            await fetch(`${API_BASE}/orders/${orderId}/status`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-              },
-              body: JSON.stringify({ status: newStatus }),
-            });
-            fetchOrders();
-          }
-        });
-      }
-
-      // ==========================================
-      // PRODUCTS & CATEGORIES
-      // ==========================================
-      async function fetchProducts() {
-        const tbody = document.getElementById("product-table-body");
-        try {
-          const res = await fetch(`${API_BASE}/products`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
-          const products = data.products || [];
-
-          // បើគ្មានទិន្នន័យ ឱ្យបាត់ពាក្យ Loading ដាក់ No products វិញ
-          if (products.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No products found. Add a new product!</td></tr>`;
-            return;
-          }
-
-          tbody.innerHTML = products
-            .map(
-              (p) => `
-            <tr>
-              <td>
-                <img src="${p.imageUrl}" class="product-img" onerror="this.src='https://via.placeholder.com/50'">
-                <strong>${p.name}</strong>
-              </td>
-              <td>${p.category?.name || "Uncategorized"}</td>
-              <td>$${p.price}</td>
-              <td>${p.stock}</td>
-              <td>
-                <button class="btn-danger" onclick="deleteProduct('${p._id}')"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          `,
-            )
-            .join("");
-        } catch (error) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error fetching products.</td></tr>`;
-        }
-      }
-
-      async function showAddProductModal() {
-        let categoryOptions = "<option value=''>Select Category</option>";
-        try {
-          const res = await fetch(`${API_BASE}/categories`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
-          if (data.categories) {
-            data.categories.forEach((c) => {
-              categoryOptions += `<option value="${c._id}">${c.name}</option>`;
-            });
-          }
-        } catch (e) {}
-
-        const { value: formValues } = await Swal.fire({
-          title: "Add New Product",
-          html:
-            `<input id="p-name" class="swal2-input" placeholder="Product Name">` +
-            `<input id="p-price" type="number" class="swal2-input" placeholder="Price ($)">` +
-            `<input id="p-stock" type="number" class="swal2-input" placeholder="Stock Quantity">` +
-            `<input id="p-image" type="url" class="swal2-input" placeholder="Image URL (Link only)">` +
-            `<select id="p-category" class="swal2-select">${categoryOptions}</select>`,
-          focusConfirm: false,
-          preConfirm: () => {
-            return {
-              name: document.getElementById("p-name").value,
-              price: document.getElementById("p-price").value,
-              stock: document.getElementById("p-stock").value,
-              imageUrl: document.getElementById("p-image").value,
-              category: document.getElementById("p-category").value,
-            };
+      // --- STORE SETTINGS (UPDATE) ---
+      async function saveStoreSettings() {
+        const payload = {
+          storeName: document.getElementById("store-name").value,
+          logoUrl: document.getElementById("store-logo").value,
+          description: document.getElementById("store-desc").value,
+          paymentInfo: {
+            bankName: document.getElementById("bank-name").value,
+            accountName: document.getElementById("account-name").value,
+            accountNumber: document.getElementById("account-number").value,
           },
-        });
-
-        if (formValues && formValues.name) {
-          const res = await fetch(`${API_BASE}/products`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
-            body: JSON.stringify(formValues),
-          });
-          if (res.ok) {
-            Swal.fire("Added!", "Product has been created.", "success");
-            fetchProducts();
-          } else {
-            Swal.fire("Error", "Failed to add product", "error");
-          }
-        }
-      }
-
-      async function manageCategories() {
-        const { value: catName } = await Swal.fire({
-          title: "Create Category",
-          input: "text",
-          inputPlaceholder: "e.g. Shirts, Shoes...",
-          showCancelButton: true,
-        });
-
-        if (catName) {
-          const res = await fetch(`${API_BASE}/categories`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
-            body: JSON.stringify({ name: catName }),
-          });
-          if (res.ok) Swal.fire("Created!", "Category added.", "success");
-        }
-      }
-
-      function deleteProduct(id) {
-        Swal.fire({
-          title: "Are you sure?",
-          text: "You cannot revert this!",
-          icon: "warning",
-          showCancelButton: true,
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            await fetch(`${API_BASE}/products/${id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${TOKEN}` },
-            });
-            fetchProducts();
-          }
-        });
-      }
-
-      // ==========================================
-      // SETTINGS (Create / Update Store)
-      // ==========================================
-      async function updateStoreSettings(event) {
-        event.preventDefault();
-        const name = document.getElementById("set-store-name").value;
-        const logoUrl = document.getElementById("set-store-logo").value;
-        const desc = document.getElementById("set-store-desc").value;
+          categories: storeData.categories, // Keep existing categories!
+        };
 
         try {
-          const res = await fetch(`${API_BASE}/profile`, {
+          const res = await fetch(`${API_URL}/profile`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-              storeName: name,
-              logoUrl: logoUrl,
-              description: desc,
-            }),
+            body: JSON.stringify(payload),
           });
           const data = await res.json();
-
-          if (res.ok) {
-            Swal.fire("Saved!", "Store profile updated.", "success");
-            loadInitialData(); // Refresh Profile UI
-          } else {
-            Swal.fire("Error", data.message || "Something went wrong", "error");
+          if (data.success) {
+            storeData = data.store;
+            renderProfileInfo();
+            Swal.fire("ជោគជ័យ!", "ការកំណត់ហាងត្រូវបានរក្សាទុក!", "success");
           }
-        } catch (e) {
-          Swal.fire("Error", "Connection failed", "error");
+        } catch (err) {
+          Swal.fire("Error", "មានបញ្ហាបច្ចេកទេស", "error");
         }
       }
 
-      function handleLogout() {
-        localStorage.clear();
-        window.location.href = "admin-login.html";
+      // --- CATEGORY MANAGEMENT ---
+      function openCategoryModal() {
+        document.getElementById("category-modal").classList.remove("hidden");
+        renderCategoryList();
       }
+      function closeCategoryModal() {
+        document.getElementById("category-modal").classList.add("hidden");
+      }
+      function renderCategoryList() {
+        const list = document.getElementById("cat-list");
+        list.innerHTML = storeData.categories
+          .map(
+            (c, i) => `
+                <li class="py-2 px-3 flex justify-between items-center bg-white mb-1 rounded border">
+                    <span class="text-sm font-medium text-gray-700">${c}</span>
+                    <button onclick="removeCategory(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+                </li>
+            `,
+          )
+          .join("");
+      }
+      async function addNewCategory() {
+        const input = document.getElementById("new-cat-name");
+        const catName = input.value.trim();
+        if (!catName) return;
+
+        // Add to array
+        storeData.categories.push(catName);
+        // Save to DB via profile update
+        await silentSaveCategories();
+        input.value = "";
+        renderCategoryList();
+        updateCategoryDropdown();
+      }
+      async function removeCategory(index) {
+        storeData.categories.splice(index, 1);
+        await silentSaveCategories();
+        renderCategoryList();
+        updateCategoryDropdown();
+      }
+      async function silentSaveCategories() {
+        // Function to save profile without popup alert
+        const payload = {
+          storeName: storeData.storeName,
+          logoUrl: storeData.logoUrl,
+          description: storeData.description,
+          paymentInfo: storeData.paymentInfo,
+          categories: storeData.categories,
+        };
+        await fetch(`${API_URL}/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+      function updateCategoryDropdown() {
+        const select = document.getElementById("prod-category");
+        if (storeData.categories.length === 0) {
+          select.innerHTML = `<option value="">-- សូមបង្កើត Category សិន --</option>`;
+        } else {
+          select.innerHTML = storeData.categories
+            .map((c) => `<option value="${c}">${c}</option>`)
+            .join("");
+        }
+      }
+
+      // --- PRODUCT ACTIONS ---
+      function openProductModal(id = null) {
+        if (storeData.categories.length === 0) {
+          Swal.fire(
+            "បញ្ជាក់",
+            "សូមចូលទៅកាន់ (រៀបចំ Category) ដើម្បីបង្កើតប្រភេទសិន មុនពេលបញ្ចូលទំនិញ!",
+            "warning",
+          );
+          return;
+        }
+        const modal = document.getElementById("product-modal");
+        const form = document.getElementById("product-form");
+        form.reset();
+
+        if (id) {
+          document.getElementById("product-modal-title").innerText =
+            "កែប្រែទំនិញ";
+          const p = products.find((x) => x._id === id);
+          document.getElementById("prod-id").value = p._id;
+          document.getElementById("prod-name").value = p.name;
+          document.getElementById("prod-price").value = p.price;
+          document.getElementById("prod-stock").value = p.stock;
+          document.getElementById("prod-category").value = p.category;
+          document.getElementById("prod-image").value = p.imageUrl || "";
+        } else {
+          document.getElementById("product-modal-title").innerText =
+            "បន្ថែមទំនិញថ្មី";
+          document.getElementById("prod-id").value = "";
+        }
+        modal.classList.remove("hidden");
+      }
+
+      function closeProductModal() {
+        document.getElementById("product-modal").classList.add("hidden");
+      }
+
+      async function saveProduct(e) {
+        e.preventDefault();
+        const id = document.getElementById("prod-id").value;
+        const payload = {
+          name: document.getElementById("prod-name").value,
+          price: parseFloat(document.getElementById("prod-price").value),
+          stock: parseInt(document.getElementById("prod-stock").value),
+          category: document.getElementById("prod-category").value,
+          imageUrl: document.getElementById("prod-image").value,
+        };
+
+        const method = id ? "PUT" : "POST";
+        const url = id ? `${API_URL}/products/${id}` : `${API_URL}/products`;
+
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (data.success) {
+            Swal.fire("ជោគជ័យ!", "ទិន្នន័យត្រូវបានរក្សាទុក!", "success");
+            closeProductModal();
+            fetchProducts();
+          } else {
+            Swal.fire("Error", data.message, "error");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function deleteProduct(id) {
+        if (confirm("តើអ្នកពិតជាចង់លុបទំនិញនេះមែនទេ?")) {
+          await fetch(`${API_URL}/products/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          fetchProducts();
+        }
+      }
+
+      // --- ORDER ACTIONS ---
+      async function updateOrderStatus(orderId, newStatus) {
+        try {
+          const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status: newStatus }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            fetchOrders(); // Refresh Kanban
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function viewOrderDetails(id) {
+        const order = orders.find((o) => o._id === id);
+        let itemsHTML = order.items
+          .map((i) => `<li>${i.qty}x ${i.name} ($${i.price})</li>`)
+          .join("");
+        Swal.fire({
+          title: "លម្អិតការកុម្ម៉ង់",
+          html: `
+                    <div class="text-left text-sm">
+                        <p><b>អ្នកទិញ:</b> ${order.shippingAddress.fullName}</p>
+                        <p><b>ទូរស័ព្ទ:</b> ${order.shippingAddress.phone}</p>
+                        <p><b>ទីតាំង:</b> ${order.shippingAddress.address}</p>
+                        <hr class="my-2">
+                        <ul class="list-disc pl-5">${itemsHTML}</ul>
+                        <hr class="my-2">
+                        <p class="text-lg text-blue-600 font-bold">សរុប: $${order.totalPrice.toFixed(2)}</p>
+                    </div>
+                `,
+          confirmButtonColor: "#2563eb",
+          confirmButtonText: "បិទ",
+        });
+      }
+
+      // --- NAVIGATION ---
+      function switchTab(tabId) {
+        // Hide all tabs
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        // Remove active classes from nav
+        document.querySelectorAll(".nav-btn").forEach((el) => {
+          el.classList.remove("bg-gray-800", "text-white", "border-blue-500");
+          el.classList.add("border-transparent");
+        });
+
+        // Show selected tab
+        document.getElementById(`${tabId}-tab`).classList.add("active");
+
+        // Highlight nav button
+        const activeBtn = document.getElementById(`nav-${tabId}`);
+        activeBtn.classList.remove("border-transparent");
+        activeBtn.classList.add("bg-gray-800", "text-white", "border-blue-500");
+
+        // Update Header Title
+        const titles = {
+          dashboard: "ទិដ្ឋភាពទូទៅ",
+          orders: "គ្រប់គ្រងការលក់",
+          products: "ឃ្លាំងទំនិញ",
+          settings: "ការកំណត់ហាង",
+        };
+        document.getElementById("header-title").innerText = titles[tabId];
+      }
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      // Start App
+      init();
     </script>
   </body>
 </html>

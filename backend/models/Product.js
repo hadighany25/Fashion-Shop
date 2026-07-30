@@ -20,25 +20,25 @@ const productSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      default: "", // Link រូបភាព
+      default: "", // Link រូបភាពទំនិញ
     },
     description: {
       type: String,
       default: "",
     },
+    category: {
+      type: String,
+      required: true, // លែងប្រើ ObjectId ហើយ ប្រើជា String ធម្មតាវិញ
+      trim: true,
+    },
+    // ចំណុចសំខាន់៖ ភ្ជាប់ទំនិញនេះទៅកាន់ហាង (Store)
     store: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Store",
-      required: true, // ផលិតផលនីមួយៗដាច់ខាតត្រូវតែជារបស់ហាងណាមួយ
-    },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", // ភ្ជាប់ទៅកាន់ Category (បងអាចប្ដូរទៅជា String ធម្មតាក៏បាន បើអត់ចង់ប្រើ Category Model)
+      required: true,
     },
   },
-  {
-    timestamps: true, // វានឹងបង្កើតថ្ងៃខែបន្ថែម (createdAt, updatedAt) ដោយស្វ័យប្រវត្តិ
-  },
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Product", productSchema);

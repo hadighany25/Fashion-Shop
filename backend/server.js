@@ -16,13 +16,14 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const sellerRoutes = require("./routes/sellerRoutes");
 const publicRoutes = require("./routes/publicRoutes");
-app.use("/api/public", publicRoutes); // Public API មិនត្រូវការ verifyToken ទេ
+
 // ២. ទាញយក User Model សម្រាប់បង្កើត Super Admin
 const User = require("./models/User");
 
+// ៣. បង្កើតអថេរ app ជាមុនសិន
 const app = express();
 
-// ៣. Middleware សំខាន់ៗសម្រាប់ Server
+// Middleware សំខាន់ៗសម្រាប់ Server
 app.use(cors()); // អនុញ្ញាតឱ្យ Frontend អាចហៅ API បាន
 app.use(express.json()); // អនុញ្ញាតឱ្យ Server ស្គាល់ទិន្នន័យប្រភេទ JSON
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ៤. ភ្ជាប់ Routes ទាំងអស់ទៅកាន់ API Endpoints
+// (ដាក់នៅទីនេះទើបត្រឹមត្រូវ ព្រោះ app ត្រូវបានបង្កើតរួចហើយ)
+app.use("/api/public", publicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);

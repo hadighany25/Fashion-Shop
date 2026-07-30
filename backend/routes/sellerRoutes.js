@@ -5,20 +5,15 @@ const sellerController = require("../controllers/sellerController");
 // កែបន្ទាត់នេះឱ្យត្រូវនឹងឈ្មោះ Folder និង File របស់បង
 const { verifyToken } = require("../middleware/authMiddleware");
 
-// បើកដំណើរការ Middleware នេះ
+// បើកដំណើរការ Middleware នេះ ដើម្បីការពាររាល់ការហៅ API ទាំងអស់របស់ Seller
 router.use(verifyToken);
+
 // ==========================================
 // Profile & Settings
 // ==========================================
 router.get("/profile", sellerController.getProfile);
 router.put("/profile", sellerController.updateProfile);
 router.put("/change-password", sellerController.changePassword);
-
-// ==========================================
-// Categories
-// ==========================================
-router.get("/categories", sellerController.getCategories);
-router.post("/categories", sellerController.createCategory);
 
 // ==========================================
 // Products
