@@ -50,6 +50,23 @@
       #cart-count {
         transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
+
+      /* Banner Slideshow Animation */
+      .slider-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        border-radius: 0.75rem; /* rounded-xl */
+      }
+      .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease-in-out;
+      }
     </style>
   </head>
   <body class="text-gray-800 antialiased flex flex-col min-h-screen">
@@ -135,34 +152,42 @@
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 py-6 space-y-8 w-full">
-      <!-- 🖼️ ២. Hero Banner (Grid Layout - Responsive) -->
+      <!-- 🖼️ ២. Hero Banner (Dynamic Banners) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-auto lg:h-[350px]">
-        <!-- Main Slide -->
+        <!-- Main Slide (Section 1) -->
         <div
-          class="lg:col-span-2 bg-gray-200 rounded-xl overflow-hidden shadow-sm h-[200px] sm:h-[300px] lg:h-full relative group"
+          class="lg:col-span-2 bg-gray-200 rounded-xl shadow-sm h-[200px] sm:h-[300px] lg:h-full group"
         >
-          <img
-            src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall+Mega+Sale"
-            class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-          />
-        </div>
-        <!-- Sub Banners (លាក់នៅលើទូរស័ព្ទតូចខ្លាំង ដើម្បីកុំឱ្យចង្អៀត) -->
-        <div class="hidden sm:flex lg:flex-col gap-4 h-[150px] lg:h-full">
-          <div
-            class="flex-1 bg-gray-200 rounded-xl overflow-hidden shadow-sm relative group"
-          >
-            <img
-              src="https://via.placeholder.com/400x190/ef4444/ffffff?text=Free+Delivery"
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-            />
+          <div id="hero-banner-container" class="slider-container">
+            <div
+              class="flex items-center justify-center w-full h-full text-gray-500"
+            >
+              <i class="fas fa-spinner fa-spin text-2xl"></i>
+            </div>
           </div>
-          <div
-            class="flex-1 bg-gray-200 rounded-xl overflow-hidden shadow-sm relative group"
-          >
-            <img
-              src="https://via.placeholder.com/400x190/10b981/ffffff?text=New+Arrivals"
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-            />
+        </div>
+
+        <!-- Sub Banners (Section 2 & 3) -->
+        <div class="hidden sm:flex lg:flex-col gap-4 h-[150px] lg:h-full">
+          <!-- Sub Banner 1 (Section 2) -->
+          <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
+            <div id="sub-banner-1-container" class="slider-container">
+              <div
+                class="flex items-center justify-center w-full h-full text-gray-500"
+              >
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+            </div>
+          </div>
+          <!-- Sub Banner 2 (Section 3) -->
+          <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
+            <div id="sub-banner-2-container" class="slider-container">
+              <div
+                class="flex items-center justify-center w-full h-full text-gray-500"
+              >
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -356,7 +381,6 @@
           </h2>
         </div>
 
-        <!-- Grid នេះប្រើ grid-cols-2 (ទូរស័ព្ទ), sm:grid-cols-3 (Tablet), lg:grid-cols-5 (PC) -->
         <div
           class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4"
           id="products-grid"
@@ -388,7 +412,7 @@
           </div>
           <p class="text-sm text-gray-600 mb-4 leading-relaxed">
             ផ្សារអនឡាញ U-Mall ផ្តល់ជូននូវបទពិសោធន៍ទិញទំនិញដ៏សម្បូរបែប ងាយស្រួល
-            និងមានទំនុកចិត្តបំផុតនៅកម្ពុជា។
+            ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
 
@@ -498,15 +522,106 @@
       }, 1000);
 
       // ---------------------------------------------
-      // Data Fetching Logic
+      // Data Fetching Logic (Products & Banners)
       // ---------------------------------------------
       const API_BASE_PUBLIC = "/api/public";
       let cart = [];
 
       document.addEventListener("DOMContentLoaded", () => {
         fetchProducts();
+        fetchSettings(); // ហៅទាញយក Banner
       });
 
+      // --- ផ្នែក Banners ---
+      async function fetchSettings() {
+        try {
+          const res = await fetch("/api/settings"); // ទាញយក Setting ពី Backend
+          const data = await res.json();
+          if (data.success && data.setting) {
+            setupSlider("hero-banner-container", data.setting.section1);
+            setupSlider("sub-banner-1-container", data.setting.section2);
+            setupSlider("sub-banner-2-container", data.setting.section3);
+          }
+        } catch (error) {
+          console.error("Error fetching banners:", error);
+        }
+      }
+
+      function setupSlider(containerId, sectionData) {
+        const container = document.getElementById(containerId);
+
+        if (
+          !sectionData ||
+          !sectionData.items ||
+          sectionData.items.length === 0
+        ) {
+          container.innerHTML = `<img src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall" class="w-full h-full object-cover" />`;
+          return;
+        }
+
+        const now = new Date();
+        const validItems = sectionData.items.filter((item) => {
+          if (!item.endDate) return true;
+          return new Date(item.endDate) >= now;
+        });
+
+        if (validItems.length === 0) {
+          container.innerHTML = `<img src="https://via.placeholder.com/800x400/2563eb/ffffff?text=Promo+Ended" class="w-full h-full object-cover" />`;
+          return;
+        }
+
+        container.innerHTML = validItems
+          .map((item, index) => {
+            let linkUrl = "javascript:void(0)";
+            if (item.storeId) {
+              const sId =
+                typeof item.storeId === "object"
+                  ? item.storeId._id
+                  : item.storeId;
+              linkUrl = `store.html?id=${sId}`;
+            }
+            return `
+            <a href="${linkUrl}" class="slide" title="${item.title || ""}" 
+               style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};">
+                <img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://via.placeholder.com/800x400'" />
+            </a>
+          `;
+          })
+          .join("");
+
+        if (validItems.length > 1) {
+          let currentIndex = 0;
+          const intervalMs = (sectionData.intervalMinutes || 1) * 60 * 1000;
+          const direction = sectionData.slideDirection || "left";
+
+          setInterval(() => {
+            const slides = container.querySelectorAll(".slide");
+            const nextIndex = (currentIndex + 1) % slides.length;
+
+            slides[nextIndex].style.transition = "none";
+            slides[nextIndex].style.display = "block";
+            slides[nextIndex].style.transform =
+              direction === "left" ? "translateX(100%)" : "translateX(-100%)";
+
+            void container.offsetWidth;
+
+            slides[currentIndex].style.transition =
+              "transform 0.5s ease-in-out";
+            slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
+
+            slides[currentIndex].style.transform =
+              direction === "left" ? "translateX(-100%)" : "translateX(100%)";
+            slides[nextIndex].style.transform = "translateX(0)";
+
+            setTimeout(() => {
+              slides[currentIndex].style.display = "none";
+              currentIndex = nextIndex;
+            }, 500);
+          }, intervalMs);
+        }
+      }
+
+      // --- ផ្នែក Products ---
       async function fetchProducts() {
         const container = document.getElementById("products-grid");
         try {
@@ -554,7 +669,6 @@
                         </div>
                     </div>
                     
-                    <!-- ប៊ូតុង Add to Cart (Responsive) -->
                     <div class="add-to-cart-btn lg:absolute bottom-0 left-0 w-full p-2 bg-white lg:bg-opacity-95 mt-auto">
                         <button onclick="addToCart('${p._id}', '${safeName}', ${p.price}, '${p.store?._id}')" class="w-full bg-blue-600 text-white py-1.5 md:py-2 rounded shadow hover:bg-blue-700 text-xs md:text-sm font-medium transition flex items-center justify-center gap-1 md:gap-2">
                             <i class="fas fa-cart-plus"></i> <span class="hidden sm:inline">បញ្ចូលកន្ត្រក</span>
