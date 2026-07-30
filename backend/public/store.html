@@ -332,34 +332,29 @@
       const API_BASE_PUBLIC = "/api/public";
       let allStoreProducts = [];
       let currentCategory = "All";
+      let storeInfo = null; // រក្សាទុកព័ត៌មានហាង
 
-      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage (Global Cart)
+      // ==========================================
+      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage
+      // ==========================================
       let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
 
       function updateCartBadge() {
-        // បូកសរុបចំនួនទំនិញទាំងអស់ក្នុងកន្ត្រក (យក qty មករាប់)
         const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
         const badge = document.getElementById("cart-count");
         if (badge) badge.innerText = totalItems;
       }
 
       function addToCart(productId, name, price, storeId) {
-        // ទាញយកទិន្នន័យចុងក្រោយបង្អស់ពី localStorage មុននឹងបន្ថែម
         cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
-
         const existingItem = cart.find((item) => item.productId === productId);
-        if (existingItem) {
-          existingItem.qty = (existingItem.qty || 1) + 1; // បើមានហើយ បូកចំនួន
-        } else {
-          cart.push({ productId, name, price, storeId, qty: 1 }); // បើថ្មី បង្កើតថ្មី
-        }
 
-        // រក្សាទុកត្រឡប់ទៅក្នុង localStorage វិញ
+        if (existingItem) existingItem.qty = (existingItem.qty || 1) + 1;
+        else cart.push({ productId, name, price, storeId, qty: 1 });
+
         localStorage.setItem("umall_cart", JSON.stringify(cart));
+        updateCartBadge();
 
-        updateCartBadge(); // ធ្វើបច្ចុប្បន្នភាពលេខលើកន្ត្រក
-
-        // Animation ប៉ោងលេខ
         const badge = document.getElementById("cart-count");
         if (badge) {
           badge.style.transform = "scale(1.5)";
@@ -367,11 +362,14 @@
         }
       }
 
+      // ==========================================
+      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង
+      // ==========================================
       const urlParams = new URLSearchParams(window.location.search);
       const storeId = urlParams.get("id");
 
       document.addEventListener("DOMContentLoaded", () => {
-        updateCartBadge(); // ពេលដើរ Page ភ្លាម ទាញលេខកន្ត្រកមកបង្ហាញភ្លាម
+        updateCartBadge();
 
         if (!storeId) {
           document.getElementById("store-products-grid").innerHTML = `
@@ -389,14 +387,27 @@
         try {
           const res = await fetch(`${API_BASE_PUBLIC}/products`);
           const data = await res.json();
+
           if (data.success && data.products) {
+            // ត្រងយកតែទំនិញរបស់ហាងនេះ
             allStoreProducts = data.products.filter((p) => {
               if (!p.store) return false;
               const pStoreId =
                 typeof p.store === "object" ? p.store._id : p.store;
+
+              // ក្នុងពេលត្រង យើងឆ្លៀតទាញយក (Extract) ព័ត៌មានហាងទុកតែម្ដង
+              if (
+                pStoreId === storeId &&
+                !storeInfo &&
+                typeof p.store === "object"
+              ) {
+                storeInfo = p.store;
+              }
+
               return pStoreId === storeId;
             });
-            setupStoreProfile(allStoreProducts);
+
+            setupStoreProfile();
             generateCategories(allStoreProducts);
             renderProducts(allStoreProducts);
           }
@@ -407,26 +418,42 @@
         }
       }
 
-      function setupStoreProfile(products) {
+      function setupStoreProfile() {
         const storeNameEl = document.getElementById("store-name");
         const productCountEl = document.getElementById("stat-products");
-        if (
-          products.length > 0 &&
-          products[0].store &&
-          products[0].store.storeName
-        ) {
-          storeNameEl.innerHTML = `${products[0].store.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
+        const storeLogoEl = document.getElementById("store-logo");
+        const storeCoverEl = document.getElementById("store-cover");
+
+        if (storeInfo) {
+          // ចាប់ឈ្មោះហាង
+          storeNameEl.innerHTML = `${storeInfo.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
+
+          // ចាប់រូប Logo ពិត (បើគ្មាន ប្រើរូប Placeholder)
+          if (storeInfo.logoUrl) storeLogoEl.src = storeInfo.logoUrl;
+          else storeLogoEl.src = "https://via.placeholder.com/150";
+
+          // ចាប់រូប Cover ពិត (បើគ្មាន ប្រើរូប Default ពណ៌ខៀវ)
+          if (storeInfo.coverUrl) storeCoverEl.src = storeInfo.coverUrl;
+          else
+            storeCoverEl.src =
+              "https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover";
         } else {
           storeNameEl.innerText = "ហាងទូទៅ";
         }
-        productCountEl.innerText = products.length;
+
+        // ចាប់ចំនួនផលិតផលពិតប្រាកដដែលហាងនេះមាន
+        productCountEl.innerText = allStoreProducts.length;
       }
 
+      // ==========================================
+      // ៣. មុខងារស្វែងរក, Filter និង តម្រៀប (Sort)
+      // ==========================================
       function generateCategories(products) {
         const categoryContainer = document.getElementById("category-tabs");
         const categories = [
           ...new Set(products.map((p) => p.category || "ទូទៅ")),
         ];
+
         let html = `<button class="whitespace-nowrap text-blue-600 font-bold border-b-2 border-blue-600 pb-1 tab-btn" onclick="filterByCategory('All', this)">ទំនិញទាំងអស់</button>`;
         categories.forEach((cat) => {
           html += `<button class="whitespace-nowrap text-gray-500 hover:text-blue-600 font-medium pb-1 tab-btn border-b-2 border-transparent transition" onclick="filterByCategory('${cat}', this)">${cat}</button>`;
@@ -461,6 +488,7 @@
           .getElementById("store-search")
           .value.toLowerCase();
         const sortValue = document.getElementById("sort-select").value;
+
         let filtered = allStoreProducts.filter((p) => {
           const matchCat =
             currentCategory === "All" ||
@@ -471,27 +499,30 @@
             : false;
           return matchCat && matchSearch;
         });
-        if (sortValue === "price-low") {
+
+        if (sortValue === "price-low")
           filtered.sort((a, b) => a.price - b.price);
-        } else if (sortValue === "price-high") {
+        else if (sortValue === "price-high")
           filtered.sort((a, b) => b.price - a.price);
-        } else {
-          filtered.sort((a, b) => (a._id > b._id ? -1 : 1));
-        }
+        else filtered.sort((a, b) => (a._id > b._id ? -1 : 1));
+
         renderProducts(filtered);
       }
 
+      // ==========================================
+      // ៤. មុខងារគូរ (Render) ទំនិញនៅលើអេក្រង់
+      // ==========================================
       function renderProducts(products) {
         const container = document.getElementById("store-products-grid");
         if (products.length === 0) {
           container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">រកមិនឃើញទំនិញតាមការស្វែងរករបស់អ្នកទេ។</div>`;
           return;
         }
+
         container.innerHTML = products
           .map((p) => {
             const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
             const image = p.imageUrl || "https://via.placeholder.com/200";
-            // បន្ថែមប៉ារ៉ាម៉ែត្រ p.store._id ពេលចុចបញ្ជូលកន្ត្រក
             const pStoreId = p.store
               ? typeof p.store === "object"
                 ? p.store._id
