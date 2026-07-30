@@ -111,6 +111,24 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+// បន្ថែមនៅពីលើ exports.deleteProduct
+exports.updateProduct = async (req, res) => {
+  try {
+    const { name, price, stock, imageUrl, category } = req.body;
+
+    // ស្វែងរកទំនិញតាម ID រួច Update ទិន្នន័យថ្មី
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { name, price, stock, imageUrl, category },
+      { new: true }, // ឱ្យវា Return យកទិន្នន័យថ្មីដែលទើបកែរួច
+    );
+
+    res.json({ success: true, product, message: "បានកែប្រែដោយជោគជ័យ" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);

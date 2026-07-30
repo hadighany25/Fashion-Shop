@@ -20,6 +20,7 @@ router.put("/change-password", sellerController.changePassword);
 // ==========================================
 router.get("/products", sellerController.getProducts);
 router.post("/products", sellerController.createProduct);
+router.put("/products/:id", sellerController.updateProduct); // ✅ នេះគឺជាខ្សែដែលយើងត្រូវបន្ថែមសម្រាប់ Edit
 router.delete("/products/:id", sellerController.deleteProduct);
 
 // ==========================================

@@ -1042,14 +1042,46 @@
         }
       }
 
-      async function deleteProduct(id) {
-        if (confirm("តើអ្នកពិតជាចង់លុបទំនិញនេះមែនទេ?")) {
-          await fetch(`${API_URL}/products/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          fetchProducts();
-        }
+      // កូដសម្រាប់បើកផ្ទាំង Edit
+      function editProduct(id) {
+        openProductModal(id);
+      }
+
+      // កូដសម្រាប់លុបទំនិញ ដោយប្រើផ្ទាំង SweetAlert2 ស្អាតៗ
+      function deleteProduct(id) {
+        Swal.fire({
+          title: "តើអ្នកប្រាកដឬទេ?",
+          text: "តើអ្នកពិតជាចង់លុបទំនិញនេះមែនទេ? (លុបហើយមិនអាចយកវិញបានទេ)",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444", // ពណ៌ក្រហម (ប៊ូតុងលុប)
+          cancelButtonColor: "#6b7280", // ពណ៌ប្រផេះ (ប៊ូតុងបោះបង់)
+          confirmButtonText: "បាទ/ចាស លុបវា!",
+          cancelButtonText: "បោះបង់",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const res = await fetch(`${API_URL}/products/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const data = await res.json();
+
+              if (data.success) {
+                Swal.fire(
+                  "បានលុបជោគជ័យ!",
+                  "ទំនិញត្រូវបានលុបចេញពីឃ្លាំង។",
+                  "success",
+                );
+                fetchProducts(); // Refresh ព័ត៌មានទំនិញថ្មី
+              } else {
+                Swal.fire("បរាជ័យ", data.message, "error");
+              }
+            } catch (err) {
+              Swal.fire("បរាជ័យ", "មានបញ្ហាបច្ចេកទេស", "error");
+            }
+          }
+        });
       }
 
       // --- ORDER ACTIONS ---
