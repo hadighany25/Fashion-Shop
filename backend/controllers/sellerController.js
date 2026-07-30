@@ -9,16 +9,24 @@ const Order = require("../models/Order");
 // ==========================================
 exports.getProfile = async (req, res) => {
   try {
-    // req.user._id បានមកពី Middleware ឆែក Token
+    // ស្វែងរកហាងតាមរយៈ User ID ដែលបាន Login
     const store = await Store.findOne({ owner: req.user._id });
-    if (!store)
-      return res
-        .status(404)
-        .json({ success: false, message: "រកមិនឃើញហាងទេ!" });
 
+    // បើរកមិនឃើញ (មានន័យថា Admin អត់ទាន់បង្កើតឱ្យ)
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "រកមិនឃើញហាងទេ! សូមទាក់ទង Admin ដើម្បីបង្កើតហាងឱ្យអ្នក។",
+      });
+    }
+
+    // បើរកឃើញ បញ្ជូនទិន្នន័យហាងទៅកាន់ Frontend
     res.json({ success: true, store });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error fetching profile:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "មានបញ្ហាបច្ចេកទេសលើ Server" });
   }
 };
 
