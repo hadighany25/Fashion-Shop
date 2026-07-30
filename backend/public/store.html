@@ -31,6 +31,8 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
+
+      /* ក្បាច់តុបតែងកាត Voucher */
       .voucher-card {
         background:
           radial-gradient(circle at top right, transparent 5px, #fff 0) top
@@ -87,51 +89,51 @@
 
     <main class="flex-grow max-w-7xl mx-auto w-full pb-10">
       <!-- ========================================== -->
-      <!-- ផ្នែក PROFILE ហាង (Cover & Logo) -->
+      <!-- ផ្នែក STORE PROFILE (រូប Cover និង Logo ហាង) -->
       <!-- ========================================== -->
       <div
         class="bg-white rounded-b-xl shadow-sm overflow-hidden mb-6 relative"
       >
-        <!-- ទីតាំងរូប Cover (កែសម្រួលកម្ពស់ និងការពារ Error រូបភាព) -->
+        <!-- ទីតាំងរូប Cover -->
         <div class="h-40 md:h-72 w-full bg-blue-100 relative">
+          <!-- ថែម onerror ដើម្បីការពារករណី Link ខូច វានឹងលោតយករូប Default -->
           <img
             id="store-cover"
-            src="https://via.placeholder.com/1200x400/1e3a8a/ffffff?text=Store+Cover"
+            src="https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover"
             alt="Cover"
-            referrerpolicy="no-referrer"
+            class="w-full h-full object-cover"
             onerror="
               this.src =
-                'https://via.placeholder.com/1200x400/1e3a8a/ffffff?text=Store+Cover'
+                'https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Cover+Not+Found'
             "
-            class="w-full h-full object-cover"
           />
-          <div class="absolute inset-0 bg-black bg-opacity-40"></div>
-          <!-- ដាក់ស្រមោលខ្មៅតិចៗដើម្បីឱ្យអក្សរលេចឡើង -->
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
         </div>
 
-        <!-- ទីតាំងរូប Logo និងឈ្មោះហាង -->
         <div
-          class="absolute top-16 md:top-28 left-4 md:left-8 flex items-end space-x-4"
+          class="absolute top-12 md:top-24 left-4 md:left-8 flex items-end space-x-4"
         >
-          <!-- Logo ត្រូវបានពង្រីកទំហំឱ្យធំជាងមុនបន្តិច (w-24/h-24 ដល់ w-36/h-36) -->
+          <!-- ទីតាំងរូប Logo (តម្លើងទំហំឱ្យធំជាងមុន w-24 md:w-40) -->
           <div
-            class="w-24 h-24 md:w-36 md:h-36 bg-white rounded-full p-1 md:p-1.5 shadow-xl z-10 border-2 border-white relative"
+            class="w-24 h-24 md:w-40 md:h-40 bg-white rounded-full p-1 shadow-lg z-10 border-4 border-white relative"
           >
             <img
               id="store-logo"
               src="https://via.placeholder.com/150"
               alt="Logo"
-              referrerpolicy="no-referrer"
-              onerror="this.src = 'https://via.placeholder.com/150'"
               class="w-full h-full rounded-full object-cover bg-white"
+              onerror="
+                this.src = 'https://via.placeholder.com/150?text=No+Logo'
+              "
             />
             <div
-              class="absolute bottom-1 right-1 md:bottom-2 md:right-2 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
+              class="absolute bottom-1 md:bottom-2 right-1 md:right-2 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
             >
               <i class="fas fa-check-circle text-xs md:text-sm"></i>
             </div>
           </div>
-          <!-- ឈ្មោះហាង -->
+
+          <!-- ឈ្មោះហាង និងព័ត៌មានសង្ខេប -->
           <div class="text-white pb-2 md:pb-4 shadow-sm z-10">
             <h1
               id="store-name"
@@ -145,7 +147,7 @@
           </div>
         </div>
 
-        <!-- ស្ថិតិ និងប៊ូតុង Follow -->
+        <!-- របារស្ថិតិហាង (ចំនួនទំនិញ, អ្នកតាមដាន) -->
         <div
           class="px-4 md:px-8 py-4 mt-8 md:mt-12 flex flex-wrap justify-between items-center gap-4"
         >
@@ -181,7 +183,7 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- ផ្នែក ប័ណ្ណបញ្ចុះតម្លៃ (VOUCHERS) -->
+      <!-- ផ្នែក VOUCHERS (ប័ណ្ណបញ្ចុះតម្លៃ) -->
       <!-- ========================================== -->
       <div class="mb-6 px-4 md:px-0">
         <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center">
@@ -214,7 +216,7 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- ផ្នែក ស្វែងរក និង តម្រៀបទំនិញ (FILTER) -->
+      <!-- ផ្នែក FILTER & CATEGORIES (ស្វែងរក និងជម្រើស) -->
       <!-- ========================================== -->
       <div
         class="bg-white sticky top-[60px] md:top-[68px] z-40 rounded-lg shadow-sm border border-gray-100 mb-6 px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4"
@@ -252,7 +254,7 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- ផ្នែក បង្ហាញទំនិញ (PRODUCTS GRID) -->
+      <!-- ផ្នែក PRODUCTS GRID (បង្ហាញផលិតផល) -->
       <!-- ========================================== -->
       <div
         id="store-products-grid"
@@ -266,7 +268,7 @@
     </main>
 
     <!-- ========================================== -->
-    <!-- ផ្នែក FOOTER -->
+    <!-- ផ្នែក FOOTER (ខាងក្រោមគេ) -->
     <!-- ========================================== -->
     <footer class="bg-white border-t mt-auto">
       <div
@@ -288,7 +290,6 @@
             ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
-        <!-- ព័ត៌មានបន្ថែម រក្សាទុកដូចចាស់ -->
         <div>
           <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
             សេវាកម្មអតិថិជន
@@ -302,6 +303,11 @@
             <li>
               <a href="#" class="hover:text-blue-600 transition"
                 >របៀបទិញទំនិញ</a
+              >
+            </li>
+            <li>
+              <a href="#" class="hover:text-blue-600 transition"
+                >ការដឹកជញ្ជូន</a
               >
             </li>
           </ul>
@@ -321,6 +327,28 @@
             >
               ACLEDA
             </div>
+            <div
+              class="w-12 h-8 bg-red-500 rounded flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
+            >
+              Wing
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
+            តាមដានពួកយើង
+          </h4>
+          <div class="flex space-x-4">
+            <a
+              href="#"
+              class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition"
+              ><i class="fab fa-facebook-f"></i
+            ></a>
+            <a
+              href="#"
+              class="w-8 h-8 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition"
+              ><i class="fab fa-instagram"></i
+            ></a>
           </div>
         </div>
       </div>
@@ -330,7 +358,7 @@
     </footer>
 
     <!-- ========================================== -->
-    <!-- ផ្នែក JAVASCRIPT (តក្កវិជ្ជា) -->
+    <!-- ផ្នែក JAVASCRIPT (មុខងារចម្បង) -->
     <!-- ========================================== -->
     <script>
       const API_BASE_PUBLIC = "/api/public";
@@ -338,7 +366,9 @@
       let currentCategory = "All";
       let storeInfo = null;
 
-      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃ (Cart System)
+      // ------------------------------------
+      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃ (Cart)
+      // ------------------------------------
       let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
 
       function updateCartBadge() {
@@ -364,7 +394,9 @@
         }
       }
 
-      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង (Fetch API)
+      // ------------------------------------
+      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង (Fetch Data)
+      // ------------------------------------
       const urlParams = new URLSearchParams(window.location.search);
       const storeId = urlParams.get("id");
 
@@ -394,6 +426,7 @@
               const pStoreId =
                 typeof p.store === "object" ? p.store._id : p.store;
 
+              // Extract ព័ត៌មានហាងទុកពេល Filter
               if (
                 pStoreId === storeId &&
                 !storeInfo &&
@@ -416,7 +449,9 @@
         }
       }
 
-      // ៣. បញ្ចូលទិន្នន័យ Logo & Cover ទៅក្នុង UI
+      // ------------------------------------
+      // ៣. បញ្ចូលរូប និងឈ្មោះហាង (Setup Profile)
+      // ------------------------------------
       function setupStoreProfile() {
         const storeNameEl = document.getElementById("store-name");
         const productCountEl = document.getElementById("stat-products");
@@ -424,24 +459,29 @@
         const storeCoverEl = document.getElementById("store-cover");
 
         if (storeInfo) {
+          // ឈ្មោះហាង
           storeNameEl.innerHTML = `${storeInfo.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
 
-          // ផ្ទៀងផ្ទាត់ និងបញ្ចូល Logo
+          // ចាប់រូប Logo ពិត (មាន Validate ក្រែងលោវាទទេ)
           if (storeInfo.logoUrl && storeInfo.logoUrl.trim() !== "") {
             storeLogoEl.src = storeInfo.logoUrl;
           }
 
-          // ផ្ទៀងផ្ទាត់ និងបញ្ចូល Cover
+          // ចាប់រូប Cover ពិត
           if (storeInfo.coverUrl && storeInfo.coverUrl.trim() !== "") {
             storeCoverEl.src = storeInfo.coverUrl;
           }
         } else {
           storeNameEl.innerText = "ហាងទូទៅ";
         }
+
+        // ស្ថិតិចំនួនផលិតផល
         productCountEl.innerText = allStoreProducts.length;
       }
 
-      // ៤. មុខងារ Filter និង ស្វែងរក
+      // ------------------------------------
+      // ៤. មុខងារ Filter & Sort
+      // ------------------------------------
       function generateCategories(products) {
         const categoryContainer = document.getElementById("category-tabs");
         const categories = [
@@ -503,7 +543,9 @@
         renderProducts(filtered);
       }
 
-      // ៥. បង្ហាញទំនិញ
+      // ------------------------------------
+      // ៥. មុខងារ Render ទំនិញ
+      // ------------------------------------
       function renderProducts(products) {
         const container = document.getElementById("store-products-grid");
         if (products.length === 0) {
@@ -524,7 +566,8 @@
             return `
                 <div class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
                     <div class="relative w-full pb-[100%]">
-                        <img src="${image}" class="absolute top-0 left-0 w-full h-full object-cover" referrerpolicy="no-referrer">
+                        <!-- បន្ថែម onerror ដើម្បីការពាររូបទំនិញខូច -->
+                        <img src="${image}" onerror="this.src='https://via.placeholder.com/200?text=No+Image'" class="absolute top-0 left-0 w-full h-full object-cover">
                     </div>
                     <div class="p-2 md:p-3 flex-1 flex flex-col">
                         <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1" title="${p.name}">${p.name}</h3>
