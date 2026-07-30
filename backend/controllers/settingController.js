@@ -1,15 +1,16 @@
 const Setting = require("../models/Setting");
 
-// ទាញយកការកំណត់ (Settings)
 exports.getSettings = async (req, res) => {
   try {
-    let setting = await Setting.findOne();
+    let setting = await Setting.findOne().populate(
+      "section1.items.storeId section2.items.storeId section3.items.storeId",
+    );
     if (!setting) {
-      // បើគ្មានទិន្នន័យក្នុង DB ទេ បង្កើតទម្រង់ស្ដង់ដារមួយទុកមុន
       setting = await Setting.create({
         logoUrl: "",
-        heroBanners: [],
-        subBanners: [],
+        section1: {},
+        section2: {},
+        section3: {},
       });
     }
     res.status(200).json({ success: true, setting });
@@ -18,24 +19,22 @@ exports.getSettings = async (req, res) => {
   }
 };
 
-// កែប្រែការកំណត់ (សម្រាប់ Admin)
 exports.updateSettings = async (req, res) => {
   try {
-    const { logoUrl, heroBanners, subBanners } = req.body;
+    const { logoUrl, section1, section2, section3 } = req.body;
 
     let setting = await Setting.findOne();
-    if (!setting) {
-      setting = new Setting({});
-    }
+    if (!setting) setting = new Setting({});
 
     if (logoUrl !== undefined) setting.logoUrl = logoUrl;
-    if (heroBanners !== undefined) setting.heroBanners = heroBanners;
-    if (subBanners !== undefined) setting.subBanners = subBanners;
+    if (section1) setting.section1 = section1;
+    if (section2) setting.section2 = section2;
+    if (section3) setting.section3 = section3;
 
     await setting.save();
     res
       .status(200)
-      .json({ success: true, message: "កែប្រែដោយជោគជ័យ!", setting });
+      .json({ success: true, message: "រក្សាទុកបានដោយជោគជ័យ!", setting });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

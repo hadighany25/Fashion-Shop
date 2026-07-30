@@ -472,13 +472,16 @@
       <div id="storefront-settings" class="view-section">
         <section
           class="action-section"
-          style="max-width: 800px; margin: 0 auto"
+          style="max-width: 900px; margin: 0 auto"
         >
-          <h2><i class="fas fa-sliders-h"></i> Website Appearance & Banners</h2>
-          <form id="settingForm" class="form-grid">
+          <h2>
+            <i class="fas fa-sliders-h"></i> Website Appearance & 3 Banner
+            Sections
+          </h2>
+          <form id="settingForm">
             <!-- Logo URL -->
-            <div class="input-group full-width">
-              <label>Logo Image Link (URL)</label>
+            <div class="input-group" style="margin-bottom: 25px">
+              <label><strong>Global Logo URL</strong></label>
               <input
                 type="text"
                 id="setting-logoUrl"
@@ -486,38 +489,124 @@
               />
             </div>
 
-            <!-- Hero Banner 1 -->
-            <div class="input-group full-width">
-              <h3
-                style="margin: 10px 0 0; color: var(--accent); font-size: 1rem"
-              >
-                <i class="fas fa-image"></i> Hero Banner (Slide ធំ)
+            <!-- SECTION 1 (ផ្ទាំងធំខាងឆ្វេង) -->
+            <div
+              class="banner-box"
+              style="
+                background: var(--main-bg);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 10px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ១ (Hero Banner ធំខាងឆ្វេង)
               </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (នាទីដូររូប)</label>
+                  <input type="number" id="sec1-interval" value="1" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec1-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec1-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(1)"
+              >
+                + បន្ថែមរូបភាពទី ១
+              </button>
             </div>
-            <div class="input-group">
-              <label>Banner Image URL</label>
-              <input
-                type="text"
-                id="setting-hero-img"
-                placeholder="https://example.com/banner1.jpg"
-              />
+
+            <!-- SECTION 2 (ស្ដាំលើ) -->
+            <div
+              class="banner-box"
+              style="
+                background: var(--main-bg);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 10px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ២ (Sub Banner ស្ដាំលើ)
+              </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (នាទីដូររូប)</label>
+                  <input type="number" id="sec2-interval" value="1" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec2-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec2-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(2)"
+              >
+                + បន្ថែមរូបភាពទី ២
+              </button>
             </div>
-            <div class="input-group">
-              <label>Redirect Link (ចុចហើយឱ្យទៅណា?)</label>
-              <input
-                type="text"
-                id="setting-hero-link"
-                placeholder="/store/store_id ឫ Link ផ្សេងៗ"
-              />
+
+            <!-- SECTION 3 (ស្ដាំក្រោម) -->
+            <div
+              class="banner-box"
+              style="
+                background: var(--main-bg);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 10px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ៣ (Sub Banner ស្ដាំក្រោម)
+              </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (នាទីដូររូប)</label>
+                  <input type="number" id="sec3-interval" value="1" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec3-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec3-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(3)"
+              >
+                + បន្ថែមរូបភាពទី ៣
+              </button>
             </div>
 
             <button
               type="submit"
               id="btn-save-settings"
               class="btn-primary full-width"
-              style="margin-top: 20px"
+              style="margin-top: 20px; padding: 15px"
             >
-              <i class="fas fa-save"></i> Save Changes
+              <i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់
             </button>
           </form>
         </section>
@@ -721,19 +810,103 @@
         });
       }
 
-      // ទាញយក Setting មកបង្ហាញក្នុង Form ពេលចុចចូល Tab
+      let storesListForDropdown = [];
+
+      // ទាញយកបញ្ជីហាងមកទុកធ្វើ Dropdown
+      async function loadStoresForDropdown() {
+        try {
+          const res = await fetch(`${API_BASE}/stores`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          storesListForDropdown = data.stores || [];
+        } catch (error) {
+          console.error("Error loading stores", error);
+        }
+      }
+
+      // បន្ថែមช่องបញ្ចូលរូបភាពថ្មីក្នុង Section នីមួយៗ
+      function addBannerItem(sectionNum, data = {}) {
+        const container = document.getElementById(
+          `sec${sectionNum}-items-container`,
+        );
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "banner-item-row";
+        itemDiv.style =
+          "border:1px solid #475569; padding:10px; border-radius:6px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 2fr 2fr 1.5fr auto; gap:10px; align-items:end;";
+
+        // បង្កើត Options សម្រាប់រើសហាង
+        let storeOptions = `<option value="">-- គ្មានហាង (Link ធម្មតា) --</option>`;
+        storesListForDropdown.forEach((s) => {
+          const selected =
+            data.storeId &&
+            (data.storeId._id === s._id || data.storeId === s._id)
+              ? "selected"
+              : "";
+          storeOptions += `<option value="${s._id}" ${selected}>${s.storeName}</option>`;
+        });
+
+        itemDiv.innerHTML = `
+          <div class="input-group">
+            <label>Image URL</label>
+            <input type="text" class="b-img" value="${data.imageUrl || ""}" placeholder="https://..." required />
+          </div>
+          <div class="input-group">
+            <label>Title (ចំណងជើង)</label>
+            <input type="text" class="b-title" value="${data.title || ""}" placeholder="ឈ្មោះប្រូម៉ូសិន" />
+          </div>
+          <div class="input-group">
+            <label>តភ្ជាប់ទៅហាង (Store)</label>
+            <select class="b-store">${storeOptions}</select>
+          </div>
+          <div class="input-group">
+            <label>ឈប់បង្ហាញថ្ងៃទី</label>
+            <input type="date" class="b-date" value="${data.endDate ? data.endDate.split("T")[0] : ""}" />
+          </div>
+          <button type="button" class="btn-action" style="color:var(--danger); height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(itemDiv);
+      }
+
+      // ទាញយក Settings មកបង្ហាញលើ Form
       async function loadSettingsData() {
+        await loadStoresForDropdown();
         try {
           const res = await fetch("/api/settings");
           const data = await res.json();
           if (data.success && data.setting) {
             const s = data.setting;
             document.getElementById("setting-logoUrl").value = s.logoUrl || "";
-            if (s.heroBanners && s.heroBanners.length > 0) {
-              document.getElementById("setting-hero-img").value =
-                s.heroBanners[0].imageUrl || "";
-              document.getElementById("setting-hero-link").value =
-                s.heroBanners[0].linkUrl || "";
+
+            // Section 1
+            if (s.section1) {
+              document.getElementById("sec1-interval").value =
+                s.section1.intervalMinutes || 1;
+              document.getElementById("sec1-direction").value =
+                s.section1.slideDirection || "left";
+              document.getElementById("sec1-items-container").innerHTML = "";
+              if (s.section1.items)
+                s.section1.items.forEach((item) => addBannerItem(1, item));
+            }
+            // Section 2
+            if (s.section2) {
+              document.getElementById("sec2-interval").value =
+                s.section2.intervalMinutes || 1;
+              document.getElementById("sec2-direction").value =
+                s.section2.slideDirection || "left";
+              document.getElementById("sec2-items-container").innerHTML = "";
+              if (s.section2.items)
+                s.section2.items.forEach((item) => addBannerItem(2, item));
+            }
+            // Section 3
+            if (s.section3) {
+              document.getElementById("sec3-interval").value =
+                s.section3.intervalMinutes || 1;
+              document.getElementById("sec3-direction").value =
+                s.section3.slideDirection || "left";
+              document.getElementById("sec3-items-container").innerHTML = "";
+              if (s.section3.items)
+                s.section3.items.forEach((item) => addBannerItem(3, item));
             }
           }
         } catch (error) {
@@ -741,29 +914,43 @@
         }
       }
 
-      // ហៅទាញយក Setting ពេលទំព័រ Load លើកដំបូង
-      document.addEventListener("DOMContentLoaded", () => {
-        loadSettingsData();
-      });
+      // មុខងារប្រមូលទិន្នន័យពី Form យកไป Save
+      function getSectionData(num) {
+        const rows = document.querySelectorAll(
+          `#sec${num}-items-container .banner-item-row`,
+        );
+        const items = [];
+        rows.forEach((r) => {
+          items.push({
+            imageUrl: r.querySelector(".b-img").value,
+            title: r.querySelector(".b-title").value,
+            storeId: r.querySelector(".b-store").value || null,
+            endDate: r.querySelector(".b-date").value || null,
+          });
+        });
+        return {
+          intervalMinutes:
+            parseInt(document.getElementById(`sec${num}-interval`).value) || 1,
+          slideDirection: document.getElementById(`sec${num}-direction`).value,
+          items: items,
+        };
+      }
 
-      // Submit រក្សាទុក Setting
+      // Event Listener ពេល Submit រក្សាទុក
       document
         .getElementById("settingForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
           const payload = {
             logoUrl: document.getElementById("setting-logoUrl").value,
-            heroBanners: [
-              {
-                imageUrl: document.getElementById("setting-hero-img").value,
-                linkUrl: document.getElementById("setting-hero-link").value,
-              },
-            ],
+            section1: getSectionData(1),
+            section2: getSectionData(2),
+            section3: getSectionData(3),
           };
 
           const btn = document.getElementById("btn-save-settings");
           btn.disabled = true;
-          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
 
           try {
             const res = await fetch("/api/settings", {
@@ -777,18 +964,19 @@
             const data = await res.json();
             if (res.ok) {
               Swal.fire(
-                "Success!",
-                "Storefront settings updated successfully.",
+                "ជោគជ័យ!",
+                "រក្សាទុកការកំណត់ Banners បានរួចរាល់!",
                 "success",
               );
+              loadSettingsData();
             } else {
-              Swal.fire("Failed", data.message, "error");
+              Swal.fire("បរាជ័យ", data.message, "error");
             }
           } catch (error) {
-            Swal.fire("Error", "Server connection failed.", "error");
+            Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ", "error");
           } finally {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fas fa-save"></i> Save Changes`;
+            btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់`;
           }
         });
 
