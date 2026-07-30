@@ -288,6 +288,11 @@
             ><i class="fas fa-store"></i> Store Management</a
           >
         </li>
+        <li>
+          <a class="nav-link" onclick="switchTab('storefront-settings', this)"
+            ><i class="fas fa-sliders-h"></i> Storefront Settings</a
+          >
+        </li>
       </ul>
       <button class="logout-btn" onclick="handleLogout()">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -463,6 +468,60 @@
           </table>
         </section>
       </div>
+      <!-- TAB 4: STOREFRONT SETTINGS -->
+      <div id="storefront-settings" class="view-section">
+        <section
+          class="action-section"
+          style="max-width: 800px; margin: 0 auto"
+        >
+          <h2><i class="fas fa-sliders-h"></i> Website Appearance & Banners</h2>
+          <form id="settingForm" class="form-grid">
+            <!-- Logo URL -->
+            <div class="input-group full-width">
+              <label>Logo Image Link (URL)</label>
+              <input
+                type="text"
+                id="setting-logoUrl"
+                placeholder="https://example.com/logo.png"
+              />
+            </div>
+
+            <!-- Hero Banner 1 -->
+            <div class="input-group full-width">
+              <h3
+                style="margin: 10px 0 0; color: var(--accent); font-size: 1rem"
+              >
+                <i class="fas fa-image"></i> Hero Banner (Slide ធំ)
+              </h3>
+            </div>
+            <div class="input-group">
+              <label>Banner Image URL</label>
+              <input
+                type="text"
+                id="setting-hero-img"
+                placeholder="https://example.com/banner1.jpg"
+              />
+            </div>
+            <div class="input-group">
+              <label>Redirect Link (ចុចហើយឱ្យទៅណា?)</label>
+              <input
+                type="text"
+                id="setting-hero-link"
+                placeholder="/store/store_id ឫ Link ផ្សេងៗ"
+              />
+            </div>
+
+            <button
+              type="submit"
+              id="btn-save-settings"
+              class="btn-primary full-width"
+              style="margin-top: 20px"
+            >
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </form>
+        </section>
+      </div>
     </main>
 
     <script>
@@ -495,6 +554,7 @@
 
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresData();
+        if (tabId === "storefront-settings") loadSettingsData(); // 👈 បន្ថែមបន្ទាត់នេះ
       }
 
       // លាក់/បង្ហាញប្រអប់ហាង
@@ -660,6 +720,77 @@
           }
         });
       }
+
+      // ទាញយក Setting មកបង្ហាញក្នុង Form ពេលចុចចូល Tab
+      async function loadSettingsData() {
+        try {
+          const res = await fetch("/api/settings");
+          const data = await res.json();
+          if (data.success && data.setting) {
+            const s = data.setting;
+            document.getElementById("setting-logoUrl").value = s.logoUrl || "";
+            if (s.heroBanners && s.heroBanners.length > 0) {
+              document.getElementById("setting-hero-img").value =
+                s.heroBanners[0].imageUrl || "";
+              document.getElementById("setting-hero-link").value =
+                s.heroBanners[0].linkUrl || "";
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load settings", error);
+        }
+      }
+
+      // ហៅទាញយក Setting ពេលទំព័រ Load លើកដំបូង
+      document.addEventListener("DOMContentLoaded", () => {
+        loadSettingsData();
+      });
+
+      // Submit រក្សាទុក Setting
+      document
+        .getElementById("settingForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const payload = {
+            logoUrl: document.getElementById("setting-logoUrl").value,
+            heroBanners: [
+              {
+                imageUrl: document.getElementById("setting-hero-img").value,
+                linkUrl: document.getElementById("setting-hero-link").value,
+              },
+            ],
+          };
+
+          const btn = document.getElementById("btn-save-settings");
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+
+          try {
+            const res = await fetch("/api/settings", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+              },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              Swal.fire(
+                "Success!",
+                "Storefront settings updated successfully.",
+                "success",
+              );
+            } else {
+              Swal.fire("Failed", data.message, "error");
+            }
+          } catch (error) {
+            Swal.fire("Error", "Server connection failed.", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-save"></i> Save Changes`;
+          }
+        });
 
       function handleLogout() {
         localStorage.clear();
