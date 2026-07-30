@@ -31,8 +31,6 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-
-      /* ក្បាច់តុបតែងកាត Voucher */
       .voucher-card {
         background:
           radial-gradient(circle at top right, transparent 5px, #fff 0) top
@@ -49,9 +47,7 @@
     </style>
   </head>
   <body class="text-gray-800 antialiased flex flex-col min-h-screen">
-    <!-- ========================================== -->
-    <!-- ផ្នែក HEADER (របារខាងលើ) -->
-    <!-- ========================================== -->
+    <!-- Header -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div
         class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
@@ -88,52 +84,37 @@
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto w-full pb-10">
-      <!-- ========================================== -->
-      <!-- ផ្នែក STORE PROFILE (រូប Cover និង Logo ហាង) -->
-      <!-- ========================================== -->
+      <!-- Store Profile Header -->
       <div
         class="bg-white rounded-b-xl shadow-sm overflow-hidden mb-6 relative"
       >
-        <!-- ទីតាំងរូប Cover -->
-        <div class="h-40 md:h-72 w-full bg-blue-100 relative">
-          <!-- ថែម onerror ដើម្បីការពារករណី Link ខូច វានឹងលោតយករូប Default -->
+        <div class="h-32 md:h-64 w-full bg-blue-100 relative">
           <img
             id="store-cover"
             src="https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover"
             alt="Cover"
             class="w-full h-full object-cover"
-            onerror="
-              this.src =
-                'https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Cover+Not+Found'
-            "
           />
           <div class="absolute inset-0 bg-black bg-opacity-30"></div>
         </div>
-
         <div
-          class="absolute top-12 md:top-24 left-4 md:left-8 flex items-end space-x-4"
+          class="absolute top-8 md:top-20 left-4 md:left-8 flex items-end space-x-4"
         >
-          <!-- ទីតាំងរូប Logo (តម្លើងទំហំឱ្យធំជាងមុន w-24 md:w-40) -->
           <div
-            class="w-24 h-24 md:w-40 md:h-40 bg-white rounded-full p-1 shadow-lg z-10 border-4 border-white relative"
+            class="w-20 h-20 md:w-32 md:h-32 bg-white rounded-full p-1 shadow-lg z-10 border-2 border-white relative"
           >
             <img
               id="store-logo"
               src="https://via.placeholder.com/150"
               alt="Logo"
-              class="w-full h-full rounded-full object-cover bg-white"
-              onerror="
-                this.src = 'https://via.placeholder.com/150?text=No+Logo'
-              "
+              class="w-full h-full rounded-full object-cover"
             />
             <div
-              class="absolute bottom-1 md:bottom-2 right-1 md:right-2 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
+              class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
             >
               <i class="fas fa-check-circle text-xs md:text-sm"></i>
             </div>
           </div>
-
-          <!-- ឈ្មោះហាង និងព័ត៌មានសង្ខេប -->
           <div class="text-white pb-2 md:pb-4 shadow-sm z-10">
             <h1
               id="store-name"
@@ -146,10 +127,8 @@
             </p>
           </div>
         </div>
-
-        <!-- របារស្ថិតិហាង (ចំនួនទំនិញ, អ្នកតាមដាន) -->
         <div
-          class="px-4 md:px-8 py-4 mt-8 md:mt-12 flex flex-wrap justify-between items-center gap-4"
+          class="px-4 md:px-8 py-4 mt-6 md:mt-10 flex flex-wrap justify-between items-center gap-4"
         >
           <div class="flex space-x-6 text-sm text-gray-600">
             <div class="text-center">
@@ -182,9 +161,7 @@
         </div>
       </div>
 
-      <!-- ========================================== -->
-      <!-- ផ្នែក VOUCHERS (ប័ណ្ណបញ្ចុះតម្លៃ) -->
-      <!-- ========================================== -->
+      <!-- Store Vouchers -->
       <div class="mb-6 px-4 md:px-0">
         <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center">
           <i class="fas fa-ticket-alt text-orange-500 mr-2"></i>
@@ -215,9 +192,7 @@
         </div>
       </div>
 
-      <!-- ========================================== -->
-      <!-- ផ្នែក FILTER & CATEGORIES (ស្វែងរក និងជម្រើស) -->
-      <!-- ========================================== -->
+      <!-- Filter & Categories -->
       <div
         class="bg-white sticky top-[60px] md:top-[68px] z-40 rounded-lg shadow-sm border border-gray-100 mb-6 px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4"
       >
@@ -253,9 +228,7 @@
         </div>
       </div>
 
-      <!-- ========================================== -->
-      <!-- ផ្នែក PRODUCTS GRID (បង្ហាញផលិតផល) -->
-      <!-- ========================================== -->
+      <!-- Products Grid -->
       <div
         id="store-products-grid"
         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-4 md:px-0"
@@ -267,9 +240,7 @@
       </div>
     </main>
 
-    <!-- ========================================== -->
-    <!-- ផ្នែក FOOTER (ខាងក្រោមគេ) -->
-    <!-- ========================================== -->
+    <!-- 🌟 Footer របស់ U-Mall -->
     <footer class="bg-white border-t mt-auto">
       <div
         class="max-w-7xl mx-auto px-4 pt-10 pb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
@@ -357,18 +328,15 @@
       </div>
     </footer>
 
-    <!-- ========================================== -->
-    <!-- ផ្នែក JAVASCRIPT (មុខងារចម្បង) -->
-    <!-- ========================================== -->
     <script>
       const API_BASE_PUBLIC = "/api/public";
       let allStoreProducts = [];
       let currentCategory = "All";
-      let storeInfo = null;
+      let storeInfo = null; // រក្សាទុកព័ត៌មានហាង
 
-      // ------------------------------------
-      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃ (Cart)
-      // ------------------------------------
+      // ==========================================
+      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage
+      // ==========================================
       let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
 
       function updateCartBadge() {
@@ -394,9 +362,9 @@
         }
       }
 
-      // ------------------------------------
-      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង (Fetch Data)
-      // ------------------------------------
+      // ==========================================
+      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង
+      // ==========================================
       const urlParams = new URLSearchParams(window.location.search);
       const storeId = urlParams.get("id");
 
@@ -421,12 +389,13 @@
           const data = await res.json();
 
           if (data.success && data.products) {
+            // ត្រងយកតែទំនិញរបស់ហាងនេះ
             allStoreProducts = data.products.filter((p) => {
               if (!p.store) return false;
               const pStoreId =
                 typeof p.store === "object" ? p.store._id : p.store;
 
-              // Extract ព័ត៌មានហាងទុកពេល Filter
+              // ក្នុងពេលត្រង យើងឆ្លៀតទាញយក (Extract) ព័ត៌មានហាងទុកតែម្ដង
               if (
                 pStoreId === storeId &&
                 !storeInfo &&
@@ -449,9 +418,6 @@
         }
       }
 
-      // ------------------------------------
-      // ៣. បញ្ចូលរូប និងឈ្មោះហាង (Setup Profile)
-      // ------------------------------------
       function setupStoreProfile() {
         const storeNameEl = document.getElementById("store-name");
         const productCountEl = document.getElementById("stat-products");
@@ -459,29 +425,29 @@
         const storeCoverEl = document.getElementById("store-cover");
 
         if (storeInfo) {
-          // ឈ្មោះហាង
+          // ចាប់ឈ្មោះហាង
           storeNameEl.innerHTML = `${storeInfo.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
 
-          // ចាប់រូប Logo ពិត (មាន Validate ក្រែងលោវាទទេ)
-          if (storeInfo.logoUrl && storeInfo.logoUrl.trim() !== "") {
-            storeLogoEl.src = storeInfo.logoUrl;
-          }
+          // ចាប់រូប Logo ពិត (បើគ្មាន ប្រើរូប Placeholder)
+          if (storeInfo.logoUrl) storeLogoEl.src = storeInfo.logoUrl;
+          else storeLogoEl.src = "https://via.placeholder.com/150";
 
-          // ចាប់រូប Cover ពិត
-          if (storeInfo.coverUrl && storeInfo.coverUrl.trim() !== "") {
-            storeCoverEl.src = storeInfo.coverUrl;
-          }
+          // ចាប់រូប Cover ពិត (បើគ្មាន ប្រើរូប Default ពណ៌ខៀវ)
+          if (storeInfo.coverUrl) storeCoverEl.src = storeInfo.coverUrl;
+          else
+            storeCoverEl.src =
+              "https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover";
         } else {
           storeNameEl.innerText = "ហាងទូទៅ";
         }
 
-        // ស្ថិតិចំនួនផលិតផល
+        // ចាប់ចំនួនផលិតផលពិតប្រាកដដែលហាងនេះមាន
         productCountEl.innerText = allStoreProducts.length;
       }
 
-      // ------------------------------------
-      // ៤. មុខងារ Filter & Sort
-      // ------------------------------------
+      // ==========================================
+      // ៣. មុខងារស្វែងរក, Filter និង តម្រៀប (Sort)
+      // ==========================================
       function generateCategories(products) {
         const categoryContainer = document.getElementById("category-tabs");
         const categories = [
@@ -543,9 +509,9 @@
         renderProducts(filtered);
       }
 
-      // ------------------------------------
-      // ៥. មុខងារ Render ទំនិញ
-      // ------------------------------------
+      // ==========================================
+      // ៤. មុខងារគូរ (Render) ទំនិញនៅលើអេក្រង់
+      // ==========================================
       function renderProducts(products) {
         const container = document.getElementById("store-products-grid");
         if (products.length === 0) {
@@ -566,8 +532,7 @@
             return `
                 <div class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
                     <div class="relative w-full pb-[100%]">
-                        <!-- បន្ថែម onerror ដើម្បីការពាររូបទំនិញខូច -->
-                        <img src="${image}" onerror="this.src='https://via.placeholder.com/200?text=No+Image'" class="absolute top-0 left-0 w-full h-full object-cover">
+                        <img src="${image}" class="absolute top-0 left-0 w-full h-full object-cover">
                     </div>
                     <div class="p-2 md:p-3 flex-1 flex flex-col">
                         <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1" title="${p.name}">${p.name}</h3>
