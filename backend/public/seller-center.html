@@ -344,34 +344,29 @@
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
-
-                <!-- 👇 ដូរទៅជា type="text" និងថែម onchange ដើម្បីចាប់យកពេលគេ Paste Link ចូល -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1"
                     >រូបតំណាងហាង (Logo URL)</label
                   >
                   <input
-                    type="text"
+                    type="url"
                     id="store-logo"
-                    onchange="autoConvertToBase64(this)"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-                    placeholder="Paste Link រូប Logo ទីនេះ..."
+                    placeholder="https://example.com/logo.jpg"
                   />
                 </div>
+                <!-- 👇 ផ្នែកដែលទើបបន្ថែមថ្មីសម្រាប់ Cover -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1"
                     >រូបភាពគម្របហាង (Cover URL)</label
                   >
                   <input
-                    type="text"
+                    type="url"
                     id="store-cover"
-                    onchange="autoConvertToBase64(this)"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-                    placeholder="Paste Link រូប Cover ទីនេះ..."
+                    placeholder="https://example.com/cover.jpg"
                   />
                 </div>
-                <!-- 👆 បញ្ចប់ការកែប្រែ -->
-
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1"
                     >សេចក្ដីពណ៌នា (Description)</label
@@ -645,62 +640,6 @@
         await fetchProfile();
         await fetchProducts();
         await fetchOrders();
-      }
-
-      // ==========================================
-      // មុខងារថ្មី៖ បំប្លែង Link រូបភាពទៅជា Base64 ស្វ័យប្រវត្តិ
-      // ==========================================
-      async function autoConvertToBase64(inputEl) {
-        const url = inputEl.value.trim();
-
-        // បើប្រអប់ទទេ ឬវាជាកូដ Base64 ស្រាប់ហើយ មិនបាច់ធ្វើអ្វីទេ
-        if (!url || url.startsWith("data:image")) return;
-
-        // បង្ហាញផ្ទាំង Loading
-        Swal.fire({
-          title: "កំពុងទាញយករូបភាព...",
-          text: "សូមរង់ចាំបន្តិច ដើម្បីបំប្លែងទៅជាទម្រង់សុវត្ថិភាព",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
-        try {
-          // ប្រើ CORS Proxy ដើម្បីអាចទាញយករូបភាពពី Link ផ្សេងៗបានដោយមិន Error
-          const proxyUrl =
-            "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-          const response = await fetch(proxyUrl);
-
-          if (!response.ok) throw new Error("Network response was not ok");
-
-          const blob = await response.blob();
-          const reader = new FileReader();
-
-          reader.onloadend = function () {
-            inputEl.value = reader.result; // ជំនួស Link ចាស់ដោយកូដ Base64 ចូលប្រអប់វិញ
-
-            // បិទ Loading និងបង្ហាញជោគជ័យ
-            Swal.fire({
-              icon: "success",
-              title: "បំប្លែងជោគជ័យ!",
-              toast: true,
-              position: "top-end",
-              showConfirmButton: false,
-              timer: 3000,
-            });
-          };
-
-          reader.readAsDataURL(blob);
-        } catch (error) {
-          console.error("Error converting image:", error);
-          Swal.fire({
-            icon: "error",
-            title: "បរាជ័យ",
-            text: "មិនអាចបំប្លែង Link នេះបានទេ (អាចមកពី Link ខូច ឬជាប់សិទ្ធិការពារ)។ សូមសាកល្បងប្រើ Link ផ្សេង!",
-          });
-          inputEl.value = ""; // លុបវាចោលបើអត់ដើរ ដើម្បីឱ្យដាក់ថ្មី
-        }
       }
 
       // ==========================================
