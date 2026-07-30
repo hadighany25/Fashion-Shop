@@ -47,7 +47,9 @@
     </style>
   </head>
   <body class="text-gray-800 antialiased flex flex-col min-h-screen">
-    <!-- Header -->
+    <!-- ========================================== -->
+    <!-- ផ្នែក HEADER (របារខាងលើ) -->
+    <!-- ========================================== -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div
         class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
@@ -84,37 +86,52 @@
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto w-full pb-10">
-      <!-- Store Profile Header -->
+      <!-- ========================================== -->
+      <!-- ផ្នែក PROFILE ហាង (Cover & Logo) -->
+      <!-- ========================================== -->
       <div
         class="bg-white rounded-b-xl shadow-sm overflow-hidden mb-6 relative"
       >
-        <div class="h-32 md:h-64 w-full bg-blue-100 relative">
+        <!-- ទីតាំងរូប Cover (កែសម្រួលកម្ពស់ និងការពារ Error រូបភាព) -->
+        <div class="h-40 md:h-72 w-full bg-blue-100 relative">
           <img
             id="store-cover"
-            src="https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover"
+            src="https://via.placeholder.com/1200x400/1e3a8a/ffffff?text=Store+Cover"
             alt="Cover"
+            referrerpolicy="no-referrer"
+            onerror="
+              this.src =
+                'https://via.placeholder.com/1200x400/1e3a8a/ffffff?text=Store+Cover'
+            "
             class="w-full h-full object-cover"
           />
-          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+          <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+          <!-- ដាក់ស្រមោលខ្មៅតិចៗដើម្បីឱ្យអក្សរលេចឡើង -->
         </div>
+
+        <!-- ទីតាំងរូប Logo និងឈ្មោះហាង -->
         <div
-          class="absolute top-8 md:top-20 left-4 md:left-8 flex items-end space-x-4"
+          class="absolute top-16 md:top-28 left-4 md:left-8 flex items-end space-x-4"
         >
+          <!-- Logo ត្រូវបានពង្រីកទំហំឱ្យធំជាងមុនបន្តិច (w-24/h-24 ដល់ w-36/h-36) -->
           <div
-            class="w-20 h-20 md:w-32 md:h-32 bg-white rounded-full p-1 shadow-lg z-10 border-2 border-white relative"
+            class="w-24 h-24 md:w-36 md:h-36 bg-white rounded-full p-1 md:p-1.5 shadow-xl z-10 border-2 border-white relative"
           >
             <img
               id="store-logo"
               src="https://via.placeholder.com/150"
               alt="Logo"
-              class="w-full h-full rounded-full object-cover"
+              referrerpolicy="no-referrer"
+              onerror="this.src = 'https://via.placeholder.com/150'"
+              class="w-full h-full rounded-full object-cover bg-white"
             />
             <div
-              class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
+              class="absolute bottom-1 right-1 md:bottom-2 md:right-2 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
             >
               <i class="fas fa-check-circle text-xs md:text-sm"></i>
             </div>
           </div>
+          <!-- ឈ្មោះហាង -->
           <div class="text-white pb-2 md:pb-4 shadow-sm z-10">
             <h1
               id="store-name"
@@ -127,8 +144,10 @@
             </p>
           </div>
         </div>
+
+        <!-- ស្ថិតិ និងប៊ូតុង Follow -->
         <div
-          class="px-4 md:px-8 py-4 mt-6 md:mt-10 flex flex-wrap justify-between items-center gap-4"
+          class="px-4 md:px-8 py-4 mt-8 md:mt-12 flex flex-wrap justify-between items-center gap-4"
         >
           <div class="flex space-x-6 text-sm text-gray-600">
             <div class="text-center">
@@ -161,7 +180,9 @@
         </div>
       </div>
 
-      <!-- Store Vouchers -->
+      <!-- ========================================== -->
+      <!-- ផ្នែក ប័ណ្ណបញ្ចុះតម្លៃ (VOUCHERS) -->
+      <!-- ========================================== -->
       <div class="mb-6 px-4 md:px-0">
         <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center">
           <i class="fas fa-ticket-alt text-orange-500 mr-2"></i>
@@ -192,7 +213,9 @@
         </div>
       </div>
 
-      <!-- Filter & Categories -->
+      <!-- ========================================== -->
+      <!-- ផ្នែក ស្វែងរក និង តម្រៀបទំនិញ (FILTER) -->
+      <!-- ========================================== -->
       <div
         class="bg-white sticky top-[60px] md:top-[68px] z-40 rounded-lg shadow-sm border border-gray-100 mb-6 px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4"
       >
@@ -228,7 +251,9 @@
         </div>
       </div>
 
-      <!-- Products Grid -->
+      <!-- ========================================== -->
+      <!-- ផ្នែក បង្ហាញទំនិញ (PRODUCTS GRID) -->
+      <!-- ========================================== -->
       <div
         id="store-products-grid"
         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-4 md:px-0"
@@ -240,7 +265,9 @@
       </div>
     </main>
 
-    <!-- 🌟 Footer របស់ U-Mall -->
+    <!-- ========================================== -->
+    <!-- ផ្នែក FOOTER -->
+    <!-- ========================================== -->
     <footer class="bg-white border-t mt-auto">
       <div
         class="max-w-7xl mx-auto px-4 pt-10 pb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
@@ -261,6 +288,7 @@
             ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
+        <!-- ព័ត៌មានបន្ថែម រក្សាទុកដូចចាស់ -->
         <div>
           <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
             សេវាកម្មអតិថិជន
@@ -274,11 +302,6 @@
             <li>
               <a href="#" class="hover:text-blue-600 transition"
                 >របៀបទិញទំនិញ</a
-              >
-            </li>
-            <li>
-              <a href="#" class="hover:text-blue-600 transition"
-                >ការដឹកជញ្ជូន</a
               >
             </li>
           </ul>
@@ -298,28 +321,6 @@
             >
               ACLEDA
             </div>
-            <div
-              class="w-12 h-8 bg-red-500 rounded flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
-            >
-              Wing
-            </div>
-          </div>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
-            តាមដានពួកយើង
-          </h4>
-          <div class="flex space-x-4">
-            <a
-              href="#"
-              class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition"
-              ><i class="fab fa-facebook-f"></i
-            ></a>
-            <a
-              href="#"
-              class="w-8 h-8 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition"
-              ><i class="fab fa-instagram"></i
-            ></a>
           </div>
         </div>
       </div>
@@ -328,15 +329,16 @@
       </div>
     </footer>
 
+    <!-- ========================================== -->
+    <!-- ផ្នែក JAVASCRIPT (តក្កវិជ្ជា) -->
+    <!-- ========================================== -->
     <script>
       const API_BASE_PUBLIC = "/api/public";
       let allStoreProducts = [];
       let currentCategory = "All";
-      let storeInfo = null; // រក្សាទុកព័ត៌មានហាង
+      let storeInfo = null;
 
-      // ==========================================
-      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃប្រើ localStorage
-      // ==========================================
+      // ១. ប្រព័ន្ធកន្ត្រកឆ្លាតវៃ (Cart System)
       let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
 
       function updateCartBadge() {
@@ -362,9 +364,7 @@
         }
       }
 
-      // ==========================================
-      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង
-      // ==========================================
+      // ២. ទាញយក និងបង្ហាញទិន្នន័យហាង (Fetch API)
       const urlParams = new URLSearchParams(window.location.search);
       const storeId = urlParams.get("id");
 
@@ -389,13 +389,11 @@
           const data = await res.json();
 
           if (data.success && data.products) {
-            // ត្រងយកតែទំនិញរបស់ហាងនេះ
             allStoreProducts = data.products.filter((p) => {
               if (!p.store) return false;
               const pStoreId =
                 typeof p.store === "object" ? p.store._id : p.store;
 
-              // ក្នុងពេលត្រង យើងឆ្លៀតទាញយក (Extract) ព័ត៌មានហាងទុកតែម្ដង
               if (
                 pStoreId === storeId &&
                 !storeInfo &&
@@ -418,6 +416,7 @@
         }
       }
 
+      // ៣. បញ្ចូលទិន្នន័យ Logo & Cover ទៅក្នុង UI
       function setupStoreProfile() {
         const storeNameEl = document.getElementById("store-name");
         const productCountEl = document.getElementById("stat-products");
@@ -425,29 +424,24 @@
         const storeCoverEl = document.getElementById("store-cover");
 
         if (storeInfo) {
-          // ចាប់ឈ្មោះហាង
           storeNameEl.innerHTML = `${storeInfo.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
 
-          // ចាប់រូប Logo ពិត (បើគ្មាន ប្រើរូប Placeholder)
-          if (storeInfo.logoUrl) storeLogoEl.src = storeInfo.logoUrl;
-          else storeLogoEl.src = "https://via.placeholder.com/150";
+          // ផ្ទៀងផ្ទាត់ និងបញ្ចូល Logo
+          if (storeInfo.logoUrl && storeInfo.logoUrl.trim() !== "") {
+            storeLogoEl.src = storeInfo.logoUrl;
+          }
 
-          // ចាប់រូប Cover ពិត (បើគ្មាន ប្រើរូប Default ពណ៌ខៀវ)
-          if (storeInfo.coverUrl) storeCoverEl.src = storeInfo.coverUrl;
-          else
-            storeCoverEl.src =
-              "https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover";
+          // ផ្ទៀងផ្ទាត់ និងបញ្ចូល Cover
+          if (storeInfo.coverUrl && storeInfo.coverUrl.trim() !== "") {
+            storeCoverEl.src = storeInfo.coverUrl;
+          }
         } else {
           storeNameEl.innerText = "ហាងទូទៅ";
         }
-
-        // ចាប់ចំនួនផលិតផលពិតប្រាកដដែលហាងនេះមាន
         productCountEl.innerText = allStoreProducts.length;
       }
 
-      // ==========================================
-      // ៣. មុខងារស្វែងរក, Filter និង តម្រៀប (Sort)
-      // ==========================================
+      // ៤. មុខងារ Filter និង ស្វែងរក
       function generateCategories(products) {
         const categoryContainer = document.getElementById("category-tabs");
         const categories = [
@@ -509,9 +503,7 @@
         renderProducts(filtered);
       }
 
-      // ==========================================
-      // ៤. មុខងារគូរ (Render) ទំនិញនៅលើអេក្រង់
-      // ==========================================
+      // ៥. បង្ហាញទំនិញ
       function renderProducts(products) {
         const container = document.getElementById("store-products-grid");
         if (products.length === 0) {
@@ -532,7 +524,7 @@
             return `
                 <div class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
                     <div class="relative w-full pb-[100%]">
-                        <img src="${image}" class="absolute top-0 left-0 w-full h-full object-cover">
+                        <img src="${image}" class="absolute top-0 left-0 w-full h-full object-cover" referrerpolicy="no-referrer">
                     </div>
                     <div class="p-2 md:p-3 flex-1 flex flex-col">
                         <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1" title="${p.name}">${p.name}</h3>
