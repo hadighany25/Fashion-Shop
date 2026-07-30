@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Store Profile - U-Mall</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Voucher Ticket Shape */
+      .voucher-card {
+        background:
+          radial-gradient(circle at top right, transparent 5px, #fff 0) top
+            right,
+          radial-gradient(circle at bottom right, transparent 5px, #fff 0)
+            bottom right,
+          radial-gradient(circle at top left, transparent 5px, #fff 0) top left,
+          radial-gradient(circle at bottom left, transparent 5px, #fff 0) bottom
+            left;
+        background-size: 50% 50%;
+        background-repeat: no-repeat;
+        border-left: 2px dashed #3b82f6;
+      }
+    </style>
+  </head>
+  <body class="text-gray-800 antialiased flex flex-col min-h-screen">
+    <!-- 🌟 Header ដូចគ្នាជាមួយ index.html (ខ្នាតតូច) -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div
+        class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <a href="index.html" class="flex items-center space-x-2">
+          <div
+            class="bg-blue-600 text-white p-1.5 rounded-lg font-bold text-xl leading-none"
+          >
+            U
+          </div>
+          <span class="text-xl font-bold text-blue-600 hidden sm:block"
+            >Mall</span
+          >
+        </a>
+        <div class="flex items-center space-x-4">
+          <a
+            href="index.html"
+            class="text-gray-600 hover:text-blue-600 text-sm font-medium"
+            ><i class="fas fa-home mr-1"></i> ទំព័រដើម</a
+          >
+          <a
+            href="#"
+            class="relative text-gray-600 hover:text-blue-600 transition"
+          >
+            <i class="fas fa-shopping-cart text-xl"></i>
+            <span
+              id="cart-count"
+              class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white"
+              >0</span
+            >
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full pb-10">
+      <!-- 🏪 ១. Store Profile Header -->
+      <div
+        class="bg-white rounded-b-xl shadow-sm overflow-hidden mb-6 relative"
+      >
+        <!-- Cover Photo -->
+        <div class="h-32 md:h-64 w-full bg-blue-100 relative">
+          <img
+            id="store-cover"
+            src="https://via.placeholder.com/1200x300/1e3a8a/ffffff?text=Store+Cover"
+            alt="Cover"
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
+
+        <!-- Store Info Layer -->
+        <div
+          class="absolute top-8 md:top-20 left-4 md:left-8 flex items-end space-x-4"
+        >
+          <div
+            class="w-20 h-20 md:w-32 md:h-32 bg-white rounded-full p-1 shadow-lg z-10 border-2 border-white relative"
+          >
+            <img
+              id="store-logo"
+              src="https://via.placeholder.com/150"
+              alt="Logo"
+              class="w-full h-full rounded-full object-cover"
+            />
+            <div
+              class="absolute bottom-0 right-0 bg-blue-500 text-white p-1 md:p-1.5 rounded-full border-2 border-white"
+            >
+              <i class="fas fa-check-circle text-xs md:text-sm"></i>
+            </div>
+          </div>
+          <div class="text-white pb-2 md:pb-4 shadow-sm z-10">
+            <h1
+              id="store-name"
+              class="text-xl md:text-3xl font-bold flex items-center text-white drop-shadow-md"
+            >
+              កំពុងផ្ទុក...
+            </h1>
+            <p class="text-xs md:text-sm text-gray-200 mt-1 drop-shadow-md">
+              អនឡាញ ៥ នាទីមុន • ទីតាំង៖ ភ្នំពេញ
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Bar (Stats & Buttons) -->
+        <div
+          class="px-4 md:px-8 py-4 mt-6 md:mt-10 flex flex-wrap justify-between items-center gap-4"
+        >
+          <div class="flex space-x-6 text-sm text-gray-600">
+            <div class="text-center">
+              <div class="font-bold text-gray-800 text-lg" id="stat-products">
+                0
+              </div>
+              <div class="text-xs">ទំនិញ</div>
+            </div>
+            <div class="text-center">
+              <div class="font-bold text-gray-800 text-lg">12.5K</div>
+              <div class="text-xs">អ្នកតាមដាន</div>
+            </div>
+            <div class="text-center">
+              <div class="font-bold text-gray-800 text-lg">4.9/5</div>
+              <div class="text-xs">ការវាយតម្លៃ</div>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 w-full md:w-auto">
+            <button
+              class="flex-1 md:flex-none border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition font-medium text-sm flex items-center justify-center"
+            >
+              <i class="fas fa-comment-dots mr-2"></i> ឆាត
+            </button>
+            <button
+              class="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium text-sm flex items-center justify-center shadow-sm"
+            >
+              <i class="fas fa-plus mr-2"></i> តាមដានហាង
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎟️ ២. Store Vouchers (ប័ណ្ណបញ្ចុះតម្លៃផ្ទាល់ខ្លួន) -->
+      <div class="mb-6 px-4 md:px-0">
+        <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center">
+          <i class="fas fa-ticket-alt text-orange-500 mr-2"></i>
+          ប័ណ្ណបញ្ចុះតម្លៃពីហាង
+        </h2>
+        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          <!-- Voucher 1 -->
+          <div
+            class="min-w-[250px] bg-white rounded-lg shadow-sm flex items-center border border-gray-100 shrink-0"
+          >
+            <div
+              class="bg-blue-500 text-white p-4 h-full rounded-l-lg flex flex-col justify-center items-center voucher-card w-24"
+            >
+              <span class="text-2xl font-bold">10%</span>
+              <span class="text-[10px]">បញ្ចុះតម្លៃ</span>
+            </div>
+            <div class="p-3 flex-1">
+              <div class="text-sm font-bold text-gray-800">ទិញអស់ $20 ឡើង</div>
+              <div class="text-[10px] text-gray-500 mt-1">
+                ផុតកំណត់: 30 កញ្ញា
+              </div>
+              <button
+                class="mt-2 text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-medium hover:bg-blue-600 hover:text-white transition"
+              >
+                រក្សាទុក
+              </button>
+            </div>
+          </div>
+          <!-- Voucher 2 -->
+          <div
+            class="min-w-[250px] bg-white rounded-lg shadow-sm flex items-center border border-gray-100 shrink-0"
+          >
+            <div
+              class="bg-orange-500 text-white p-4 h-full rounded-l-lg flex flex-col justify-center items-center voucher-card w-24"
+            >
+              <span class="text-xl font-bold">Free</span>
+              <span class="text-[10px]">ដឹកជញ្ជូន</span>
+            </div>
+            <div class="p-3 flex-1">
+              <div class="text-sm font-bold text-gray-800">អត់មានលក្ខខណ្ឌ</div>
+              <div class="text-[10px] text-gray-500 mt-1">
+                ផុតកំណត់: ថ្ងៃនេះ
+              </div>
+              <button
+                class="mt-2 text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-medium hover:bg-orange-500 hover:text-white transition"
+              >
+                រក្សាទុក
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔍 ៣. Filter, Search & Categories Navigation -->
+      <div
+        class="bg-white sticky top-[60px] md:top-[68px] z-40 rounded-lg shadow-sm border border-gray-100 mb-6 px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4"
+      >
+        <!-- Categories (បង្កើតដោយស្វ័យប្រវត្តិ) -->
+        <div
+          class="flex space-x-6 overflow-x-auto w-full md:w-auto no-scrollbar"
+          id="category-tabs"
+        >
+          <button
+            class="whitespace-nowrap text-blue-600 font-bold border-b-2 border-blue-600 pb-1"
+            onclick="filterByCategory('All', this)"
+          >
+            ទំនិញទាំងអស់
+          </button>
+          <!-- Dynamic Categories នឹងលោតចូលទីនេះ -->
+        </div>
+
+        <!-- Store Search & Sort -->
+        <div class="flex items-center w-full md:w-auto space-x-2">
+          <div class="relative w-full md:w-64">
+            <input
+              type="text"
+              id="store-search"
+              placeholder="ស្វែងរកក្នុងហាងនេះ..."
+              class="w-full bg-gray-100 border-none rounded-full py-2 pl-4 pr-10 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+          </div>
+          <select
+            id="sort-select"
+            class="bg-gray-100 border-none rounded-full py-2 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+          >
+            <option value="latest">ថ្មីបំផុត</option>
+            <option value="price-low">តម្លៃ: ទាប ទៅ ខ្ពស់</option>
+            <option value="price-high">តម្លៃ: ខ្ពស់ ទៅ ទាប</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 🛍️ ៤. Products Grid (បង្ហាញតែទំនិញហាងនេះ) -->
+      <div
+        id="store-products-grid"
+        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-4 md:px-0"
+      >
+        <div class="col-span-full text-center py-10 text-gray-500">
+          <i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i
+          ><br />
+          កំពុងទាញយកទំនិញ...
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const API_BASE_PUBLIC = "/api/public";
+      let allStoreProducts = []; // រក្សាទុកទំនិញដើមទាំងអស់របស់ហាង
+      let currentCategory = "All";
+
+      // ១. ចាប់យកលេខ ID ហាងពី URL (ឧទាហរណ៍ store.html?id=6a69f9...)
+      const urlParams = new URLSearchParams(window.location.search);
+      const storeId = urlParams.get("id");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!storeId) {
+          document.getElementById("store-products-grid").innerHTML = `
+            <div class="col-span-full text-center py-20">
+              <i class="fas fa-store-slash text-gray-300 text-6xl mb-4"></i>
+              <h2 class="text-xl font-bold text-gray-600 mb-2">រកមិនឃើញហាងនេះទេ</h2>
+              <a href="index.html" class="text-blue-600 underline">ត្រឡប់ទៅទំព័រដើម</a>
+            </div>`;
+          return;
+        }
+        fetchStoreDataAndProducts();
+      });
+
+      // ២. ទាញយកទិន្នន័យ (យើងបាញ់ទៅយក Product ទាំងអស់ រួច Filter យកតែរបស់ហាងនេះ)
+      async function fetchStoreDataAndProducts() {
+        try {
+          const res = await fetch(`${API_BASE_PUBLIC}/products`);
+          const data = await res.json();
+
+          if (data.success && data.products) {
+            // Filter យកតែទំនិញដែលមាន store._id ស្មើនឹង storeId ក្នុង URL
+            allStoreProducts = data.products.filter((p) => {
+              if (!p.store) return false;
+              const pStoreId =
+                typeof p.store === "object" ? p.store._id : p.store;
+              return pStoreId === storeId;
+            });
+
+            // រៀបចំព័ត៌មានហាង (Header)
+            setupStoreProfile(allStoreProducts);
+
+            // បង្កើត Categories ស្វ័យប្រវត្តិពីទំនិញ
+            generateCategories(allStoreProducts);
+
+            // បង្ហាញទំនិញ
+            renderProducts(allStoreProducts);
+          }
+        } catch (error) {
+          console.error("Error loading store:", error);
+          document.getElementById("store-products-grid").innerHTML =
+            `<div class="col-span-full text-center py-10 text-red-500">មានបញ្ហាក្នុងការទាញយកទិន្នន័យ។</div>`;
+        }
+      }
+
+      // ៣. បង្ហាញព័ត៌មានហាងខាងលើ
+      function setupStoreProfile(products) {
+        const storeNameEl = document.getElementById("store-name");
+        const productCountEl = document.getElementById("stat-products");
+
+        if (
+          products.length > 0 &&
+          products[0].store &&
+          products[0].store.storeName
+        ) {
+          storeNameEl.innerHTML = `${products[0].store.storeName} <i class="fas fa-check-circle text-blue-400 text-lg ml-2"></i>`;
+          // ប្រសិនបើ API មាន Logo/Cover អាចដាក់បញ្ចូលទីនេះបាន
+        } else {
+          storeNameEl.innerText = "ហាងទូទៅ";
+        }
+        productCountEl.innerText = products.length;
+      }
+
+      // ៤. ទាញយក Categories ស្វ័យប្រវត្តិមិនឱ្យជាន់គ្នា (Unique)
+      function generateCategories(products) {
+        const categoryContainer = document.getElementById("category-tabs");
+
+        // ប្រើ Set ដើម្បីចម្រាញ់យកឈ្មោះ Category ដែលមិនជាន់គ្នា
+        const categories = [
+          ...new Set(products.map((p) => p.category || "ទូទៅ")),
+        ];
+
+        let html = `<button class="whitespace-nowrap text-blue-600 font-bold border-b-2 border-blue-600 pb-1 tab-btn" onclick="filterByCategory('All', this)">ទំនិញទាំងអស់</button>`;
+
+        categories.forEach((cat) => {
+          html += `<button class="whitespace-nowrap text-gray-500 hover:text-blue-600 font-medium pb-1 tab-btn border-b-2 border-transparent transition" onclick="filterByCategory('${cat}', this)">${cat}</button>`;
+        });
+
+        categoryContainer.innerHTML = html;
+      }
+
+      // ៥. មុខងារ Filter ពេលចុចលើ Category
+      function filterByCategory(cat, btnElement) {
+        currentCategory = cat;
+
+        // ដូរពណ៌ Tab ឱ្យសកម្ម
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("text-blue-600", "font-bold", "border-blue-600");
+          btn.classList.add("text-gray-500", "border-transparent");
+        });
+        btnElement.classList.remove("text-gray-500", "border-transparent");
+        btnElement.classList.add(
+          "text-blue-600",
+          "font-bold",
+          "border-blue-600",
+        );
+
+        applyFilters();
+      }
+
+      // ៦. មុខងារ Search & Sort
+      document
+        .getElementById("store-search")
+        .addEventListener("input", applyFilters);
+      document
+        .getElementById("sort-select")
+        .addEventListener("change", applyFilters);
+
+      function applyFilters() {
+        const searchTerm = document
+          .getElementById("store-search")
+          .value.toLowerCase();
+        const sortValue = document.getElementById("sort-select").value;
+
+        // ១. តម្រងតាម Category និង Search ឈ្មោះ
+        let filtered = allStoreProducts.filter((p) => {
+          const matchCat =
+            currentCategory === "All" ||
+            p.category === currentCategory ||
+            (currentCategory === "ទូទៅ" && !p.category);
+          const matchSearch = p.name
+            ? p.name.toLowerCase().includes(searchTerm)
+            : false;
+          return matchCat && matchSearch;
+        });
+
+        // ២. តម្រៀប (Sort)
+        if (sortValue === "price-low") {
+          filtered.sort((a, b) => a.price - b.price);
+        } else if (sortValue === "price-high") {
+          filtered.sort((a, b) => b.price - a.price);
+        } else {
+          // latest (default) - សន្មត់ថា id ឬកាលបរិច្ឆេទ
+          filtered.sort((a, b) => (a._id > b._id ? -1 : 1));
+        }
+
+        renderProducts(filtered);
+      }
+
+      // ៧. បង្ហាញ UI ទំនិញ
+      function renderProducts(products) {
+        const container = document.getElementById("store-products-grid");
+
+        if (products.length === 0) {
+          container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">រកមិនឃើញទំនិញតាមការស្វែងរករបស់អ្នកទេ។</div>`;
+          return;
+        }
+
+        container.innerHTML = products
+          .map((p) => {
+            const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
+            const image = p.imageUrl || "https://via.placeholder.com/200";
+
+            return `
+                <div class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
+                    <div class="relative w-full pb-[100%]">
+                        <img src="${image}" class="absolute top-0 left-0 w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="p-2 md:p-3 flex-1 flex flex-col">
+                        <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1" title="${p.name}">${p.name}</h3>
+                        <div class="mt-auto">
+                            <div class="text-base md:text-lg font-bold text-red-600 mb-1">$${p.price.toFixed(2)}</div>
+                            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-500">
+                                <div><i class="fas fa-star text-yellow-400"></i> 5.0</div>
+                                <div>លក់បាន 45</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:absolute bottom-0 left-0 w-full p-2 bg-white md:bg-opacity-95 md:opacity-0 md:group-hover:opacity-100 md:translate-y-2 md:group-hover:translate-y-0 transition-all mt-auto">
+                        <button onclick="addToCart('${p._id}', '${safeName}', ${p.price})" class="w-full bg-blue-600 text-white py-1.5 rounded shadow hover:bg-blue-700 text-xs md:text-sm font-medium">
+                            បញ្ចូលកន្ត្រក
+                        </button>
+                    </div>
+                </div>
+                `;
+          })
+          .join("");
+      }
+
+      // ៨. មុខងារបញ្ជូលកន្ត្រកក្លែងក្លាយ (Mock Cart) ដូចនៅ index.html
+      let cart = [];
+      function addToCart(productId, name, price) {
+        cart.push({ productId, name, price });
+        const badge = document.getElementById("cart-count");
+        badge.innerText = cart.length;
+        badge.style.transform = "scale(1.5)";
+        setTimeout(() => (badge.style.transform = "scale(1)"), 200);
+      }
+    </script>
+  </body>
+</html>
