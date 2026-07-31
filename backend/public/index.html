@@ -175,7 +175,7 @@
 
       <div class="max-w-7xl mx-auto px-4 py-3">
         <div class="flex items-center justify-between gap-4">
-          <!-- Logo (តម្លើងទំហំឱ្យវែងជាងមុន) -->
+          <!-- ទីតាំង Logo (វានឹងបង្ហាញអក្សរសិន មុនពេលទាញរូបពី Admin បាន) -->
           <a
             href="/"
             class="flex items-center space-x-2 flex-shrink-0"
@@ -219,9 +219,9 @@
               <i class="fas fa-moon text-xl" id="theme-toggle-icon"></i>
             </button>
 
-            <!-- Cart -->
+            <!-- កន្ត្រកទិញទំនិញ (Link ទៅ payment.html) -->
             <a
-              href="#"
+              href="payment.html"
               class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition"
             >
               <i class="fas fa-shopping-cart text-xl md:text-2xl"></i>
@@ -697,7 +697,14 @@
           const data = await res.json();
           if (data.success && data.setting) {
             const s = data.setting;
-            // មិនដូរ Logo Admin ទេ ព្រោះចង់ប្រើអក្សរ U-Mall វែងដែលកែថ្មី
+
+            // ១. ចាប់យករូប Logo ពី Admin មកបង្ហាញ ហើយដាក់ទំហំឲ្យធំបន្តិច (h-10 ទៅ h-14)
+            if (s.logoUrl && s.logoUrl.trim() !== "") {
+              document.getElementById("main-logo-container").innerHTML =
+                `<img src="${s.logoUrl}" alt="U-Mall Logo" class="h-10 md:h-14 object-contain transition-transform hover:scale-105" />`;
+            }
+
+            // ២. រៀបចំ Banners
             setupSlider("hero-banner-container", s.section1, true);
             setupSlider("sub-banner-1-container", s.section2, false);
             setupSlider("sub-banner-2-container", s.section3, false);
