@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>U-Mall - ផ្សារអនឡាញរបស់អ្នក</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -13,10 +16,27 @@
       href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Config Tailwind for Dark Mode -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+      // Check Dark Mode មុនពេល Load ដើម្បីកុំឱ្យវាភ្លឹបភ្លែត
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    </script>
+
     <style>
       body {
         font-family: "Kantumruy Pro", sans-serif;
-        background-color: #f3f4f6;
       }
       .line-clamp-2 {
         display: -webkit-box;
@@ -63,7 +83,6 @@
         height: 100%;
         transition: transform 0.5s ease-in-out;
       }
-      /* ប៊ូតុងចុចបញ្ជាផ្ទាំងពាណិជ្ជកម្ម */
       .slider-nav-btn {
         position: absolute;
         top: 50%;
@@ -94,12 +113,11 @@
         right: 10px;
       }
 
-      /* មុខងារហាងរត់ (Marquee) */
+      /* Marquee */
       .marquee-wrapper {
         overflow: hidden;
         white-space: nowrap;
         width: 100%;
-        background: white;
         padding: 15px 0;
         border-radius: 12px;
         display: flex;
@@ -108,7 +126,7 @@
       }
       .marquee-content {
         display: flex;
-        gap: 40px; /* គម្លាតប្រហែល 8cm លើអេក្រង់ */
+        gap: 40px;
         animation: scrollMarquee 20s linear infinite;
       }
       .marquee-content:hover {
@@ -122,12 +140,7 @@
         cursor: pointer;
         padding: 5px 15px;
         border-radius: 50px;
-        border: 1px solid #f3f4f6;
         transition: all 0.3s;
-      }
-      .marquee-item:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
       }
       @keyframes scrollMarquee {
         0% {
@@ -135,13 +148,17 @@
         }
         100% {
           transform: translateX(-50%);
-        } /* -50% ព្រោះយើងនឹង Duplicate Data ឱ្យវារត់រលូន */
+        }
       }
     </style>
   </head>
-  <body class="text-gray-800 antialiased flex flex-col min-h-screen">
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 antialiased flex flex-col min-h-screen transition-colors duration-300"
+  >
     <!-- 🌟 ១. Smart Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
+    <header
+      class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50 transition-colors duration-300"
+    >
       <div class="hidden md:block bg-blue-700 text-white text-xs py-1.5">
         <div class="max-w-7xl mx-auto px-4 flex justify-between">
           <div class="flex space-x-4">
@@ -158,32 +175,29 @@
 
       <div class="max-w-7xl mx-auto px-4 py-3">
         <div class="flex items-center justify-between gap-4">
-          <!-- Logo (នឹងដូរស្វ័យប្រវត្តិបើសិនមាន logoUrl ពី Admin) -->
+          <!-- Logo (តម្លើងទំហំឱ្យវែងជាងមុន) -->
           <a
             href="/"
             class="flex items-center space-x-2 flex-shrink-0"
             id="main-logo-container"
           >
             <div
-              class="bg-blue-600 text-white p-1.5 md:p-2 rounded-lg font-bold text-xl md:text-2xl leading-none"
+              class="bg-blue-600 text-white px-4 py-1.5 md:py-2 md:px-5 rounded-lg font-bold text-xl md:text-2xl leading-none w-auto flex items-center gap-1 shadow-sm"
             >
-              U
+              <span class="text-2xl">U</span
+              ><span class="hidden sm:inline">-Mall</span>
             </div>
-            <span
-              class="text-xl md:text-2xl font-bold text-blue-600 tracking-tight hidden sm:block"
-              >Mall</span
-            >
           </a>
 
-          <!-- Search Bar -->
+          <!-- Search Bar ជាមួយ Auto Typing -->
           <div class="flex-1 max-w-2xl">
             <div class="relative flex w-full">
               <input
                 type="text"
                 id="search-input"
                 onkeypress="handleSearch(event)"
-                class="w-full border border-blue-600 rounded-l-lg py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                placeholder="ស្វែងរកអីវ៉ាន់នៅទីនេះ..."
+                class="w-full border border-blue-600 dark:border-blue-500 bg-white dark:bg-gray-700 dark:text-white rounded-l-lg py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 placeholder-gray-400 dark:placeholder-gray-300 transition-colors"
+                placeholder=""
               />
               <button
                 onclick="executeSearch()"
@@ -194,32 +208,36 @@
             </div>
           </div>
 
-          <!-- Cart & Auth -->
+          <!-- Icons (Dark Mode, Cart, & Auth) -->
           <div class="flex items-center space-x-4 md:space-x-6 flex-shrink-0">
+            <!-- Dark Mode Toggle -->
+            <button
+              id="theme-toggle"
+              class="text-gray-500 dark:text-gray-300 hover:text-blue-600 transition"
+              title="ប្ដូរផ្ទៃងងឹត"
+            >
+              <i class="fas fa-moon text-xl" id="theme-toggle-icon"></i>
+            </button>
+
+            <!-- Cart -->
             <a
               href="#"
-              class="relative text-gray-600 hover:text-blue-600 transition"
+              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition"
             >
               <i class="fas fa-shopping-cart text-xl md:text-2xl"></i>
               <span
                 id="cart-count"
-                class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center border-2 border-white"
+                class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center border-2 border-white dark:border-gray-800"
                 >0</span
               >
             </a>
-            <div class="hidden md:flex border-l pl-6 space-x-3 items-center">
-              <a
-                href="login.html"
-                id="auth-login-link"
-                class="text-sm font-medium text-gray-600 hover:text-blue-600"
-                >ចូលគណនី</a
-              >
-              <a
-                href="admin-login.html"
-                id="auth-history-link"
-                class="text-sm font-medium text-white bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 shadow-sm transition"
-                >ហាងរបស់ខ្ញុំ</a
-              >
+
+            <!-- Auth Buttons (Dynamic via JS) -->
+            <div
+              class="hidden md:flex border-l dark:border-gray-600 pl-6 space-x-3 items-center"
+              id="auth-buttons-container"
+            >
+              <!-- JS នឹងគូរវាបញ្ចូលទីនេះ (Login/Logout) -->
             </div>
           </div>
         </div>
@@ -230,39 +248,44 @@
       <!-- 🖼️ ២. Hero Banners -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-auto lg:h-[350px]">
         <div
-          class="lg:col-span-2 bg-gray-200 rounded-xl shadow-sm h-[200px] sm:h-[300px] lg:h-full group relative"
+          class="lg:col-span-2 bg-gray-200 dark:bg-gray-700 rounded-xl shadow-sm h-[200px] sm:h-[300px] lg:h-full group relative"
         >
           <div id="hero-banner-container" class="slider-container">
             <div
-              class="flex items-center justify-center w-full h-full text-gray-500"
+              class="flex items-center justify-center w-full h-full text-gray-500 dark:text-gray-400"
             >
               <i class="fas fa-spinner fa-spin text-2xl"></i>
             </div>
           </div>
         </div>
         <div class="hidden sm:flex lg:flex-col gap-4 h-[150px] lg:h-full">
-          <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
+          <div
+            class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-xl shadow-sm group"
+          >
             <div id="sub-banner-1-container" class="slider-container"></div>
           </div>
-          <div class="flex-1 bg-gray-200 rounded-xl shadow-sm group">
+          <div
+            class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-xl shadow-sm group"
+          >
             <div id="sub-banner-2-container" class="slider-container"></div>
           </div>
         </div>
       </div>
 
-      <!-- 🏬 ៣. ហាងរត់ (Store Marquee - New) -->
+      <!-- 🏬 ៣. ហាងរត់ (Store Marquee) -->
       <div>
-        <div class="marquee-wrapper">
+        <div
+          class="marquee-wrapper bg-white dark:bg-gray-800 border dark:border-gray-700"
+        >
           <div class="marquee-content" id="store-marquee-content">
-            <!-- វានឹង Generate ស្វ័យប្រវត្តិនៅទីនេះ -->
             <span class="text-gray-400 text-sm italic">កំពុងទាញយកហាង...</span>
           </div>
         </div>
       </div>
 
-      <!-- ⚡ ៤. Flash Sale (Dynamic) -->
+      <!-- ⚡ ៤. Flash Sale -->
       <div
-        class="bg-white rounded-xl shadow-sm p-4 md:p-6 border-t-4 border-red-500"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 md:p-6 border-t-4 border-red-500 transition-colors"
       >
         <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
           <div class="flex items-center space-x-2 md:space-x-4">
@@ -275,13 +298,19 @@
               class="flex items-center space-x-1 text-white font-bold text-sm md:text-base"
               id="flash-countdown-container"
             >
-              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-hrs"
+              <span
+                class="bg-gray-800 dark:bg-black px-2 py-1 rounded"
+                id="flash-hrs"
                 >00</span
-              ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-mins"
+              ><span class="text-gray-800 dark:text-gray-300">:</span>
+              <span
+                class="bg-gray-800 dark:bg-black px-2 py-1 rounded"
+                id="flash-mins"
                 >00</span
-              ><span class="text-gray-800">:</span>
-              <span class="bg-gray-800 px-2 py-1 rounded" id="flash-secs"
+              ><span class="text-gray-800 dark:text-gray-300">:</span>
+              <span
+                class="bg-gray-800 dark:bg-black px-2 py-1 rounded"
+                id="flash-secs"
                 >00</span
               >
             </div>
@@ -301,10 +330,10 @@
         </div>
       </div>
 
-      <!-- 🏆 ៥. Top Stores (Dynamic) -->
+      <!-- 🏆 ៥. Top Stores (UI ថ្មី) -->
       <div>
         <h2
-          class="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center"
+          class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center"
         >
           <i class="fas fa-award text-yellow-500 mr-2"></i> ហាងល្បីប្រចាំសប្ដាហ៍
         </h2>
@@ -312,7 +341,6 @@
           class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
           id="top-stores-grid"
         >
-          <!-- Dynamic Stores -->
           <div class="col-span-full text-center text-gray-500 py-4">
             កំពុងទាញយកហាង...
           </div>
@@ -322,10 +350,10 @@
       <!-- 🛍️ ៦. Daily Discover -->
       <div id="products-section">
         <div
-          class="bg-white rounded-t-xl border-b-2 border-blue-600 inline-block px-4 md:px-6 py-2 md:py-3 mb-4 flex items-center space-x-3"
+          class="bg-white dark:bg-gray-800 rounded-t-xl border-b-2 border-blue-600 inline-block px-4 md:px-6 py-2 md:py-3 mb-4 flex items-center space-x-3 transition-colors"
         >
           <h2
-            class="text-lg md:text-xl font-bold text-blue-600"
+            class="text-lg md:text-xl font-bold text-blue-600 dark:text-blue-400"
             id="product-section-title"
           >
             ទំនិញសម្រាប់អ្នក
@@ -333,7 +361,7 @@
           <button
             id="clear-search-btn"
             onclick="clearSearch()"
-            class="hidden bg-gray-200 text-gray-600 px-2 py-1 rounded text-xs hover:bg-red-100 hover:text-red-600 transition"
+            class="hidden bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs hover:bg-red-100 hover:text-red-600 transition"
           >
             <i class="fas fa-times"></i> លុបការស្វែងរក
           </button>
@@ -352,7 +380,9 @@
     </main>
 
     <!-- 🌟 ៦. Beautiful Footer -->
-    <footer class="bg-white border-t mt-auto">
+    <footer
+      class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-auto transition-colors"
+    >
       <div
         class="max-w-7xl mx-auto px-4 pt-10 pb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
       >
@@ -367,17 +397,21 @@
               >Mall</span
             >
           </div>
-          <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+          <p
+            class="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed"
+          >
             ផ្សារអនឡាញ U-Mall ផ្តល់ជូននូវបទពិសោធន៍ទិញទំនិញដ៏សម្បូរបែប ងាយស្រួល
             ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
 
         <div>
-          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
+          <h4
+            class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
+          >
             សេវាកម្មអតិថិជន
           </h4>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <li>
               <a href="#" class="hover:text-blue-600 transition"
                 >មជ្ឈមណ្ឌលជំនួយ</a
@@ -402,7 +436,9 @@
         </div>
 
         <div>
-          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
+          <h4
+            class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
+          >
             ការទូទាត់ប្រាក់
           </h4>
           <div class="flex flex-wrap gap-2">
@@ -425,7 +461,9 @@
         </div>
 
         <div>
-          <h4 class="font-bold text-gray-800 mb-4 text-sm md:text-base">
+          <h4
+            class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
+          >
             តាមដានពួកយើង
           </h4>
           <div class="flex space-x-4">
@@ -441,13 +479,15 @@
             ></a>
             <a
               href="#"
-              class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition"
+              class="w-8 h-8 rounded-full bg-black dark:bg-gray-700 text-white flex items-center justify-center hover:bg-gray-800 transition"
               ><i class="fab fa-tiktok"></i
             ></a>
           </div>
         </div>
       </div>
-      <div class="border-t bg-gray-50 py-4 text-center text-xs text-gray-500">
+      <div
+        class="border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900 py-4 text-center text-xs text-gray-500 dark:text-gray-400 transition-colors"
+      >
         &copy; 2024 U-Mall Marketplace. រក្សាសិទ្ធិគ្រប់យ៉ាង។
       </div>
     </footer>
@@ -456,8 +496,36 @@
     <script>
       const API_BASE_PUBLIC = "/api/public";
       let allProductsGlobal = [];
-      let allStoresMap = {}; // រក្សាទុក Store Data ដើម្បីងាយស្រួលទាញយក
+      let allStoresMap = {};
       let flashSaleData = null;
+
+      // ---------------------------------------------
+      // ០. Dark Mode Setup
+      // ---------------------------------------------
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const themeToggleIcon = document.getElementById("theme-toggle-icon");
+
+        // Setup Icon ត្រូវតាម Theme
+        if (document.documentElement.classList.contains("dark")) {
+          themeToggleIcon.classList.remove("fa-moon");
+          themeToggleIcon.classList.add("fa-sun");
+        }
+
+        themeToggleBtn.addEventListener("click", function () {
+          if (document.documentElement.classList.contains("dark")) {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("color-theme", "light");
+            themeToggleIcon.classList.remove("fa-sun");
+            themeToggleIcon.classList.add("fa-moon");
+          } else {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("color-theme", "dark");
+            themeToggleIcon.classList.remove("fa-moon");
+            themeToggleIcon.classList.add("fa-sun");
+          }
+        });
+      });
 
       // ---------------------------------------------
       // ១. ប្រព័ន្ធកន្ត្រក និង Auth ឆ្លាតវៃ
@@ -467,14 +535,47 @@
       function checkAuthUI() {
         const token =
           localStorage.getItem("token") || localStorage.getItem("adminToken");
+        const container = document.getElementById("auth-buttons-container");
+
         if (token) {
-          document.getElementById("auth-login-link").style.display = "none";
-          const historyBtn = document.getElementById("auth-history-link");
-          historyBtn.innerText = "ប្រវត្តិការទិញ";
-          historyBtn.href = "history.html"; // ដូរ Link ទៅប្រវត្តិទិញ
-          historyBtn.className =
-            "text-sm font-medium text-white bg-green-600 px-4 py-1.5 rounded-md hover:bg-green-700 shadow-sm transition";
+          // Logged In State (បង្ហាញ ប្រវត្តិការទិញ និង ចាកចេញ)
+          container.innerHTML = `
+            <a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>
+            <button onclick="handleLogout()" class="text-sm font-medium text-white bg-red-500 px-4 py-1.5 rounded-md hover:bg-red-600 shadow-sm transition">ចាកចេញ</button>
+          `;
+        } else {
+          // Guest State
+          container.innerHTML = `
+            <a href="login.html" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600">ចូលគណនី</a>
+            <a href="admin-login.html" class="text-sm font-medium text-white bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 shadow-sm transition">ហាងរបស់ខ្ញុំ</a>
+          `;
         }
+      }
+
+      function handleLogout() {
+        Swal.fire({
+          title: "បញ្ជាក់ការចាកចេញ?",
+          text: "តើអ្នកពិតជាចង់ចាកចេញពីគណនីមែនទេ?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "ចាកចេញ",
+          cancelButtonText: "ទេ",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("adminToken");
+            Swal.fire({
+              icon: "success",
+              title: "ចាកចេញជោគជ័យ",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload();
+            });
+          }
+        });
       }
 
       function updateCartBadge() {
@@ -486,15 +587,52 @@
       document.addEventListener("DOMContentLoaded", async () => {
         checkAuthUI();
         updateCartBadge();
+        startSearchAnimation(); // ចាប់ផ្តើមមុខងារវាយអក្សរក្នុងប្រអប់ស្វែងរក
 
-        // ទាញទិន្នន័យ (រង់ចាំទំនិញដើរចប់សិន ព្រោះយើងត្រូវយក Product Data ទៅតម្រៀប FlashSale)
         await fetchProducts();
         fetchSettings();
       });
 
       // ---------------------------------------------
-      // ២. មុខងារ Search ចាប់ពាក្យ & អូសទៅក្រោម
+      // ២. មុខងារ Search ចាប់ពាក្យ & អូសទៅក្រោម & Animation Placeholder
       // ---------------------------------------------
+      const searchTexts = [
+        "ស្វែងរកសម្លៀកបំពាក់...",
+        "ស្វែងរកគ្រឿងអេឡិចត្រូនិច...",
+        "ស្វែងរកគ្រឿងសម្អាង...",
+        "ស្វែងរកស្បែកជើង...",
+      ];
+      let sIndex = 0;
+      let cIndex = 0;
+      let isDeleting = false;
+
+      function startSearchAnimation() {
+        const input = document.getElementById("search-input");
+        if (!input) return;
+
+        const currentText = searchTexts[sIndex];
+
+        if (isDeleting) {
+          input.placeholder = currentText.substring(0, cIndex - 1);
+          cIndex--;
+        } else {
+          input.placeholder = currentText.substring(0, cIndex + 1);
+          cIndex++;
+        }
+
+        let typeSpeed = isDeleting ? 40 : 100;
+
+        if (!isDeleting && cIndex === currentText.length) {
+          typeSpeed = 2000;
+          isDeleting = true;
+        } else if (isDeleting && cIndex === 0) {
+          isDeleting = false;
+          sIndex = (sIndex + 1) % searchTexts.length;
+          typeSpeed = 500;
+        }
+        setTimeout(startSearchAnimation, typeSpeed);
+      }
+
       function handleSearch(event) {
         if (event.key === "Enter") executeSearch();
       }
@@ -510,7 +648,7 @@
           .getElementById("products-section")
           .scrollIntoView({ behavior: "smooth" });
         document.getElementById("product-section-title").innerHTML =
-          `លទ្ធផលស្វែងរក: "<span class="text-gray-800">${term}</span>"`;
+          `លទ្ធផលស្វែងរក: "<span class="text-gray-800 dark:text-white">${term}</span>"`;
         document.getElementById("clear-search-btn").classList.remove("hidden");
 
         const filtered = allProductsGlobal.filter(
@@ -537,16 +675,13 @@
 
           if (data.products) {
             allProductsGlobal = data.products;
-
-            // Extract Unique Stores from Products
             allProductsGlobal.forEach((p) => {
               if (p.store && p.store._id) {
                 allStoresMap[p.store._id] = p.store;
               }
             });
-
             renderProducts(allProductsGlobal);
-            renderStoreMarquee(); // ពេលបាន Store ដើរមុខងារ Marquee
+            renderStoreMarquee();
           }
         } catch (error) {
           console.error("Error products:", error);
@@ -562,14 +697,8 @@
           const data = await res.json();
           if (data.success && data.setting) {
             const s = data.setting;
-
-            // ដូរ Logo ពិតប្រាកដ
-            if (s.logoUrl) {
-              document.getElementById("main-logo-container").innerHTML =
-                `<img src="${s.logoUrl}" alt="U-Mall" class="h-8 md:h-10 object-contain" />`;
-            }
-
-            setupSlider("hero-banner-container", s.section1, true); // true = អោយបង្ហាញសញ្ញា < >
+            // មិនដូរ Logo Admin ទេ ព្រោះចង់ប្រើអក្សរ U-Mall វែងដែលកែថ្មី
+            setupSlider("hero-banner-container", s.section1, true);
             setupSlider("sub-banner-1-container", s.section2, false);
             setupSlider("sub-banner-2-container", s.section3, false);
 
@@ -607,7 +736,6 @@
           })
           .join("");
 
-        // បញ្ចូលសញ្ញាព្រួញ (Arrows) បើវាជា Hero Banner
         if (showArrows && validItems.length > 1) {
           slidesHTML += `
               <div class="slider-nav-btn nav-left" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
@@ -627,9 +755,8 @@
         }
       }
 
-      // Manual Move Slide Function
       function moveSlide(containerId, step, event) {
-        if (event) event.preventDefault(); // ការពារកុំអោយលោត Link ពេលចុចព្រួញ
+        if (event) event.preventDefault();
         const container = document.getElementById(containerId);
         let currentIndex = parseInt(container.dataset.currentIndex);
         const total = parseInt(container.dataset.total);
@@ -639,17 +766,14 @@
         if (nextIndex >= total) nextIndex = 0;
         if (nextIndex < 0) nextIndex = total - 1;
 
-        // បញ្ឈប់ Auto ពេលគេចុចព្រួញ
-        if (event) {
-          clearInterval(parseInt(container.dataset.intervalId));
-        }
+        if (event) clearInterval(parseInt(container.dataset.intervalId));
 
         slides[nextIndex].style.transition = "none";
         slides[nextIndex].style.display = "block";
         slides[nextIndex].style.transform =
           step === 1 ? "translateX(100%)" : "translateX(-100%)";
 
-        void container.offsetWidth; // trigger reflow
+        void container.offsetWidth;
 
         slides[currentIndex].style.transition = "transform 0.5s ease-in-out";
         slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
@@ -664,7 +788,7 @@
         container.dataset.currentIndex = nextIndex;
       }
 
-      // --- Marquee ហាង (Store Running) ---
+      // --- Marquee ហាង ---
       function renderStoreMarquee() {
         const stores = Object.values(allStoresMap);
         const container = document.getElementById("store-marquee-content");
@@ -674,34 +798,30 @@
           return;
         }
 
-        // បង្កើត HTML មួយឈុតសិន
         let itemsHTML = stores
           .map(
             (s) => `
-            <div class="marquee-item" onclick="window.location.href='store.html?id=${s._id}'">
+            <div class="marquee-item border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700" onclick="window.location.href='store.html?id=${s._id}'">
                <img src="${s.logoUrl || "https://via.placeholder.com/40"}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
-               <span class="font-medium text-gray-700 text-sm whitespace-nowrap">${s.storeName}</span>
+               <span class="font-medium text-gray-700 dark:text-gray-300 text-sm whitespace-nowrap">${s.storeName}</span>
             </div>
          `,
           )
           .join("");
 
-        // បើហាងមានតិច វានឹងដាច់ យើងត្រូវ Duplicate (គុណ) Data ដើម្បីអោយវារត់តៗគ្នា (Loop) ស្អាត
         let loopCount = stores.length < 5 ? 6 : 3;
         let finalHTML = "";
         for (let i = 0; i < loopCount; i++) {
           finalHTML += itemsHTML;
         }
-
         container.innerHTML = finalHTML;
       }
 
-      // --- Flash Sale Real Data ---
+      // --- Flash Sale ---
       function renderFlashSale(fsData) {
         if (!fsData.endTime || !fsData.items || fsData.items.length === 0)
           return;
 
-        // Setup Countdown
         const endTime = new Date(fsData.endTime).getTime();
         setInterval(() => {
           const now = new Date().getTime();
@@ -723,7 +843,6 @@
             s < 10 ? "0" + s : s;
         }, 1000);
 
-        // Render FS Items (Map via allProductsGlobal to get product details)
         const fsHTML = fsData.items
           .map((item) => {
             const pId =
@@ -742,19 +861,19 @@
             );
 
             return `
-             <div class="min-w-[140px] md:min-w-[180px] snap-start bg-white border border-gray-100 rounded-lg p-2 md:p-3 hover:shadow-md transition cursor-pointer relative shrink-0" onclick="window.location.href='store.html?id=${p.store?._id}'">
+             <div class="min-w-[140px] md:min-w-[180px] snap-start bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-lg p-2 md:p-3 hover:shadow-md transition cursor-pointer relative shrink-0" onclick="window.location.href='store.html?id=${p.store?._id}'">
                 <div class="absolute top-0 right-0 bg-yellow-400 text-red-700 text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg z-10">-${item.discountPercent}%</div>
                 <img src="${p.imageUrl || "https://via.placeholder.com/150"}" class="w-full h-28 md:h-36 object-cover rounded mb-2 md:mb-3" />
                 <div class="text-base md:text-lg font-bold text-red-600 mb-1 md:mb-2">$${newPrice.toFixed(2)}
                   <span class="text-[10px] md:text-xs text-gray-400 line-through font-normal">$${oldPrice.toFixed(2)}</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-1.5 md:h-2 mb-1">
+                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 md:h-2 mb-1">
                   <div class="bg-red-500 h-1.5 md:h-2 rounded-full" style="width: ${pCent}%"></div>
                 </div>
-                <div class="text-[9px] md:text-[10px] text-gray-500 text-center">លក់បាន ${item.soldCount} គ្រឿង</div>
+                <div class="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-300 text-center">លក់បាន ${item.soldCount} គ្រឿង</div>
                 
                 <div class="mt-2" onclick="event.stopPropagation()">
-                   <button onclick="addToCart('${p._id}', '${safeName}', ${newPrice.toFixed(2)}, '${p.store?._id}')" class="w-full bg-red-50 text-red-600 text-xs py-1 rounded hover:bg-red-500 hover:text-white transition">ទិញឥឡូវនេះ</button>
+                   <button onclick="addToCart('${p._id}', '${safeName}', ${newPrice.toFixed(2)}, '${p.store?._id}')" class="w-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs py-1 rounded hover:bg-red-500 hover:text-white dark:hover:text-white transition">ទិញឥឡូវនេះ</button>
                 </div>
              </div>
              `;
@@ -764,7 +883,7 @@
         document.getElementById("flash-sale-grid").innerHTML = fsHTML;
       }
 
-      // --- Top Stores Real Data ---
+      // --- Top Stores (UI ថ្មី) ---
       function renderTopStores(storeIds) {
         if (!storeIds || storeIds.length === 0) return;
         let html = "";
@@ -773,17 +892,21 @@
           const s = allStoresMap[realId];
           if (s) {
             html += `
-                <div onclick="window.location.href='store.html?id=${s._id}'" class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer border border-gray-100">
-                  <div class="h-16 md:h-24 bg-blue-100 w-full relative">
-                    <img src="https://via.placeholder.com/300x100/3b82f6/ffffff?text=Cover" class="w-full h-full object-cover" />
+                <div onclick="window.location.href='store.html?id=${s._id}'" class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-gray-100 dark:border-gray-700">
+                  <div class="h-20 md:h-28 bg-gradient-to-r from-blue-500 to-indigo-600 w-full relative overflow-hidden">
+                    <img src="${s.coverUrl || "https://via.placeholder.com/300x100/3b82f6/ffffff?text=Cover"}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500" />
                   </div>
-                  <div class="px-3 md:px-4 pb-3 md:pb-4 pt-6 md:pt-8 relative text-center">
-                    <div class="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-12 h-12 md:w-16 md:h-16 bg-white rounded-full p-1 shadow-md">
-                      <img src="${s.logoUrl || "https://via.placeholder.com/60"}" class="w-full h-full rounded-full object-cover" />
+                  <div class="px-3 md:px-4 pb-4 pt-8 md:pt-10 relative flex flex-col items-center text-center">
+                    <div class="absolute -top-10 md:-top-12 w-20 h-20 md:w-24 md:h-24 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md ring-4 ring-white dark:ring-gray-800 z-10">
+                      <img src="${s.logoUrl || "https://via.placeholder.com/80"}" class="w-full h-full rounded-full object-cover bg-white" />
                     </div>
-                    <h3 class="font-bold text-sm md:text-base text-gray-800 flex justify-center items-center">
-                      ${s.storeName} <i class="fas fa-check-circle text-blue-500 ml-1 text-[10px]" title="Verified"></i>
+                    <h3 class="font-bold text-sm md:text-base text-gray-800 dark:text-gray-100 flex justify-center items-center">
+                      ${s.storeName} <i class="fas fa-check-circle text-blue-500 ml-1.5 text-xs" title="Verified"></i>
                     </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex gap-2">
+                       <span><i class="fas fa-star text-yellow-400"></i> 5.0</span>
+                    </p>
+                    <button class="mt-3 text-xs font-medium bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full group-hover:bg-blue-600 group-hover:text-white transition">ចូលមើលហាង</button>
                   </div>
                 </div>`;
           }
@@ -806,24 +929,24 @@
             const image = p.imageUrl || "https://via.placeholder.com/200";
 
             return `
-                <div class="product-card group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden relative cursor-pointer flex flex-col h-full">
+                <div class="product-card group bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden relative cursor-pointer flex flex-col h-full">
                     <div class="relative w-full pb-[100%]">
                         <img src="${image}" alt="Product" class="absolute top-0 left-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/200'">
                     </div>
                     <div class="p-2 md:p-3 flex-1 flex flex-col">
-                        <h3 class="text-xs md:text-sm text-gray-700 line-clamp-2 leading-snug mb-1 md:mb-2" title="${p.name}">${p.name}</h3>
+                        <h3 class="text-xs md:text-sm text-gray-700 dark:text-gray-200 line-clamp-2 leading-snug mb-1 md:mb-2" title="${p.name}">${p.name}</h3>
                         <div class="mt-auto">
-                            <div class="text-base md:text-lg font-bold text-blue-600 mb-1">$${p.price.toFixed(2)}</div>
-                            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-500">
+                            <div class="text-base md:text-lg font-bold text-blue-600 dark:text-blue-400 mb-1">$${p.price.toFixed(2)}</div>
+                            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-500 dark:text-gray-400">
                                 <div><i class="fas fa-star text-yellow-400"></i> 5.0</div>
                                 <div>លក់បាន 120</div>
                             </div>
-                            <div class="text-[9px] md:text-[10px] text-gray-400 mt-1 md:mt-2 border-t pt-1 truncate">
+                            <div class="text-[9px] md:text-[10px] text-gray-400 dark:text-gray-500 mt-1 md:mt-2 border-t dark:border-gray-600 pt-1 truncate">
                                 <i class="fas fa-store text-blue-500"></i> ${storeName}
                             </div>
                         </div>
                     </div>
-                    <div class="add-to-cart-btn lg:absolute bottom-0 left-0 w-full p-2 bg-white lg:bg-opacity-95 mt-auto">
+                    <div class="add-to-cart-btn lg:absolute bottom-0 left-0 w-full p-2 bg-white dark:bg-gray-800 lg:bg-opacity-95 lg:dark:bg-opacity-95 mt-auto">
                         <button onclick="addToCart('${p._id}', '${safeName}', ${p.price}, '${p.store?._id}')" class="w-full bg-blue-600 text-white py-1.5 md:py-2 rounded shadow hover:bg-blue-700 text-xs md:text-sm font-medium transition flex items-center justify-center gap-1 md:gap-2">
                             <i class="fas fa-cart-plus"></i> <span class="hidden sm:inline">បញ្ចូលកន្ត្រក</span>
                         </button>
@@ -834,6 +957,24 @@
       }
 
       function addToCart(productId, name, price, storeId) {
+        // បិទ Add to Cart បើមិនទាន់មាន Token (Login)
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (!token) {
+          Swal.fire({
+            icon: "info",
+            title: "តម្រូវឲ្យចូលគណនី",
+            text: "សូមចូលគណនី (Login) ជាមុនសិន ដើម្បីអាចបញ្ចូលទំនិញទៅកន្ត្រកបាន!",
+            confirmButtonText: "ចូលគណនីឥឡូវនេះ",
+            showCancelButton: true,
+            cancelButtonText: "បិទ",
+            confirmButtonColor: "#2563eb",
+          }).then((result) => {
+            if (result.isConfirmed) window.location.href = "login.html";
+          });
+          return;
+        }
+
         cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
         const existingItem = cart.find((item) => item.productId === productId);
         if (existingItem) existingItem.qty = (existingItem.qty || 1) + 1;
