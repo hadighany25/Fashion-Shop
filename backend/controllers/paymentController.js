@@ -1,6 +1,6 @@
 const axios = require("axios");
 const crypto = require("crypto");
-// const Order = require('../models/Order'); // ហៅ Order Model មកប្រើនៅពេលក្រោយ
+const Order = require("../models/Order");
 
 const UPAY_MERCHANT_ID = process.env.UPAY_MERCHANT_ID;
 const UPAY_API_KEY = process.env.UPAY_API_KEY;
