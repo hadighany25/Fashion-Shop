@@ -17,6 +17,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const sellerRoutes = require("./routes/sellerRoutes");
 const publicRoutes = require("./routes/publicRoutes");
 const settingRoutes = require("./routes/settingRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 // ២. ទាញយក User Model សម្រាប់បង្កើត Super Admin
 const User = require("./models/User");
@@ -41,6 +42,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/seller", sellerRoutes);
 app.use("/api/settings", settingRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // ៥. ការតភ្ជាប់ទៅកាន់ Database (MongoDB)
 // កែតម្រូវទី២៖ ប្ដូរពី MONGODB_URI ទៅជា MONGO_URI ឱ្យត្រូវជាមួយ Fly Secrets
