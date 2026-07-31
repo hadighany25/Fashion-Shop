@@ -213,7 +213,7 @@
     </main>
 
     <script>
-      // កំណត់ URL API របស់បង ត្រូវប្រាកដថា /api/payment ត្រូវនឹង Routes ក្នុង Backend
+      // ផ្លូវដើមនៃ API (ត្រូវប្រាកដថា paymentRoutes.js ត្រូវបានប្រើជាមួយ app.use('/api/payment', paymentRoutes) នៅក្នុង server.js របស់បង)
       const API_BASE_URL = "/api/payment";
 
       let currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
@@ -224,7 +224,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("display-order-id").innerText = currentOrderId;
 
-        // Mock Data សម្រាប់តេស្ត (បងអាចលុបចោលបានបើបងមានទំនិញពិតក្នុង LocalStorage ហើយ)
+        // Mock Data សម្រាប់តេស្ត
         if (
           !localStorage.getItem("umall_cart") ||
           JSON.parse(localStorage.getItem("umall_cart")).length === 0
@@ -252,7 +252,7 @@
 
         renderOrderList();
 
-        // ---- កន្លែង Format Card Auto Focus ----
+        // មុខងារ Format Card Number
         const cardNum = document.getElementById("card-num");
         const cardExp = document.getElementById("card-exp");
         const cardCvv = document.getElementById("card-cvv");
@@ -260,20 +260,15 @@
         cardNum.addEventListener("input", function (e) {
           let val = e.target.value.replace(/[^\d]/g, "");
           e.target.value = val.replace(/(.{4})/g, "$1 ").trim();
-          if (e.target.value.length === 19) {
-            cardExp.focus();
-          }
+          if (e.target.value.length === 19) cardExp.focus();
         });
 
         cardExp.addEventListener("input", function (e) {
           let val = e.target.value.replace(/[^\d]/g, "");
-          if (val.length >= 2) {
+          if (val.length >= 2)
             val = val.substring(0, 2) + "/" + val.substring(2, 4);
-          }
           e.target.value = val;
-          if (e.target.value.length === 5) {
-            cardCvv.focus();
-          }
+          if (e.target.value.length === 5) cardCvv.focus();
         });
       });
 
@@ -301,9 +296,7 @@
         let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
         if (cart[index]) {
           cart[index].qty += change;
-          if (cart[index].qty <= 0) {
-            cart.splice(index, 1);
-          }
+          if (cart[index].qty <= 0) cart.splice(index, 1);
           localStorage.setItem("umall_cart", JSON.stringify(cart));
           renderOrderList();
         }
@@ -355,11 +348,11 @@
 
         document.getElementById("sub-total").innerText =
           "$" + subTotal.toFixed(2);
-        currentTotal = subTotal + 1.5; // បូកថ្លៃដឹកជញ្ជូន
+        currentTotal = subTotal + 1.5;
         document.getElementById("total-amount").innerText =
           "$" + currentTotal.toFixed(2);
 
-        // ហៅ API ពិតៗនៅទីនេះ
+        // ពេល Render រួច ហៅ API សុំ QR
         requestUPayQR();
       }
 
@@ -374,8 +367,8 @@
           .classList.add("pointer-events-none", "opacity-50");
 
         try {
-          // ១. ហៅទៅកាន់ Backend (មុខងារ createPaymentQR ដែលបងសរសេរក្នុង controller)
-          const response = await fetch(`${API_BASE_URL}/create`, {
+          // ✅ ហៅទៅកាន់ Route /create-qr ដែលបងបានកំណត់ក្នុង paymentRoutes.js
+          const response = await fetch(`${API_BASE_URL}/create-qr`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -385,12 +378,19 @@
             }),
           });
 
+          // បើ Server បោះ Error 500 ឬអីផ្សេងដែលមិនមែន JSON វានឹងចាប់បាននៅទីនេះ
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(
+              `Server responded with status: ${response.status} - ${errorText}`,
+            );
+          }
+
           const data = await response.json();
 
           if (data.success) {
             document.getElementById("qr-loading").classList.add("hidden");
 
-            // ២. យក Link ពិតពី U-Pay មកប្រើ
             uPayWebLink = data.deepLink || data.qrData;
 
             // បង្ហាញ QR Code
@@ -403,10 +403,9 @@
               .getElementById("payment-status")
               .classList.remove("hidden");
 
-            // ៣. ចាប់ផ្តើមឆែក Database ពិតៗ
+            // ចាប់ផ្តើមឆែក Database
             startPolling();
           } else {
-            // បើ Server បោះ Error មកវិញ
             document.getElementById("qr-loading").classList.add("hidden");
             Swal.fire(
               "បរាជ័យ",
@@ -419,7 +418,7 @@
           document.getElementById("qr-loading").classList.add("hidden");
           Swal.fire(
             "បញ្ហាភ្ជាប់បណ្ដាញ",
-            "មិនអាចទាក់ទងទៅកាន់ Server របស់បងបានទេ",
+            "មិនអាចទាក់ទងទៅកាន់ Server របស់បងបានទេ (សូមឆែកមើល Server Logs)",
             "error",
           );
         }
@@ -429,19 +428,22 @@
       function startPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
 
-        // វានឹងរត់ទៅឆែក Backend រៀងរាល់ ៣វិនាទីម្ដង
         pollingInterval = setInterval(async () => {
           try {
-            // ហៅទៅកាន់ Controller: checkPaymentStatus
-            const res = await fetch(`${API_BASE_URL}/status/${currentOrderId}`);
+            // ✅ ហៅទៅកាន់ Route /orders/status/:orderId ដែលបងបានកំណត់ក្នុង paymentRoutes.js
+            const res = await fetch(
+              `${API_BASE_URL}/orders/status/${currentOrderId}`,
+            );
+            if (!res.ok) return; // បើមាន error 404/500 រំលងសិនចាំឆែកជុំក្រោយទៀត
+
             const data = await res.json();
 
-            // បើ Database របស់បងលោតថា 'PAID' (មានន័យថា Webhook ដើរជោគជ័យហើយ)
+            // បើ Database របស់បងលោតថា 'PAID' (មានន័យថា Webhook ដើរជោគជ័យ)
             if (
               data.success &&
               (data.status === "PAID" || data.status === "SUCCESS")
             ) {
-              clearInterval(pollingInterval); // ឈប់ឆែក
+              clearInterval(pollingInterval);
 
               Swal.fire({
                 icon: "success",
@@ -450,12 +452,12 @@
                 timer: 2500,
                 showConfirmButton: false,
               }).then(() => {
-                localStorage.setItem("umall_cart", "[]"); // លុបទំនិញក្នុងកន្ត្រកចោល
-                window.location.href = "index.html"; // ទៅទំព័រដើមវិញ
+                localStorage.setItem("umall_cart", "[]");
+                window.location.href = "index.html";
               });
             }
           } catch (e) {
-            console.log("កំពុងរង់ចាំការទូទាត់...");
+            console.log("កំពុងរង់ចាំការទូទាត់...", e);
           }
         }, 3000);
       }
@@ -466,7 +468,7 @@
         }
       }
 
-      // មុខងារបង់លុយតាមកាត (ទុកដដែល មិនទាន់ភ្ជាប់ API)
+      // មុខងារបង់លុយតាមកាត
       function processCardPayment() {
         const cardNum = document
           .getElementById("card-num")
