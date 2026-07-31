@@ -93,7 +93,6 @@
               <span class="font-bold text-blue-600">U-Pay Bank</span>
             </p>
 
-            <!-- ប្ដូរពណ៌ទៅជាពណ៌ខៀវ និងដាក់ Icon វ៉ិបសាយ -->
             <button
               id="btn-deeplink"
               onclick="openUPayBank()"
@@ -214,13 +213,18 @@
     </main>
 
     <script>
+      // កំណត់ URL API របស់បង ត្រូវប្រាកដថា /api/payment ត្រូវនឹង Routes ក្នុង Backend
+      const API_BASE_URL = "/api/payment";
+
       let currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
       let currentTotal = 0;
-      let uPayWebLink = ""; // ប្តូរពី mockUPayLink មក uPayWebLink
+      let uPayWebLink = "";
+      let pollingInterval;
 
       document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("display-order-id").innerText = currentOrderId;
 
+        // Mock Data សម្រាប់តេស្ត (បងអាចលុបចោលបានបើបងមានទំនិញពិតក្នុង LocalStorage ហើយ)
         if (
           !localStorage.getItem("umall_cart") ||
           JSON.parse(localStorage.getItem("umall_cart")).length === 0
@@ -248,6 +252,7 @@
 
         renderOrderList();
 
+        // ---- កន្លែង Format Card Auto Focus ----
         const cardNum = document.getElementById("card-num");
         const cardExp = document.getElementById("card-exp");
         const cardCvv = document.getElementById("card-cvv");
@@ -350,43 +355,118 @@
 
         document.getElementById("sub-total").innerText =
           "$" + subTotal.toFixed(2);
-        currentTotal = subTotal + 1.5;
+        currentTotal = subTotal + 1.5; // បូកថ្លៃដឹកជញ្ជូន
         document.getElementById("total-amount").innerText =
           "$" + currentTotal.toFixed(2);
 
+        // ហៅ API ពិតៗនៅទីនេះ
         requestUPayQR();
       }
 
-      function requestUPayQR() {
+      // ==========================================
+      // ចាប់ផ្តើមតភ្ជាប់ជាមួយ BACKEND & DATABASE ពិតប្រាកដ
+      // ==========================================
+
+      async function requestUPayQR() {
         document.getElementById("qr-loading").classList.remove("hidden");
         document
           .getElementById("btn-deeplink")
           .classList.add("pointer-events-none", "opacity-50");
 
-        setTimeout(() => {
+        try {
+          // ១. ហៅទៅកាន់ Backend (មុខងារ createPaymentQR ដែលបងសរសេរក្នុង controller)
+          const response = await fetch(`${API_BASE_URL}/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: currentOrderId,
+              amount: currentTotal,
+              orderInfo: "ទូទាត់ទំនិញនៅលើ U-Mall",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById("qr-loading").classList.add("hidden");
+
+            // ២. យក Link ពិតពី U-Pay មកប្រើ
+            uPayWebLink = data.deepLink || data.qrData;
+
+            // បង្ហាញ QR Code
+            document.getElementById("qr-img").src =
+              `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uPayWebLink)}&color=2563EB`;
+
+            const btnLink = document.getElementById("btn-deeplink");
+            btnLink.classList.remove("pointer-events-none", "opacity-50");
+            document
+              .getElementById("payment-status")
+              .classList.remove("hidden");
+
+            // ៣. ចាប់ផ្តើមឆែក Database ពិតៗ
+            startPolling();
+          } else {
+            // បើ Server បោះ Error មកវិញ
+            document.getElementById("qr-loading").classList.add("hidden");
+            Swal.fire(
+              "បរាជ័យ",
+              data.message || "មិនអាចបង្កើត QR ពី U-Pay បានទេ",
+              "error",
+            );
+          }
+        } catch (error) {
+          console.error("Error connecting to server:", error);
           document.getElementById("qr-loading").classList.add("hidden");
+          Swal.fire(
+            "បញ្ហាភ្ជាប់បណ្ដាញ",
+            "មិនអាចទាក់ទងទៅកាន់ Server របស់បងបានទេ",
+            "error",
+          );
+        }
+      }
 
-          // ប្រើ Link វ៉ិបសាយ U-Pay Bank របស់បង!
-          uPayWebLink = `https://u-pay-bank.fly.dev/transfer.html?amount=${currentTotal}&merchant=UMALL&orderId=${currentOrderId}`;
+      // មុខងារឆែកមើល Database ពិតៗ (Polling)
+      function startPolling() {
+        if (pollingInterval) clearInterval(pollingInterval);
 
-          // បង្កើត QR Code អោយស្កេនលោតចូល Web តែម្តង
-          document.getElementById("qr-img").src =
-            `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uPayWebLink)}&color=2563EB`; // ពណ៌ខៀវដូច U-Pay
+        // វានឹងរត់ទៅឆែក Backend រៀងរាល់ ៣វិនាទីម្ដង
+        pollingInterval = setInterval(async () => {
+          try {
+            // ហៅទៅកាន់ Controller: checkPaymentStatus
+            const res = await fetch(`${API_BASE_URL}/status/${currentOrderId}`);
+            const data = await res.json();
 
-          const btnLink = document.getElementById("btn-deeplink");
-          btnLink.classList.remove("pointer-events-none", "opacity-50");
-          document.getElementById("payment-status").classList.remove("hidden");
-        }, 800);
+            // បើ Database របស់បងលោតថា 'PAID' (មានន័យថា Webhook ដើរជោគជ័យហើយ)
+            if (
+              data.success &&
+              (data.status === "PAID" || data.status === "SUCCESS")
+            ) {
+              clearInterval(pollingInterval); // ឈប់ឆែក
+
+              Swal.fire({
+                icon: "success",
+                title: "ទទួលបានប្រាក់ហើយ!",
+                text: "ការទូទាត់ទទួលបានជោគជ័យ!",
+                timer: 2500,
+                showConfirmButton: false,
+              }).then(() => {
+                localStorage.setItem("umall_cart", "[]"); // លុបទំនិញក្នុងកន្ត្រកចោល
+                window.location.href = "index.html"; // ទៅទំព័រដើមវិញ
+              });
+            }
+          } catch (e) {
+            console.log("កំពុងរង់ចាំការទូទាត់...");
+          }
+        }, 3000);
       }
 
       function openUPayBank() {
         if (uPayWebLink) {
-          // បើក Tab ថ្មី ទៅកាន់វ៉ិបសាយ U-Pay Bank របស់បង
           window.open(uPayWebLink, "_blank");
-          // (បើចង់អោយវាបើកជាន់ពីលើទំព័រនេះតែម្តង សូមប្រើ window.location.href = uPayWebLink; )
         }
       }
 
+      // មុខងារបង់លុយតាមកាត (ទុកដដែល មិនទាន់ភ្ជាប់ API)
       function processCardPayment() {
         const cardNum = document
           .getElementById("card-num")
