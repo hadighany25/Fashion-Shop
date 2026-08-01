@@ -3,25 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login & Register | Fashion Shop</title>
+    <title>Login & Register | U-Mall</title>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Metal&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
     />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
       :root {
-        --primary: #2c3e50;
-        --accent: #d35400;
+        --primary: #1e3a8a; /* Blue-900 */
+        --accent: #3b82f6; /* Blue-500 */
         --white: #ffffff;
-        --glass: rgba(255, 255, 255, 0.15);
+        --glass: rgba(255, 255, 255, 0.1);
         --glass-border: rgba(255, 255, 255, 0.2);
         --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
       }
@@ -34,9 +33,10 @@
       }
 
       body {
+        /* Background ថ្មី Theme ផ្សារទំនើប U-Mall */
         background:
-          linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-          url("https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop");
+          linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
+          url("https://images.unsplash.com/photo-1519567281799-9734587c631e?q=80&w=2070&auto=format&fit=crop");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -49,22 +49,22 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 25px 6%;
-        background: rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(5px);
+        padding: 20px 6%;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--glass-border);
         position: sticky;
         top: 0;
         z-index: 100;
       }
       .logo {
-        font-size: 2rem;
-        font-family: "Metal", serif;
+        font-size: 1.8rem;
         color: var(--white);
         font-weight: bold;
         display: flex;
         align-items: center;
         gap: 10px;
+        letter-spacing: 1px;
       }
       .nav-links {
         display: flex;
@@ -74,7 +74,7 @@
       .nav-links a {
         text-decoration: none;
         color: var(--white);
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 500;
         transition: 0.3s;
       }
@@ -94,20 +94,21 @@
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--glass-border);
-        border-radius: 25px;
-        padding: 50px;
+        border-radius: 20px;
+        padding: 40px;
         width: 100%;
-        max-width: 500px;
+        max-width: 480px;
         box-shadow: var(--shadow);
         color: var(--white);
-        text-align: center;
-        animation: floatUp 0.8s ease-out;
+        animation: floatUp 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
       }
 
       @keyframes floatUp {
         from {
           opacity: 0;
-          transform: translateY(30px);
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
@@ -116,69 +117,127 @@
       }
 
       .auth-card h2 {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
+        font-size: 2.2rem;
+        margin-bottom: 8px;
         font-weight: 700;
+        text-align: center;
       }
       .auth-card p {
-        color: #eee;
-        margin-bottom: 30px;
-        font-size: 1.1rem;
+        color: #cbd5e1;
+        margin-bottom: 25px;
+        font-size: 1rem;
+        text-align: center;
+      }
+
+      /* Step Indicator */
+      .step-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+      .dot.active {
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        transform: scale(1.2);
+      }
+
+      /* Form Steps */
+      .form-step {
+        display: none;
+        animation: slideInRight 0.4s ease;
+      }
+      .form-step.active {
+        display: block;
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       .input-group {
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         text-align: left;
       }
       .input-group label {
         display: block;
         margin-bottom: 8px;
-        font-size: 1rem;
-        color: #ddd;
+        font-size: 0.95rem;
+        color: #e2e8f0;
       }
       .input-group input {
         width: 100%;
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
+        padding: 14px 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
         color: var(--white);
-        font-size: 1.1rem;
+        font-size: 1rem;
         outline: none;
         transition: 0.3s;
       }
       .input-group input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.4);
       }
       .input-group input:focus {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
         border-color: var(--accent);
-        box-shadow: 0 0 10px rgba(211, 84, 0, 0.3);
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
       }
 
-      .btn-submit {
-        width: 100%;
-        padding: 18px;
-        background: var(--accent);
-        color: var(--white);
+      /* Navigation Buttons (Next / Prev) */
+      .step-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+      }
+      .btn {
+        flex: 1;
+        padding: 15px;
         border: none;
-        border-radius: 12px;
-        font-size: 1.2rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
         font-weight: bold;
         cursor: pointer;
         transition: 0.3s;
-        margin-top: 10px;
-        box-shadow: 0 5px 15px rgba(211, 84, 0, 0.4);
       }
-      .btn-submit:hover {
-        background: #e67e22;
+      .btn-primary {
+        background: var(--accent);
+        color: var(--white);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      }
+      .btn-primary:hover {
+        background: #2563eb;
         transform: translateY(-2px);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
       }
 
       .switch-text {
-        margin-top: 25px;
-        font-size: 1rem;
-        color: #ddd;
+        margin-top: 20px;
+        font-size: 0.95rem;
+        color: #cbd5e1;
+        text-align: center;
       }
       .switch-text a {
         color: var(--accent);
@@ -190,37 +249,35 @@
         text-decoration: underline;
       }
 
+      /* Loader */
       .loader-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(15, 23, 42, 0.8);
         display: none;
         justify-content: center;
         align-items: center;
         z-index: 2000;
+        backdrop-filter: blur(5px);
       }
       .spinner {
-        width: 60px;
-        height: 60px;
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid var(--accent);
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.1);
+        border-top: 5px solid var(--accent);
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
         100% {
           transform: rotate(360deg);
         }
       }
-
       .hidden {
-        display: none;
+        display: none !important;
       }
     </style>
   </head>
@@ -232,98 +289,208 @@
     <nav class="navbar">
       <div class="logo">
         <span style="color: var(--accent)"
-          ><i class="fas fa-shopping-bag"></i
+          ><i class="fas fa-shopping-cart"></i
         ></span>
-        Fashion Shop
+        U-Mall
       </div>
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html">ទំព័រដើម</a></li>
       </ul>
     </nav>
 
     <div class="auth-wrapper">
+      <!-- ================= LOGIN FORM ================= -->
       <div id="login-box" class="auth-card">
-        <h2>Welcome Back!</h2>
-        <p>Login to access your buyer account.</p>
+        <h2>សូមស្វាគមន៍!</h2>
+        <p>ចូលគណនី U-Mall របស់អ្នក (អ្នកទិញ)</p>
 
-        <form
-          onsubmit="
-            event.preventDefault();
-            handleAuth('login');
-          "
-        >
+        <form id="login-form">
           <div class="input-group">
-            <label>Username</label>
+            <label>ឈ្មោះគណនី (Username)</label>
             <input
               type="text"
               id="login-user"
-              placeholder="Enter your username"
+              placeholder="បញ្ចូលឈ្មោះគណនី"
               required
             />
           </div>
           <div class="input-group">
-            <label>Password</label>
+            <label>លេខសម្ងាត់ (Password)</label>
             <input
               type="password"
               id="login-pass"
-              placeholder="Enter your password"
+              placeholder="បញ្ចូលលេខសម្ងាត់"
               required
             />
           </div>
-
-          <button type="submit" class="btn-submit">Login</button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 10px"
+            onclick="handleLogin()"
+          >
+            ចូលគណនី (Login)
+          </button>
         </form>
 
         <div class="switch-text">
-          Don't have an account?
-          <a onclick="toggleForm('register')">Register Now</a>
+          មិនទាន់មានគណនីមែនទេ?
+          <a onclick="toggleForm('register')">ចុះឈ្មោះឥឡូវនេះ</a>
         </div>
       </div>
 
+      <!-- ================= REGISTER FORM (Multi-Step) ================= -->
       <div id="register-box" class="auth-card hidden">
-        <h2>Create Account</h2>
-        <p>Join us and explore the new style.</p>
+        <h2>បង្កើតគណនីថ្មី</h2>
+        <p>ចូលរួមជាមួយ U-Mall ថ្ងៃនេះ!</p>
 
-        <form
-          onsubmit="
-            event.preventDefault();
-            handleAuth('register');
-          "
-        >
-          <div class="input-group">
-            <label>Choose Username</label>
-            <input
-              type="text"
-              id="reg-user"
-              placeholder="e.g. sokdara123"
-              required
-            />
-          </div>
-          <div class="input-group">
-            <label>Create Password</label>
-            <input
-              type="password"
-              id="reg-pass"
-              placeholder="At least 6 characters"
-              required
-            />
-          </div>
-          <div class="input-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              id="reg-pass-confirm"
-              placeholder="Repeat password"
-              required
-            />
+        <!-- Step Indicators -->
+        <div class="step-indicator" id="step-indicators">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+
+        <form id="register-form">
+          <!-- STEP 1: ព័ត៌មានគណនី -->
+          <div class="form-step active" id="step-1">
+            <div class="input-group">
+              <label
+                >ឈ្មោះគណនី (Username)
+                <span style="color: #ef4444">*</span></label
+              >
+              <input
+                type="text"
+                id="reg-user"
+                placeholder="ឧ. sokdara123"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label
+                >លេខសម្ងាត់ (Password)
+                <span style="color: #ef4444">*</span></label
+              >
+              <input
+                type="password"
+                id="reg-pass"
+                placeholder="យ៉ាងតិច 6 ខ្ទង់"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label
+                >បញ្ជាក់លេខសម្ងាត់ <span style="color: #ef4444">*</span></label
+              >
+              <input
+                type="password"
+                id="reg-pass-confirm"
+                placeholder="វាយលេខសម្ងាត់ម្តងទៀត"
+                required
+              />
+            </div>
+            <div class="step-actions">
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="nextStep(1)"
+              >
+                បន្ទាប់ (Next) <i class="fas fa-arrow-right ml-1"></i>
+              </button>
+            </div>
           </div>
 
-          <button type="submit" class="btn-submit">Sign Up</button>
+          <!-- STEP 2: ព័ត៌មានផ្ទាល់ខ្លួន -->
+          <div class="form-step" id="step-2">
+            <div class="input-group">
+              <label
+                >ឈ្មោះពេញ (Full Name)
+                <span style="color: #ef4444">*</span></label
+              >
+              <input
+                type="text"
+                id="reg-fullname"
+                placeholder="ឧ. Sok Dara"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label
+                >លេខទូរស័ព្ទ (Phone)
+                <span style="color: #ef4444">*</span></label
+              >
+              <input
+                type="tel"
+                id="reg-phone"
+                placeholder="ឧ. 012345678"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label>អ៊ីមែល (Email) - ស្រេចចិត្ត</label>
+              <input
+                type="email"
+                id="reg-email"
+                placeholder="ឧ. sokdara@gmail.com"
+              />
+            </div>
+            <div class="step-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="prevStep(2)"
+              >
+                <i class="fas fa-arrow-left mr-1"></i> ថយក្រោយ
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="nextStep(2)"
+              >
+                បន្ទាប់ (Next) <i class="fas fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: ទីតាំង និង រូបភាព -->
+          <div class="form-step" id="step-3">
+            <div class="input-group">
+              <label>អាសយដ្ឋានដឹកជញ្ជូន (Address) - ស្រេចចិត្ត</label>
+              <input
+                type="text"
+                id="reg-address"
+                placeholder="ឧ. ភ្នំពេញ, កម្ពុជា"
+              />
+            </div>
+            <div class="input-group">
+              <label>Link រូបភាព Profile (Image URL) - ស្រេចចិត្ត</label>
+              <input
+                type="text"
+                id="reg-profile-img"
+                placeholder="https://..."
+              />
+            </div>
+            <div class="step-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="prevStep(3)"
+              >
+                <i class="fas fa-arrow-left mr-1"></i> ថយក្រោយ
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="handleRegister()"
+              >
+                បញ្ចប់ការចុះឈ្មោះ <i class="fas fa-check ml-1"></i>
+              </button>
+            </div>
+          </div>
         </form>
 
         <div class="switch-text">
-          Already have an account?
-          <a onclick="toggleForm('login')">Login Here</a>
+          មានគណនីរួចហើយ? <a onclick="toggleForm('login')">ចូលគណនីទីនេះ</a>
         </div>
       </div>
     </div>
@@ -331,124 +498,243 @@
     <script>
       const API_URL = "/api/auth";
       const loader = document.getElementById("loader");
+      let currentStep = 1;
 
+      // ប្តូររវាង Login និង Register
       function toggleForm(formType) {
-        const loginBox = document.getElementById("login-box");
-        const registerBox = document.getElementById("register-box");
-
+        document
+          .getElementById("login-box")
+          .classList.toggle("hidden", formType === "register");
+        document
+          .getElementById("register-box")
+          .classList.toggle("hidden", formType === "login");
         if (formType === "register") {
-          loginBox.classList.add("hidden");
-          registerBox.classList.remove("hidden");
-        } else {
-          registerBox.classList.add("hidden");
-          loginBox.classList.remove("hidden");
+          currentStep = 1;
+          updateStepUI();
         }
       }
 
-      async function handleAuth(type) {
-        loader.style.display = "flex";
+      // Update UI ពេលប្តូរ Step
+      function updateStepUI() {
+        document.querySelectorAll(".form-step").forEach((step, index) => {
+          step.classList.toggle("active", index + 1 === currentStep);
+        });
+        document.querySelectorAll(".dot").forEach((dot, index) => {
+          dot.classList.toggle("active", index + 1 <= currentStep);
+        });
+        // ផ្តោតលើប្រអប់ទី១ នៃ Step ថ្មីស្វ័យប្រវត្តិ
+        setTimeout(() => {
+          const activeStep = document.getElementById(`step-${currentStep}`);
+          const firstInput = activeStep.querySelector("input");
+          if (firstInput) firstInput.focus();
+        }, 100);
+      }
 
-        try {
-          if (type === "register") {
-            const username = document.getElementById("reg-user").value.trim();
-            const password = document.getElementById("reg-pass").value;
-            const confirm = document.getElementById("reg-pass-confirm").value;
+      // ឆែកមើលលក្ខខណ្ឌមុននឹងទៅ Step បន្ទាប់
+      function validateStep(stepNum) {
+        if (stepNum === 1) {
+          const user = document.getElementById("reg-user").value.trim();
+          const pass = document.getElementById("reg-pass").value;
+          const confirm = document.getElementById("reg-pass-confirm").value;
 
-            if (password !== confirm) {
-              loader.style.display = "none";
-              return Swal.fire({
-                icon: "warning",
-                title: "Warning",
-                text: "Passwords do not match!",
-                confirmButtonColor: "#d35400",
-              });
-            }
+          if (!user || !pass || !confirm)
+            return "សូមបំពេញចន្លោះដែលមានសញ្ញាផ្កាយ (*) ទាំងអស់!";
+          if (pass.length < 6) return "លេខសម្ងាត់ត្រូវមានយ៉ាងតិច ៦ ខ្ទង់!";
+          if (pass !== confirm) return "លេខសម្ងាត់មិនត្រូវគ្នាទេ!";
+        }
+        if (stepNum === 2) {
+          const fullname = document.getElementById("reg-fullname").value.trim();
+          const phone = document.getElementById("reg-phone").value.trim();
+          if (!fullname || !phone) return "សូមបំពេញ ឈ្មោះពេញ និង លេខទូរស័ព្ទ!";
+        }
+        return null; // ត្រឹមត្រូវ
+      }
 
-            const res = await fetch(`${API_URL}/register`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password }),
-            });
-            const data = await res.json();
+      function nextStep(stepNum) {
+        const errorMsg = validateStep(stepNum);
+        if (errorMsg) {
+          Swal.fire({
+            icon: "warning",
+            text: errorMsg,
+            confirmButtonColor: "#3b82f6",
+          });
+          return;
+        }
+        currentStep++;
+        updateStepUI();
+      }
 
-            if (data.success) {
-              loader.style.display = "none";
-              Swal.fire({
-                icon: "success",
-                title: "Success!",
-                text: "Account created successfully. Please login.",
-                confirmButtonColor: "#d35400",
-              }).then(() => {
-                document.getElementById("reg-user").value = "";
-                document.getElementById("reg-pass").value = "";
-                document.getElementById("reg-pass-confirm").value = "";
-                toggleForm("login");
-              });
-            } else {
-              loader.style.display = "none";
-              Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: data.message || "Unable to create account!",
-                confirmButtonColor: "#d35400",
-              });
-            }
-          } else {
-            const username = document.getElementById("login-user").value.trim();
-            const password = document.getElementById("login-pass").value;
+      function prevStep(stepNum) {
+        currentStep--;
+        updateStepUI();
+      }
 
-            const res = await fetch(`${API_URL}/login`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password }),
-            });
-            const data = await res.json();
+      // =========================================================
+      // 🔥 ប្រព័ន្ធ Enter ឆ្លាតវៃ (Smart Enter Navigation)
+      // =========================================================
+      document
+        .getElementById("register-form")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault(); // ការពារកុំឱ្យវា Form Submit ផ្តេសផ្តាស
 
-            if (data.success) {
-              loader.style.display = "none";
+            const activeStep = document.getElementById(`step-${currentStep}`);
+            const inputs = Array.from(activeStep.querySelectorAll("input"));
+            const currentIndex = inputs.indexOf(document.activeElement);
 
-              // 🛑 strict check: block admin or seller from logging in through buyer login page
-              if (data.role === "admin" || data.role === "seller") {
-                localStorage.clear(); // clear any data if set
-                return Swal.fire({
-                  icon: "error",
-                  title: "Access Denied",
-                  text: "Administrators and sellers must use the Admin Portal login!",
-                  confirmButtonColor: "#d35400",
-                });
+            if (currentIndex > -1) {
+              // បើមិនទាន់ដល់ប្រអប់ចុងក្រោយក្នុង Step នេះទេ លោតទៅប្រអប់បន្ទាប់
+              if (currentIndex < inputs.length - 1) {
+                inputs[currentIndex + 1].focus();
               }
-
-              // Allow only buyers
-              localStorage.setItem("token", data.token);
-              localStorage.setItem("username", data.username);
-              localStorage.setItem("role", data.role || "buyer");
-
-              Swal.fire({
-                icon: "success",
-                title: "Login Successful",
-                showConfirmButton: false,
-                timer: 1500,
-              }).then(() => {
-                window.location.href = "index.html";
-              });
-            } else {
-              loader.style.display = "none";
-              Swal.fire({
-                icon: "error",
-                title: "Login Failed",
-                text: data.message || "Invalid username or password!",
-                confirmButtonColor: "#d35400",
-              });
+              // បើដល់ប្រអប់ចុងក្រោយក្នុង Step នេះហើយ
+              else {
+                if (currentStep < 3) {
+                  nextStep(currentStep); // លោតទៅ Step បន្ទាប់ (ឆ្លងកាត់ការ Validate)
+                } else {
+                  handleRegister(); // បញ្ចប់ និង Submit
+                }
+              }
             }
           }
+        });
+
+      // Login Form Enter Logic
+      document
+        .getElementById("login-form")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (document.activeElement.id === "login-user") {
+              document.getElementById("login-pass").focus();
+            } else if (document.activeElement.id === "login-pass") {
+              handleLogin();
+            }
+          }
+        });
+
+      // =========================================================
+      // API Calls (Login & Register)
+      // =========================================================
+      async function handleRegister() {
+        const errorMsg = validateStep(3); // (ថ្វីត្បិតតែ Step 3 ស្រេចចិត្ត តែក៏ទុកការឆែកក្រែងមានលក្ខខណ្ឌថ្ងៃក្រោយ)
+        if (errorMsg)
+          return Swal.fire({
+            icon: "warning",
+            text: errorMsg,
+            confirmButtonColor: "#3b82f6",
+          });
+
+        const payload = {
+          username: document.getElementById("reg-user").value.trim(),
+          password: document.getElementById("reg-pass").value,
+          fullName: document.getElementById("reg-fullname").value.trim(),
+          phone: document.getElementById("reg-phone").value.trim(),
+          email: document.getElementById("reg-email").value.trim(),
+          address: document.getElementById("reg-address").value.trim(),
+          profileImage: document.getElementById("reg-profile-img").value.trim(),
+          role: "buyer", // កំណត់ Role ជា Buyer ដោយស្វ័យប្រវត្តិ
+        };
+
+        loader.style.display = "flex";
+        try {
+          const res = await fetch(`${API_URL}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          loader.style.display = "none";
+
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ!",
+              text: "បង្កើតគណនីបានរួចរាល់ សូម Log in",
+              confirmButtonColor: "#3b82f6",
+            }).then(() => {
+              document.getElementById("register-form").reset();
+              toggleForm("login");
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "បរាជ័យ",
+              text: data.message || "មិនអាចបង្កើតគណនីបានទេ!",
+              confirmButtonColor: "#3b82f6",
+            });
+          }
         } catch (error) {
-          console.error(error);
           loader.style.display = "none";
           Swal.fire({
             icon: "error",
-            title: "Connection Error",
-            text: "Unable to connect to the server! Please try again.",
-            confirmButtonColor: "#d35400",
+            title: "កំហុស",
+            text: "មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Server!",
+            confirmButtonColor: "#3b82f6",
+          });
+        }
+      }
+
+      async function handleLogin() {
+        const username = document.getElementById("login-user").value.trim();
+        const password = document.getElementById("login-pass").value;
+
+        if (!username || !password)
+          return Swal.fire({
+            icon: "warning",
+            text: "សូមបំពេញឈ្មោះ និងលេខសម្ងាត់!",
+            confirmButtonColor: "#3b82f6",
+          });
+
+        loader.style.display = "flex";
+        try {
+          const res = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          loader.style.display = "none";
+
+          if (data.success) {
+            // Block admin/seller មិនឲ្យចូលតាម Buyer Portal
+            if (data.role === "admin" || data.role === "seller") {
+              localStorage.clear();
+              return Swal.fire({
+                icon: "error",
+                title: "ហាមឃាត់",
+                text: "អ្នកគ្រប់គ្រង និងអ្នកលក់ត្រូវចូលតាម Admin Portal!",
+                confirmButtonColor: "#3b82f6",
+              });
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.username);
+            localStorage.setItem("role", data.role || "buyer");
+
+            Swal.fire({
+              icon: "success",
+              title: "ចូលគណនីជោគជ័យ",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.href = "index.html";
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "បរាជ័យ",
+              text: data.message || "ឈ្មោះ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ!",
+              confirmButtonColor: "#3b82f6",
+            });
+          }
+        } catch (error) {
+          loader.style.display = "none";
+          Swal.fire({
+            icon: "error",
+            title: "កំហុស",
+            text: "មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ!",
+            confirmButtonColor: "#3b82f6",
           });
         }
       }
