@@ -1021,6 +1021,14 @@
         checkAuthUI();
         updateCartBadge();
         startSearchAnimation();
+
+        // 🌟 ថែមការហៅ Function ទាញ Profile ទីនេះភ្លាម ដើម្បីឱ្យវាទាញទិន្នន័យទុកមុន
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (token) {
+          await fetchUserProfileReal();
+        }
+
         await fetchProducts();
         fetchSettings();
       });
