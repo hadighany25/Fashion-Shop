@@ -52,7 +52,6 @@
             ជ្រើសរើសវិធីសាស្ត្រទូទាត់
           </h2>
 
-          <!-- Payment Tabs -->
           <div class="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-xl">
             <button
               id="tab-qr"
@@ -73,21 +72,32 @@
           <!-- QR Section -->
           <div id="qr-section" class="text-center">
             <div
-              class="inline-block p-4 border-2 border-dashed border-blue-200 rounded-2xl bg-blue-50 mb-4 relative"
+              class="inline-block p-4 border-2 border-dashed border-blue-200 rounded-2xl bg-blue-50 mb-4 relative min-h-[200px] flex items-center justify-center w-full max-w-[250px] mx-auto"
             >
+              <!-- រូប QR ពិតនឹងបង្ហាញទីនេះ -->
               <img
                 id="qr-img"
-                src="https://via.placeholder.com/250x250?text=Generating+U-Pay+QR..."
+                src=""
                 alt="U-Pay QR"
-                class="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl"
+                class="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl hidden"
               />
+
+              <!-- កន្លែង Loading -->
               <div
                 id="qr-loading"
-                class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl"
+                class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center rounded-xl"
               >
-                <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+                <i
+                  class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-2"
+                ></i>
+                <span
+                  class="text-xs text-blue-600 font-bold"
+                  id="qr-instruction-small"
+                  >កំពុងរៀបចំ...</span
+                >
               </div>
             </div>
+
             <p class="text-sm text-gray-500 mb-6" id="qr-instruction">
               កំពុងរៀបចំវិក័យប័ត្រ...
             </p>
@@ -210,43 +220,32 @@
     </main>
 
     <script>
-      // កំណត់ API ដែលត្រូវហៅ
       const API_ORDER_CREATE = "/api/orders/create";
       const API_UPAY_QR = "/api/payment/create-qr";
       const API_ORDER_STATUS = "/api/payment/orders/status";
 
-      // បង្កើតលេខ Order ID ថ្មីរាល់ពេលចូលទំព័រនេះ
       let currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
       let currentTotal = 0;
       let cartItems = [];
       let uPayWebLink = "";
       let pollingInterval;
+      // បង្ការកុំឲ្យហៅ API ជាន់គ្នាពេក
+      let paymentProcessTimer;
 
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("display-order-id").innerText = currentOrderId;
-
-        // ១. ចាប់ទាញយកទិន្នន័យពិតពី LocalStorage ("umall_cart")
         const savedCart = localStorage.getItem("umall_cart");
-
-        // បើកន្ត្រកទទេ ឲ្យត្រលប់ទៅទំព័រដើមវិញ
         if (!savedCart || JSON.parse(savedCart).length === 0) {
-          Swal.fire("កន្ត្រកទទេ", "សូមជ្រើសរើសទំនិញជាមុនសិន", "warning").then(
-            () => {
-              window.location.href = "index.html";
-            },
-          );
+          window.location.href = "index.html";
           return;
         }
 
         cartItems = JSON.parse(savedCart);
+        document.getElementById("display-order-id").innerText = currentOrderId;
 
-        // ២. គូរ UI បញ្ជីទំនិញ
         renderOrderList();
-
-        // ៣. ចាប់ផ្ដើមដំណើរការទូទាត់
         startPaymentProcess();
 
-        // Format Card Input
+        // មុខងារ Format កាត
         const cardNum = document.getElementById("card-num");
         const cardExp = document.getElementById("card-exp");
         const cardCvv = document.getElementById("card-cvv");
@@ -264,28 +263,88 @@
         });
       });
 
+      // មុខងារបន្ថែម ឬដកចំនួនទំនិញ
+      function updateQty(index, change) {
+        let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
+        if (cart[index]) {
+          cart[index].qty += change;
+          if (cart[index].qty <= 0) cart.splice(index, 1);
+          localStorage.setItem("umall_cart", JSON.stringify(cart));
+          cartItems = cart;
+
+          if (cartItems.length === 0) {
+            window.location.href = "index.html";
+            return;
+          }
+
+          // បង្កើតលេខ Order ថ្មី ព្រោះតម្លៃផ្លាស់ប្ដូរ
+          currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+          document.getElementById("display-order-id").innerText =
+            currentOrderId;
+
+          renderOrderList();
+
+          // រង់ចាំ ១ វិនាទីសឹមហៅសុំ QR ថ្មី (ការពារចុចញាប់ពេកគាំង Server)
+          clearTimeout(paymentProcessTimer);
+          paymentProcessTimer = setTimeout(() => {
+            startPaymentProcess();
+          }, 1000);
+        }
+      }
+
+      // មុខងារលុបទំនិញចោលពីកន្ត្រក
+      function removeItem(index) {
+        let cart = JSON.parse(localStorage.getItem("umall_cart")) || [];
+        cart.splice(index, 1);
+        localStorage.setItem("umall_cart", JSON.stringify(cart));
+        cartItems = cart;
+
+        if (cartItems.length === 0) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById("display-order-id").innerText = currentOrderId;
+
+        renderOrderList();
+        clearTimeout(paymentProcessTimer);
+        paymentProcessTimer = setTimeout(() => {
+          startPaymentProcess();
+        }, 1000);
+      }
+
       function renderOrderList() {
         const itemsContainer = document.getElementById("order-items");
         let subTotal = 0;
 
         itemsContainer.innerHTML = cartItems
-          .map((item) => {
+          .map((item, index) => {
             subTotal += item.price * item.qty;
-            const imgUrl =
-              item.image || "https://via.placeholder.com/100?text=No+Image";
+            // បើអត់មានរូប ឬ Error លោតលាក់រូបចោល ហើយបង្ហាញ Background ពណ៌ប្រផេះជំនួស
+            const imgHtml = item.image
+              ? `<img src="${item.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="Product" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                 <div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center hidden"><i class="fas fa-image text-gray-400"></i></div>`
+              : `<div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>`;
 
-            // បិទប៊ូតុងបូក/ដក មិនឲ្យភ្ញៀវកែប្រែចំនួនបានទេ ព្រោះយើងបម្រុងនឹងបោះតម្លៃទៅធនាគារហើយ
             return `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 hover:shadow-sm transition-all">
                 <div class="flex items-center flex-1 gap-3 overflow-hidden">
-                    <img src="${imgUrl}" alt="Product" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                    ${imgHtml}
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500 mt-0.5">ចំនួន: ${item.qty}</div>
+                        <div class="text-xs text-blue-600 mt-0.5 font-medium">$${item.price.toFixed(2)}</div>
                     </div>
                 </div>
-                <div class="font-bold text-blue-600 text-sm pl-2">
-                    $${(item.price * item.qty).toFixed(2)}
+                
+                <!-- ប៊ូតុង បូក/ដក/លុប ដែលបងចង់បានត្រលប់មកវិញហើយ! -->
+                <div class="flex items-center space-x-2 ml-3">
+                    <button onclick="updateQty(${index}, -1)" class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100">-</button>
+                    <span class="text-sm font-bold w-4 text-center text-gray-800">${item.qty}</span>
+                    <button onclick="updateQty(${index}, 1)" class="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100">+</button>
+                    <button onclick="removeItem(${index})" class="ml-2 w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                    </button>
                 </div>
             </div>`;
           })
@@ -298,12 +357,16 @@
           "$" + currentTotal.toFixed(2);
       }
 
-      // ==========================================
-      // លំហូរទូទាត់ប្រាក់ (Save DB -> Get QR -> Polling)
-      // ==========================================
       async function startPaymentProcess() {
+        // Reset UI ទៅកាន់ភាពដើមពេលកំពុង Load
+        document.getElementById("qr-loading").classList.remove("hidden");
+        document.getElementById("qr-img").classList.add("hidden");
+        document
+          .getElementById("btn-deeplink")
+          .classList.add("pointer-events-none", "opacity-50");
+        document.getElementById("payment-status").classList.add("hidden");
+
         try {
-          // ជំហានទី ១៖ កត់ត្រាចូល Database ជាមុនសិន
           document.getElementById("qr-instruction").innerText =
             "កំពុងកត់ត្រាវិក័យប័ត្រចូលប្រព័ន្ធ...";
 
@@ -320,27 +383,28 @@
           if (!orderResponse.ok)
             throw new Error("មិនអាចបង្កើតវិក័យប័ត្រក្នុង Database បានទេ!");
 
-          // ជំហានទី ២៖ ស្នើសុំ QR កូដពី U-Pay
           document.getElementById("qr-instruction").innerText =
             "កំពុងភ្ជាប់ទៅកាន់ U-Pay...";
 
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: currentOrderId }), // បោះលេខ Order នេះទៅឲ្យ U-Pay
+            body: JSON.stringify({ orderId: currentOrderId }),
           });
 
           const qrData = await qrResponse.json();
 
           if (qrData.success) {
-            // បង្ហាញ QR កូដ
             document.getElementById("qr-loading").classList.add("hidden");
             document.getElementById("qr-instruction").innerHTML =
               `ស្កេន QR ឬចុចប៊ូតុងខាងក្រោមដើម្បីបន្តទៅកាន់ <span class="font-bold text-blue-600">U-Pay Bank</span>`;
 
             uPayWebLink = qrData.deepLink || qrData.qrData;
-            document.getElementById("qr-img").src =
-              `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uPayWebLink)}&color=2563EB`;
+
+            // បង្ហាញរូបភាព QR Code
+            const qrImg = document.getElementById("qr-img");
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(uPayWebLink)}&color=2563EB`;
+            qrImg.classList.remove("hidden");
 
             document
               .getElementById("btn-deeplink")
@@ -349,7 +413,6 @@
               .getElementById("payment-status")
               .classList.remove("hidden");
 
-            // ជំហានទី ៣៖ ចាប់ផ្ដើមឆែកមើលថាតើលុយចូលឬនៅ?
             startPolling();
           } else {
             throw new Error(qrData.message || "មិនអាចបង្កើត QR បានទេ");
@@ -357,13 +420,8 @@
         } catch (error) {
           console.error("កំហុសបច្ចេកទេស:", error);
           document.getElementById("qr-loading").classList.add("hidden");
-          document.getElementById("qr-instruction").innerText =
-            "មានបញ្ហាក្នុងការបង្កើតការទូទាត់។";
-          Swal.fire(
-            "បរាជ័យ",
-            error.message || "មានបញ្ហាបច្ចេកទេសក្នុង Server",
-            "error",
-          );
+          document.getElementById("qr-instruction").innerHTML =
+            "<span class='text-red-500 font-bold'>មានបញ្ហាក្នុងការបង្កើតការទូទាត់! សូមឆែកមើល Server Backend។</span>";
         }
       }
 
@@ -377,7 +435,6 @@
 
             const data = await res.json();
 
-            // បើ U-Pay បាញ់ Webhook ចូល ហើយ DB ដូរជា PAID
             if (
               data.success &&
               (data.status === "PAID" || data.status === "SUCCESS")
@@ -391,8 +448,8 @@
                 timer: 3000,
                 showConfirmButton: false,
               }).then(() => {
-                localStorage.setItem("umall_cart", "[]"); // លុបទំនិញពីកន្ត្រក
-                window.location.href = "index.html"; // លោតទៅទំព័រដើម
+                localStorage.setItem("umall_cart", "[]");
+                window.location.href = "index.html";
               });
             }
           } catch (e) {
@@ -429,20 +486,18 @@
         const cardNum = document
           .getElementById("card-num")
           .value.replace(/\s/g, "");
-        if (cardNum.length < 16) {
+        if (cardNum.length < 16)
           return Swal.fire(
             "ព័ត៌មានមិនគ្រប់គ្រាន់",
             "សូមបញ្ជាក់លេខកាតឱ្យបានត្រឹមត្រូវ",
             "warning",
           );
-        }
         Swal.fire({
           title: "កំពុងដំណើរការ...",
           text: "កំពុងភ្ជាប់ទៅកាន់ប្រព័ន្ធធនាគារ",
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading(),
         });
-
         setTimeout(() => {
           Swal.fire({
             icon: "success",
