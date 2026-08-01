@@ -17,11 +17,10 @@ const userSchema = new mongoose.Schema(
       enum: ["super_admin", "admin", "seller", "buyer"],
       default: "buyer",
     },
-    // បន្ថែមថ្មី សម្រាប់ Admin ងាយស្រួលគ្រប់គ្រង និងទាក់ទង
     phone: {
       type: String,
       unique: true,
-      sparse: true, // អនុញ្ញាតឱ្យទទេបាន (null) តែបើមានគឺហាមជាន់គ្នា
+      sparse: true,
       trim: true,
     },
     email: {
@@ -31,9 +30,29 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    // ⬇️ ផ្នែកបន្ថែមថ្មីសម្រាប់ Profile U-Mall ⬇️
+    fullName: {
+      type: String,
+      trim: true,
+      default: "", // ទុកចំហសិនបាន ពេលទិញអីចាំបំពេញ
+    },
+    profileImage: {
+      type: String,
+      default: "https://via.placeholder.com/150", // រូបភាពតំណាង
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other", ""],
+      default: "",
+    },
   },
   {
-    timestamps: true, // បង្កើត createdAt និង updatedAt ដោយស្វ័យប្រវត្តិ
+    timestamps: true,
   },
 );
 

@@ -22,7 +22,6 @@
       tailwind.config = {
         darkMode: "class",
       };
-      // Check Dark Mode មុនពេល Load ដើម្បីកុំឱ្យវាភ្លឹបភ្លែត
       if (
         localStorage.getItem("color-theme") === "dark" ||
         (!("color-theme" in localStorage) &&
@@ -50,6 +49,16 @@
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+
+      /* SweetAlert2 Global Khmer Font */
+      .swal2-popup,
+      .swal2-title,
+      .swal2-html-container,
+      .swal2-confirm,
+      .swal2-cancel,
+      .swal2-input {
+        font-family: "Kantumruy Pro", sans-serif !important;
       }
 
       @media (min-width: 1024px) {
@@ -123,6 +132,7 @@
         display: flex;
         align-items: center;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        display: none; /* លាក់សិនចាំមាន data */
       }
       .marquee-content {
         display: flex;
@@ -150,6 +160,25 @@
           transform: translateX(-50%);
         }
       }
+
+      /* Custom input for Sweetalert */
+      .swal-custom-input {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        outline: none;
+      }
+      .swal-custom-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      }
+      .dark .swal-custom-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: white;
+      }
     </style>
   </head>
   <body
@@ -175,7 +204,7 @@
 
       <div class="max-w-7xl mx-auto px-4 py-3">
         <div class="flex items-center justify-between gap-4">
-          <!-- ទីតាំង Logo (វានឹងបង្ហាញអក្សរសិន មុនពេលទាញរូបពី Admin បាន) -->
+          <!-- ទីតាំង Logo (កែឲ្យស្អាតពេល Dark Mode ដោយមាន bg-white ទប់) -->
           <a
             href="/"
             class="flex items-center space-x-2 flex-shrink-0"
@@ -189,7 +218,7 @@
             </div>
           </a>
 
-          <!-- Search Bar ជាមួយ Auto Typing -->
+          <!-- Search Bar -->
           <div class="flex-1 max-w-2xl">
             <div class="relative flex w-full">
               <input
@@ -208,9 +237,8 @@
             </div>
           </div>
 
-          <!-- Icons (Dark Mode, Cart, & Auth) -->
+          <!-- Icons -->
           <div class="flex items-center space-x-4 md:space-x-6 flex-shrink-0">
-            <!-- Dark Mode Toggle -->
             <button
               id="theme-toggle"
               class="text-gray-500 dark:text-gray-300 hover:text-blue-600 transition"
@@ -219,7 +247,7 @@
               <i class="fas fa-moon text-xl" id="theme-toggle-icon"></i>
             </button>
 
-            <!-- កន្ត្រកទិញទំនិញ (Link ទៅ payment.html) -->
+            <!-- កន្ត្រកទិញទំនិញ -->
             <a
               href="cart.html"
               class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition"
@@ -232,17 +260,178 @@
               >
             </a>
 
-            <!-- Auth Buttons (Dynamic via JS) -->
+            <!-- 🔥 Profile Icon ថ្មី -->
+            <button
+              onclick="toggleProfileSidebar()"
+              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition ml-2"
+            >
+              <i class="fas fa-user-circle text-2xl md:text-3xl"></i>
+            </button>
+
             <div
-              class="hidden md:flex border-l dark:border-gray-600 pl-6 space-x-3 items-center"
+              class="hidden md:flex border-l dark:border-gray-600 pl-4 space-x-3 items-center"
               id="auth-buttons-container"
             >
-              <!-- JS នឹងគូរវាបញ្ចូលទីនេះ (Login/Logout) -->
+              <!-- JS នឹងគូរវាបញ្ចូលទីនេះ -->
             </div>
           </div>
         </div>
       </div>
     </header>
+
+    <!-- 🌟 Profile Sidebar (Off-Canvas) -->
+    <div
+      id="sidebar-overlay"
+      class="fixed inset-0 bg-black/60 hidden z-[90] transition-opacity"
+      onclick="toggleProfileSidebar()"
+    ></div>
+    <div
+      id="profile-sidebar"
+      class="fixed inset-y-0 right-0 w-80 md:w-96 bg-white dark:bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-[100] flex flex-col"
+    >
+      <!-- ផ្នែកក្បាល -->
+      <div class="bg-blue-600 p-6 text-white flex justify-between items-start">
+        <div class="flex flex-col items-center w-full relative">
+          <!-- រូប Profile អាចចុចដូរបាន -->
+          <div
+            class="relative group cursor-pointer mb-3"
+            onclick="editProfileImage()"
+          >
+            <img
+              id="side-profile-img"
+              src="https://via.placeholder.com/150"
+              class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-700 object-cover bg-white"
+              alt="Profile"
+            />
+            <div
+              class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+            >
+              <i class="fas fa-camera text-xl"></i>
+            </div>
+          </div>
+          <h3 id="side-profile-name" class="font-bold text-xl">
+            ឈ្មោះអ្នកប្រើប្រាស់
+          </h3>
+          <p id="side-profile-role" class="text-blue-200 text-sm">អ្នកទិញ</p>
+        </div>
+        <button
+          onclick="toggleProfileSidebar()"
+          class="text-white hover:text-red-200 absolute top-4 right-4 text-xl"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- ផ្នែកព័ត៌មាន -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-4 text-sm">
+        <!-- ឈ្មោះពេញ -->
+        <div
+          class="flex justify-between items-center border-b dark:border-gray-700 pb-3"
+        >
+          <div class="text-gray-600 dark:text-gray-300">
+            <div class="text-xs text-gray-400 mb-1">ឈ្មោះពេញ (លើវិក័យបត្រ)</div>
+            <div
+              id="info-fullname"
+              class="font-bold text-gray-800 dark:text-white"
+            >
+              មិនទាន់បញ្ជាក់
+            </div>
+          </div>
+          <button
+            onclick="editFullName()"
+            class="text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 p-2 rounded-full"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- លេខទូរស័ព្ទ -->
+        <div
+          class="flex justify-between items-center border-b dark:border-gray-700 pb-3"
+        >
+          <div class="text-gray-600 dark:text-gray-300">
+            <div class="text-xs text-gray-400 mb-1">លេខទូរស័ព្ទ</div>
+            <div
+              id="info-phone"
+              class="font-bold text-gray-800 dark:text-white"
+            >
+              មិនទាន់បញ្ជាក់
+            </div>
+          </div>
+          <button
+            onclick="editPhone()"
+            class="text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 p-2 rounded-full"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- អ៊ីមែល -->
+        <div
+          class="flex justify-between items-center border-b dark:border-gray-700 pb-3"
+        >
+          <div class="text-gray-600 dark:text-gray-300">
+            <div class="text-xs text-gray-400 mb-1">អ៊ីមែល</div>
+            <div
+              id="info-email"
+              class="font-bold text-gray-800 dark:text-white"
+            >
+              មិនទាន់បញ្ជាក់
+            </div>
+          </div>
+          <button
+            onclick="editEmail()"
+            class="text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 p-2 rounded-full"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- ទីតាំង -->
+        <div
+          class="flex justify-between items-center border-b dark:border-gray-700 pb-3"
+        >
+          <div class="text-gray-600 dark:text-gray-300">
+            <div class="text-xs text-gray-400 mb-1">
+              ទីតាំង/អាសយដ្ឋានដឹកជញ្ជូន
+            </div>
+            <div
+              id="info-address"
+              class="font-bold text-gray-800 dark:text-white line-clamp-2"
+            >
+              មិនទាន់បញ្ជាក់
+            </div>
+          </div>
+          <button
+            onclick="editAddress()"
+            class="text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 p-2 rounded-full"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+
+        <!-- ប្តូរលេខសម្ងាត់ -->
+        <div class="pt-2">
+          <button
+            onclick="changePassword()"
+            class="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition font-bold"
+          >
+            <i class="fas fa-lock"></i> ផ្លាស់ប្តូរលេខសម្ងាត់
+          </button>
+        </div>
+      </div>
+
+      <!-- ប៊ូតុងចាកចេញ -->
+      <div class="p-6 border-t dark:border-gray-700">
+        <button
+          onclick="handleLogout()"
+          class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2"
+        >
+          <i class="fas fa-sign-out-alt"></i> ចាកចេញពីគណនី
+        </button>
+      </div>
+    </div>
+    <!-- បញ្ចប់ Profile Sidebar -->
 
     <main class="flex-grow max-w-7xl mx-auto px-4 py-6 space-y-8 w-full">
       <!-- 🖼️ ២. Hero Banners -->
@@ -273,13 +462,12 @@
       </div>
 
       <!-- 🏬 ៣. ហាងរត់ (Store Marquee) -->
-      <div>
-        <div
-          class="marquee-wrapper bg-white dark:bg-gray-800 border dark:border-gray-700"
-        >
-          <div class="marquee-content" id="store-marquee-content">
-            <span class="text-gray-400 text-sm italic">កំពុងទាញយកហាង...</span>
-          </div>
+      <div
+        id="store-marquee-wrapper"
+        class="marquee-wrapper bg-white dark:bg-gray-800 border dark:border-gray-700"
+      >
+        <div class="marquee-content" id="store-marquee-content">
+          <!-- Data ទាញចូលទីនេះ -->
         </div>
       </div>
 
@@ -330,7 +518,7 @@
         </div>
       </div>
 
-      <!-- 🏆 ៥. Top Stores (UI ថ្មី) -->
+      <!-- 🏆 ៥. Top Stores (UI ថ្មី - កែទប់អក្សរជាន់គ្នា) -->
       <div>
         <h2
           class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center"
@@ -404,7 +592,6 @@
             ទាំងទំនុកចិត្តបំផុតនៅកម្ពុជា។
           </p>
         </div>
-
         <div>
           <h4
             class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
@@ -434,7 +621,6 @@
             </li>
           </ul>
         </div>
-
         <div>
           <h4
             class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
@@ -459,7 +645,6 @@
             </div>
           </div>
         </div>
-
         <div>
           <h4
             class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm md:text-base"
@@ -499,19 +684,26 @@
       let allStoresMap = {};
       let flashSaleData = null;
 
+      // តំណាងទិន្នន័យ User (ជាក់ស្តែងបងត្រូវ fetch ពី backend តាមរយៈ Token)
+      let currentUser = {
+        username: "buyer123",
+        fullName: "",
+        profileImage: "",
+        phone: "",
+        email: "",
+        address: "",
+      };
+
       // ---------------------------------------------
       // ០. Dark Mode Setup
       // ---------------------------------------------
       document.addEventListener("DOMContentLoaded", () => {
         const themeToggleBtn = document.getElementById("theme-toggle");
         const themeToggleIcon = document.getElementById("theme-toggle-icon");
-
-        // Setup Icon ត្រូវតាម Theme
         if (document.documentElement.classList.contains("dark")) {
           themeToggleIcon.classList.remove("fa-moon");
           themeToggleIcon.classList.add("fa-sun");
         }
-
         themeToggleBtn.addEventListener("click", function () {
           if (document.documentElement.classList.contains("dark")) {
             document.documentElement.classList.remove("dark");
@@ -536,13 +728,10 @@
         const token =
           localStorage.getItem("token") || localStorage.getItem("adminToken");
         const container = document.getElementById("auth-buttons-container");
-
         if (token) {
-          // Logged In State (បង្ហាញ ប្រវត្តិការទិញ និង ចាកចេញ)
-          container.innerHTML = `
-            <a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>
-            <button onclick="handleLogout()" class="text-sm font-medium text-white bg-red-500 px-4 py-1.5 rounded-md hover:bg-red-600 shadow-sm transition">ចាកចេញ</button>
-          `;
+          // Logged In
+          container.innerHTML = `<a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
+          fetchUserProfileMock(); // ទាញយកព័ត៌មាន Profile ពេលមាន Token
         } else {
           // Guest State
           container.innerHTML = `
@@ -552,7 +741,250 @@
         }
       }
 
+      // --- ប្រព័ន្ធ Sidebar Profile ថ្មី ---
+      function toggleProfileSidebar() {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (!token) {
+          Swal.fire({
+            icon: "info",
+            title: "សូមចូលគណនី",
+            text: "អ្នកត្រូវចូលគណនីដើម្បីមើលប្រវត្តិរូប។",
+            confirmButtonText: "ចូលគណនី",
+            confirmButtonColor: "#2563eb",
+            showCancelButton: true,
+            cancelButtonText: "បិទ",
+          }).then((res) => {
+            if (res.isConfirmed) window.location.href = "login.html";
+          });
+          return;
+        }
+        const sidebar = document.getElementById("profile-sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        if (sidebar.classList.contains("translate-x-full")) {
+          sidebar.classList.remove("translate-x-full");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("translate-x-full");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      // ក្លែងធ្វើការទាញទិន្នន័យ (បងត្រូវដូរទៅប្រើ fetch('/api/user/profile') ពិតប្រាកដ)
+      function fetchUserProfileMock() {
+        // បើធ្លាប់ save ក្នុង local យកមកបង្ហាញសិន ដើម្បីងាយស្រួល Test
+        const saved = localStorage.getItem("mock_user_profile");
+        if (saved) currentUser = JSON.parse(saved);
+        else
+          currentUser = {
+            username: "user_test",
+            fullName: "",
+            profileImage: "",
+            phone: "",
+            email: "",
+            address: "",
+          };
+        updateSidebarUI();
+      }
+
+      function updateSidebarUI() {
+        document.getElementById("side-profile-name").innerText =
+          currentUser.fullName || currentUser.username || "អ្នកប្រើប្រាស់";
+        if (currentUser.profileImage)
+          document.getElementById("side-profile-img").src =
+            currentUser.profileImage;
+        document.getElementById("info-fullname").innerText =
+          currentUser.fullName || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-phone").innerText =
+          currentUser.phone || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-email").innerText =
+          currentUser.email || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-address").innerText =
+          currentUser.address || "មិនទាន់បញ្ជាក់";
+      }
+
+      // --- អនុគមន៍កែ Profile ដោយប្រើ SweetAlert2 ---
+
+      // ១. កែរូប (Link)
+      function editProfileImage() {
+        Swal.fire({
+          title: "កែប្រែរូបថតប្រវត្តិរូប",
+          input: "url",
+          inputPlaceholder: "បញ្ចូល Link រូបភាពទីនេះ (http...)",
+          inputValue: currentUser.profileImage,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          cancelButtonText: "បោះបង់",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed && res.value) {
+            currentUser.profileImage = res.value;
+            saveProfileMock();
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+
+      // ២. កែឈ្មោះពេញ & ទីតាំង (អត់សួរ Pass)
+      function editFullName() {
+        Swal.fire({
+          title: "កែប្រែឈ្មោះពេញ",
+          input: "text",
+          inputValue: currentUser.fullName,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          cancelButtonText: "បោះបង់",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed) {
+            currentUser.fullName = res.value;
+            saveProfileMock();
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+
+      function editAddress() {
+        Swal.fire({
+          title: "កែប្រែទីតាំង/អាសយដ្ឋាន",
+          input: "textarea",
+          inputValue: currentUser.address,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          cancelButtonText: "បោះបង់",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed) {
+            currentUser.address = res.value;
+            saveProfileMock();
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+
+      // ៣. កែលេខទូរស័ព្ទ / អ៊ីមែល (ទាមទារ Password)
+      function requestPasswordToEdit(
+        title,
+        placeholder,
+        fieldName,
+        currentValue,
+      ) {
+        let html = `
+            <input id="swal-input-val" class="swal-custom-input" placeholder="${placeholder}" value="${currentValue || ""}">
+         `;
+        if (currentValue) {
+          // បើមានស្រាប់ ទាមទារ Pass ចាស់
+          html += `<input id="swal-input-pass" type="password" class="swal-custom-input mt-2" placeholder="វាយលេខសម្ងាត់របស់អ្នកដើម្បីបញ្ជាក់">`;
+        }
+
+        Swal.fire({
+          title: title,
+          html: html,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          cancelButtonText: "បោះបង់",
+          confirmButtonColor: "#2563eb",
+          preConfirm: () => {
+            const val = document.getElementById("swal-input-val").value;
+            const pass = currentValue
+              ? document.getElementById("swal-input-pass").value
+              : "ok";
+            if (!val) Swal.showValidationMessage("សូមបំពេញទិន្នន័យ");
+            if (currentValue && !pass)
+              Swal.showValidationMessage("សូមបញ្ចូលលេខសម្ងាត់");
+            return { val: val, pass: pass };
+          },
+        }).then((res) => {
+          if (res.isConfirmed) {
+            // ត្រង់នេះបងត្រូវបាញ់ API ទៅ Backend ដើម្បីផ្ទៀង Pass។ ខ្ញុំ Test ស្មានថា Pass ត្រូវសិន
+            currentUser[fieldName] = res.value.val;
+            saveProfileMock();
+            Swal.fire({
+              icon: "success",
+              title: "បានធ្វើបច្ចុប្បន្នភាព!",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+
+      function editPhone() {
+        requestPasswordToEdit(
+          "កែប្រែលេខទូរស័ព្ទ",
+          "បញ្ចូលលេខទូរស័ព្ទថ្មី",
+          "phone",
+          currentUser.phone,
+        );
+      }
+      function editEmail() {
+        requestPasswordToEdit(
+          "កែប្រែអ៊ីមែល",
+          "បញ្ចូលអ៊ីមែលថ្មី",
+          "email",
+          currentUser.email,
+        );
+      }
+
+      // ៤. ប្តូរលេខសម្ងាត់ (3 ជួរ)
+      function changePassword() {
+        Swal.fire({
+          title: "ប្តូរលេខសម្ងាត់",
+          html: `
+               <input id="pass-old" type="password" class="swal-custom-input" placeholder="លេខសម្ងាត់ចាស់">
+               <input id="pass-new" type="password" class="swal-custom-input" placeholder="លេខសម្ងាត់ថ្មី">
+               <input id="pass-conf" type="password" class="swal-custom-input" placeholder="បញ្ជាក់លេខសម្ងាត់ថ្មី">
+            `,
+          showCancelButton: true,
+          confirmButtonText: "ផ្លាស់ប្តូរ",
+          cancelButtonText: "បោះបង់",
+          confirmButtonColor: "#2563eb",
+          preConfirm: () => {
+            const o = document.getElementById("pass-old").value;
+            const n = document.getElementById("pass-new").value;
+            const c = document.getElementById("pass-conf").value;
+            if (!o || !n || !c)
+              Swal.showValidationMessage("សូមបំពេញឲ្យគ្រប់ប្រអប់");
+            else if (n !== c)
+              Swal.showValidationMessage("លេខសម្ងាត់ថ្មីមិនស៊ីគ្នាទេ");
+            return { old: o, new: n };
+          },
+        }).then((res) => {
+          if (res.isConfirmed) {
+            // បាញ់ API ទៅដូរ Pass ពិតប្រាកដ...
+            Swal.fire({
+              icon: "success",
+              title: "លេខសម្ងាត់ត្រូវបានប្តូរ!",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          }
+        });
+      }
+
+      function saveProfileMock() {
+        localStorage.setItem("mock_user_profile", JSON.stringify(currentUser));
+        updateSidebarUI();
+        // API Call goes here: fetch('/api/user/update', {method: 'PUT', body: JSON.stringify(currentUser)...})
+      }
+
       function handleLogout() {
+        toggleProfileSidebar(); // បិទ sidebar សិន
         Swal.fire({
           title: "បញ្ជាក់ការចាកចេញ?",
           text: "តើអ្នកពិតជាចង់ចាកចេញពីគណនីមែនទេ?",
@@ -566,6 +998,7 @@
           if (result.isConfirmed) {
             localStorage.removeItem("token");
             localStorage.removeItem("adminToken");
+            localStorage.removeItem("mock_user_profile"); // clear mock
             Swal.fire({
               icon: "success",
               title: "ចាកចេញជោគជ័យ",
@@ -587,14 +1020,13 @@
       document.addEventListener("DOMContentLoaded", async () => {
         checkAuthUI();
         updateCartBadge();
-        startSearchAnimation(); // ចាប់ផ្តើមមុខងារវាយអក្សរក្នុងប្រអប់ស្វែងរក
-
+        startSearchAnimation();
         await fetchProducts();
         fetchSettings();
       });
 
       // ---------------------------------------------
-      // ២. មុខងារ Search ចាប់ពាក្យ & អូសទៅក្រោម & Animation Placeholder
+      // ២. មុខងារ Search ចាប់ពាក្យ & អូសទៅក្រោម
       // ---------------------------------------------
       const searchTexts = [
         "ស្វែងរកសម្លៀកបំពាក់...",
@@ -602,16 +1034,13 @@
         "ស្វែងរកគ្រឿងសម្អាង...",
         "ស្វែងរកស្បែកជើង...",
       ];
-      let sIndex = 0;
-      let cIndex = 0;
-      let isDeleting = false;
-
+      let sIndex = 0,
+        cIndex = 0,
+        isDeleting = false;
       function startSearchAnimation() {
         const input = document.getElementById("search-input");
         if (!input) return;
-
         const currentText = searchTexts[sIndex];
-
         if (isDeleting) {
           input.placeholder = currentText.substring(0, cIndex - 1);
           cIndex--;
@@ -619,9 +1048,7 @@
           input.placeholder = currentText.substring(0, cIndex + 1);
           cIndex++;
         }
-
         let typeSpeed = isDeleting ? 40 : 100;
-
         if (!isDeleting && cIndex === currentText.length) {
           typeSpeed = 2000;
           isDeleting = true;
@@ -643,14 +1070,12 @@
           .value.trim()
           .toLowerCase();
         if (!term) return;
-
         document
           .getElementById("products-section")
           .scrollIntoView({ behavior: "smooth" });
         document.getElementById("product-section-title").innerHTML =
           `លទ្ធផលស្វែងរក: "<span class="text-gray-800 dark:text-white">${term}</span>"`;
         document.getElementById("clear-search-btn").classList.remove("hidden");
-
         const filtered = allProductsGlobal.filter(
           (p) => p.name && p.name.toLowerCase().includes(term),
         );
@@ -666,19 +1091,16 @@
       }
 
       // ---------------------------------------------
-      // ៣. Fetch Data (Products & Store Extraction)
+      // ៣. Fetch Data
       // ---------------------------------------------
       async function fetchProducts() {
         try {
           const res = await fetch(`${API_BASE_PUBLIC}/products`);
           const data = await res.json();
-
           if (data.products) {
             allProductsGlobal = data.products;
             allProductsGlobal.forEach((p) => {
-              if (p.store && p.store._id) {
-                allStoresMap[p.store._id] = p.store;
-              }
+              if (p.store && p.store._id) allStoresMap[p.store._id] = p.store;
             });
             renderProducts(allProductsGlobal);
             renderStoreMarquee();
@@ -688,27 +1110,22 @@
         }
       }
 
-      // ---------------------------------------------
-      // ៤. មុខងារ Banners + Flash Sale + Top Stores
-      // ---------------------------------------------
       async function fetchSettings() {
         try {
           const res = await fetch("/api/settings");
           const data = await res.json();
           if (data.success && data.setting) {
             const s = data.setting;
-
-            // ១. ចាប់យករូប Logo ពី Admin មកបង្ហាញ ហើយដាក់ទំហំឲ្យធំបន្តិច (h-10 ទៅ h-14)
+            // 🌟 កែ Logo ឲ្យស្អាតពេលមាន Bg White
             if (s.logoUrl && s.logoUrl.trim() !== "") {
               document.getElementById("main-logo-container").innerHTML =
-                `<img src="${s.logoUrl}" alt="U-Mall Logo" class="h-10 md:h-14 object-contain transition-transform hover:scale-105" />`;
+                `<div class="bg-white p-1 md:p-1.5 rounded-lg shadow-sm w-auto inline-block flex-shrink-0 transition-transform hover:scale-105">
+                   <img src="${s.logoUrl}" alt="U-Mall Logo" class="h-8 md:h-10 w-auto object-contain" />
+                 </div>`;
             }
-
-            // ២. រៀបចំ Banners
             setupSlider("hero-banner-container", s.section1, true);
             setupSlider("sub-banner-1-container", s.section2, false);
             setupSlider("sub-banner-2-container", s.section3, false);
-
             if (s.flashSale) renderFlashSale(s.flashSale);
             if (s.topStores) renderTopStores(s.topStores);
           }
@@ -728,12 +1145,10 @@
           container.innerHTML = `<img src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall" class="w-full h-full object-cover" />`;
           return;
         }
-
         const validItems = sectionData.items.filter(
           (i) => !i.endDate || new Date(i.endDate) >= new Date(),
         );
         if (validItems.length === 0) return;
-
         let slidesHTML = validItems
           .map((item, index) => {
             const link = item.storeId
@@ -742,15 +1157,11 @@
             return `<a href="${link}" class="slide" style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};"><img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500"/></a>`;
           })
           .join("");
-
         if (showArrows && validItems.length > 1) {
-          slidesHTML += `
-              <div class="slider-nav-btn nav-left" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
-              <div class="slider-nav-btn nav-right" onclick="moveSlide('${containerId}', 1, event)"><i class="fas fa-chevron-right"></i></div>
-            `;
+          slidesHTML += `<div class="slider-nav-btn nav-left" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
+                         <div class="slider-nav-btn nav-right" onclick="moveSlide('${containerId}', 1, event)"><i class="fas fa-chevron-right"></i></div>`;
         }
         container.innerHTML = slidesHTML;
-
         if (validItems.length > 1) {
           container.dataset.currentIndex = 0;
           container.dataset.total = validItems.length;
@@ -768,27 +1179,20 @@
         let currentIndex = parseInt(container.dataset.currentIndex);
         const total = parseInt(container.dataset.total);
         const slides = container.querySelectorAll(".slide");
-
         let nextIndex = currentIndex + step;
         if (nextIndex >= total) nextIndex = 0;
         if (nextIndex < 0) nextIndex = total - 1;
-
         if (event) clearInterval(parseInt(container.dataset.intervalId));
-
         slides[nextIndex].style.transition = "none";
         slides[nextIndex].style.display = "block";
         slides[nextIndex].style.transform =
           step === 1 ? "translateX(100%)" : "translateX(-100%)";
-
         void container.offsetWidth;
-
         slides[currentIndex].style.transition = "transform 0.5s ease-in-out";
         slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
-
         slides[currentIndex].style.transform =
           step === 1 ? "translateX(-100%)" : "translateX(100%)";
         slides[nextIndex].style.transform = "translateX(0)";
-
         setTimeout(() => {
           slides[currentIndex].style.display = "none";
         }, 500);
@@ -798,27 +1202,28 @@
       // --- Marquee ហាង ---
       function renderStoreMarquee() {
         const stores = Object.values(allStoresMap);
+        const wrapper = document.getElementById("store-marquee-wrapper");
         const container = document.getElementById("store-marquee-content");
-
         if (stores.length === 0) {
-          container.parentElement.style.display = "none";
+          wrapper.style.display = "none";
           return;
         }
+        // 🌟 បើមានហាង លេចចេញមកស្អាតៗ
+        wrapper.style.display = "flex";
 
         let itemsHTML = stores
           .map(
             (s) => `
-            <div class="marquee-item border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700" onclick="window.location.href='store.html?id=${s._id}'">
-               <img src="${s.logoUrl || "https://via.placeholder.com/40"}" class="w-8 h-8 rounded-full border border-gray-200 object-cover">
+            <div class="marquee-item border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700" onclick="window.location.href='store.html?id=${s._id}'">
+               <img src="${s.logoUrl || "https://via.placeholder.com/40"}" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm whitespace-nowrap">${s.storeName}</span>
             </div>
-         `,
+          `,
           )
           .join("");
 
-        let loopCount = stores.length < 5 ? 6 : 3;
         let finalHTML = "";
-        for (let i = 0; i < loopCount; i++) {
+        for (let i = 0; i < (stores.length < 5 ? 6 : 3); i++) {
           finalHTML += itemsHTML;
         }
         container.innerHTML = finalHTML;
@@ -828,7 +1233,6 @@
       function renderFlashSale(fsData) {
         if (!fsData.endTime || !fsData.items || fsData.items.length === 0)
           return;
-
         const endTime = new Date(fsData.endTime).getTime();
         setInterval(() => {
           const now = new Date().getTime();
@@ -858,7 +1262,6 @@
                 : item.productId;
             const p = allProductsGlobal.find((x) => x._id === pId);
             if (!p) return "";
-
             const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
             const oldPrice = p.price;
             const newPrice = oldPrice - oldPrice * (item.discountPercent / 100);
@@ -878,32 +1281,34 @@
                   <div class="bg-red-500 h-1.5 md:h-2 rounded-full" style="width: ${pCent}%"></div>
                 </div>
                 <div class="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-300 text-center">លក់បាន ${item.soldCount} គ្រឿង</div>
-                
                 <div class="mt-2" onclick="event.stopPropagation()">
                    <button onclick="addToCart('${p._id}', '${safeName}', ${newPrice.toFixed(2)}, '${p.store?._id}')" class="w-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs py-1 rounded hover:bg-red-500 hover:text-white dark:hover:text-white transition">ទិញឥឡូវនេះ</button>
                 </div>
-             </div>
-             `;
+             </div>`;
           })
           .join("");
-
         document.getElementById("flash-sale-grid").innerHTML = fsHTML;
       }
 
-      // --- Top Stores (UI ថ្មី) ---
+      // --- Top Stores (UI ថ្មី - 🌟 ជួសជុលអក្សរជាន់គ្នា) ---
       function renderTopStores(storeIds) {
-        if (!storeIds || storeIds.length === 0) return;
+        if (!storeIds || storeIds.length === 0) {
+          document.getElementById("top-stores-grid").innerHTML =
+            `<div class="col-span-full text-center text-gray-500 py-4">មិនទាន់មានទិន្នន័យ</div>`;
+          return;
+        }
         let html = "";
         storeIds.forEach((id) => {
           const realId = typeof id === "object" ? id._id : id;
           const s = allStoresMap[realId];
           if (s) {
+            // 🌟 pt-12 md:pt-14 ជួយរុញអក្សរឈ្មោះហាងចុះក្រោម លែងឲ្យជាន់រូប Profile ទៀតហើយ
             html += `
                 <div onclick="window.location.href='store.html?id=${s._id}'" class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-gray-100 dark:border-gray-700">
                   <div class="h-20 md:h-28 bg-gradient-to-r from-blue-500 to-indigo-600 w-full relative overflow-hidden">
                     <img src="${s.coverUrl || "https://via.placeholder.com/300x100/3b82f6/ffffff?text=Cover"}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500" />
                   </div>
-                  <div class="px-3 md:px-4 pb-4 pt-8 md:pt-10 relative flex flex-col items-center text-center">
+                  <div class="px-3 md:px-4 pb-4 pt-12 md:pt-14 relative flex flex-col items-center text-center">
                     <div class="absolute -top-10 md:-top-12 w-20 h-20 md:w-24 md:h-24 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md ring-4 ring-white dark:ring-gray-800 z-10">
                       <img src="${s.logoUrl || "https://via.placeholder.com/80"}" class="w-full h-full rounded-full object-cover bg-white" />
                     </div>
@@ -928,7 +1333,6 @@
           container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">រកមិនឃើញទំនិញតាមការស្វែងរករបស់អ្នកទេ។</div>`;
           return;
         }
-
         container.innerHTML = products
           .map((p) => {
             const safeName = p.name ? p.name.replace(/'/g, "\\'") : "Unknown";
@@ -964,14 +1368,13 @@
       }
 
       function addToCart(productId, name, price, storeId) {
-        // បិទ Add to Cart បើមិនទាន់មាន Token (Login)
         const token =
           localStorage.getItem("token") || localStorage.getItem("adminToken");
         if (!token) {
           Swal.fire({
             icon: "info",
             title: "តម្រូវឲ្យចូលគណនី",
-            text: "សូមចូលគណនី (Login) ជាមុនសិន ដើម្បីអាចបញ្ចូលទំនិញទៅកន្ត្រកបាន!",
+            text: "សូមចូលគណនី (Login) ជាមុនសិន!",
             confirmButtonText: "ចូលគណនីឥឡូវនេះ",
             showCancelButton: true,
             cancelButtonText: "បិទ",
