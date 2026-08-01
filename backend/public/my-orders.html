@@ -483,66 +483,60 @@
 
     <script>
       let currentOrderIdToReview = null;
+      let allOrders = []; // បង្កើតអថេរទទេដើម្បីផ្ទុកទិន្នន័យពិតពី Database
 
       // ==========================================
-      // ទិន្នន័យគំរូ (Mock Data) សម្រាប់តេស្ត UI មុនតភ្ជាប់ API
+      // ១. មុខងារទាញយកប្រវត្តិទិញពី API
       // ==========================================
-      const mockOrders = [
-        {
-          _id: "ORD-10023",
-          store: { storeName: "U-Mall Fashion" },
-          status: "shipped", // កំពុងដឹក
-          totalAmount: 25.5,
-          items: [
-            {
-              name: "អាវយឺតកមូលម៉ូតថ្មី (Unisex)",
-              price: 12.0,
-              quantity: 2,
-              variant: "ទំហំ L, ពណ៌ខ្មៅ",
-              image:
-                "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=200&auto=format&fit=crop",
+      async function fetchOrders() {
+        const loader = document.getElementById("loader");
+        loader.style.display = "flex"; // បង្ហាញរង្វង់វិល (Loading)
+
+        try {
+          // ទាញយក Token ពី localStorage (ដែលបានរក្សាទុកពេល User Login)
+          const token = localStorage.getItem("token");
+
+          const response = await fetch("/api/orders/my-orders", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // បញ្ជូន Token ដើម្បីប្រាប់ Backend ថាជានរណា
             },
-          ],
-          isReviewed: false,
-        },
-        {
-          _id: "ORD-10024",
-          store: { storeName: "Sneaker Hub" },
-          status: "completed", // ទទួលជោគជ័យ
-          totalAmount: 45.0,
-          items: [
-            {
-              name: "ស្បែកជើងប៉ាតា",
-              price: 45.0,
-              quantity: 1,
-              variant: "ទំហំ 42",
-              image:
-                "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop",
-            },
-          ],
-          isReviewed: false, // មិនទាន់ review
-        },
-        {
-          _id: "ORD-10025",
-          store: { storeName: "Tech Store KH" },
-          status: "pending", // រង់ចាំ
-          totalAmount: 15.0,
-          items: [
-            {
-              name: "កាសស្តាប់ត្រចៀក Bluetooth",
-              price: 15.0,
-              quantity: 1,
-              variant: "ពណ៌ស",
-              image:
-                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200&auto=format&fit=crop",
-            },
-          ],
-          isReviewed: false,
-        },
-      ];
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            allOrders = result.data; // យកទិន្នន័យពី API មកដាក់ក្នុងអថេរ
+
+            // បើក Tab "ទាំងអស់" ជាលំនាំដើម
+            document
+              .querySelectorAll(".tab")
+              .forEach((t) => t.classList.remove("active"));
+            document.querySelector(".tab").classList.add("active");
+
+            renderOrders("all"); // បង្ហាញទិន្នន័យលើអេក្រង់
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "បរាជ័យ",
+              text: result.message || "មិនអាចទាញយកប្រវត្តិទិញបានទេ",
+            });
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          Swal.fire({
+            icon: "error",
+            title: "បញ្ហាប្រព័ន្ធ",
+            text: "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ",
+          });
+        } finally {
+          loader.style.display = "none"; // លាក់រង្វង់វិលវិញ
+        }
+      }
 
       // ==========================================
-      // មុខងារបកប្រែ Status និងកំណត់ពណ៌
+      // ២. មុខងារបកប្រែ Status និងកំណត់ពណ៌
       // ==========================================
       const statusConfig = {
         pending: { text: "រង់ចាំការបញ្ជាក់", class: "status-pending" },
@@ -553,12 +547,12 @@
       };
 
       // ==========================================
-      // រៀបចំប៊ូតុងឆ្លាតវៃតាម Status
+      // ៣. រៀបចំប៊ូតុងឆ្លាតវៃតាម Status
       // ==========================================
       function getActionButtons(order) {
         let btns = "";
         if (order.status === "pending" || order.status === "processing") {
-          btns += `<button class="btn btn-outline" onclick="contactSeller('${order._id}')"><i class="fas fa-comment-dots"></i> ទាក់ទងអ្នកលក់</button>`;
+          btns += `<button class="btn btn-outline" onclick="contactSeller('${order.store._id}')"><i class="fas fa-comment-dots"></i> ទាក់ទងអ្នកលក់</button>`;
         } else if (order.status === "shipped") {
           btns += `<button class="btn btn-primary" onclick="confirmOrder('${order._id}')"><i class="fas fa-check-circle"></i> បញ្ជាក់ការទទួល</button>`;
         } else if (order.status === "completed") {
@@ -573,71 +567,70 @@
       }
 
       // ==========================================
-      // Render ទិន្នន័យទៅក្នុង HTML
+      // ៤. Render ទិន្នន័យទៅក្នុង HTML
       // ==========================================
       function renderOrders(filter = "all") {
         const container = document.getElementById("order-container");
-        container.innerHTML = ""; // លុបទិន្នន័យចាស់
+        container.innerHTML = "";
 
-        // ចម្រាញ់ទិន្នន័យតាម Tab
+        // ចម្រាញ់ទិន្នន័យដែលទាញបានពី API តាម Tab
         const filteredOrders =
           filter === "all"
-            ? mockOrders
-            : mockOrders.filter((o) => o.status === filter);
+            ? allOrders
+            : allOrders.filter((o) => o.status === filter);
 
         if (filteredOrders.length === 0) {
           container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <h3>មិនមានប្រវត្តិទិញទេ</h3>
-                </div>`;
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>មិនមានប្រវត្តិទិញទេ</h3>
+            </div>`;
           return;
         }
 
         let html = "";
         filteredOrders.forEach((order) => {
-          const statusInfo = statusConfig[order.status];
+          const statusInfo = statusConfig[order.status] || {
+            text: order.status,
+            class: "status-pending",
+          };
 
-          // Loop ផលិតផលក្នុង Order នីមួយៗ
           const itemsHtml = order.items
             .map(
               (item) => `
-                <div class="order-item">
-                    <img src="${item.image}" class="item-img" alt="Product">
-                    <div class="item-details">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-variant">${item.variant} | ចំនួន: ${item.quantity}</div>
-                    </div>
-                    <div class="item-price">$${item.price.toFixed(2)}</div>
+            <div class="order-item">
+                <img src="${item.image || "https://via.placeholder.com/80"}" class="item-img" alt="Product">
+                <div class="item-details">
+                    <div class="item-title">${item.name}</div>
+                    <div class="item-variant">${item.variant || ""} | ចំនួន: ${item.quantity}</div>
                 </div>
-            `,
+                <div class="item-price">$${item.price.toFixed(2)}</div>
+            </div>
+        `,
             )
             .join("");
 
           html += `
-            <div class="order-card">
-                <div class="card-header">
-                    <div class="store-info"><i class="fas fa-store"></i> ${order.store.storeName}</div>
-                    <div class="status-badge ${statusInfo.class}">${statusInfo.text}</div>
+        <div class="order-card">
+            <div class="card-header">
+                <div class="store-info"><i class="fas fa-store"></i> ${order.store?.storeName || "ហាងមិនស្គាល់"}</div>
+                <div class="status-badge ${statusInfo.class}">${statusInfo.text}</div>
+            </div>
+            ${itemsHtml}
+            <div class="card-footer">
+                <div class="total-price">សរុប: <span style="color: var(--accent);">$${order.totalAmount.toFixed(2)}</span></div>
+                <div class="action-buttons">
+                    ${getActionButtons(order)}
                 </div>
-                ${itemsHtml}
-                <div class="card-footer">
-                    <div class="total-price">សរុប: <span style="color: var(--accent);">$${order.totalAmount.toFixed(2)}</span></div>
-                    <div class="action-buttons">
-                        ${getActionButtons(order)}
-                    </div>
-                </div>
-            </div>`;
+            </div>
+        </div>`;
         });
 
         container.innerHTML = html;
       }
 
-      // ==========================================
       // មុខងារចុច Tab (Filter)
-      // ==========================================
       function filterOrders(status) {
-        // ដក Active ពីប៊ូតុងចាស់ ដាក់ឲ្យប៊ូតុងថ្មី
         document
           .querySelectorAll(".tab")
           .forEach((t) => t.classList.remove("active"));
@@ -646,7 +639,7 @@
       }
 
       // ==========================================
-      // មុខងារសកម្មភាព (Actions)
+      // ៥. បាញ់ API បញ្ជាក់ការទទួល (Confirm)
       // ==========================================
       function confirmOrder(orderId) {
         Swal.fire({
@@ -658,20 +651,118 @@
           cancelButtonColor: "#e2e8f0",
           confirmButtonText: "ទទួលបានហើយ",
           cancelButtonText: '<span style="color:#1e293b">ត្រឡប់វិញ</span>',
-        }).then((result) => {
+        }).then(async (result) => {
           if (result.isConfirmed) {
-            // កន្លែងនេះត្រូវហៅ API PUT /api/orders/:id/confirm
-            Swal.fire({
-              icon: "success",
-              title: "អរគុណ!",
-              text: "ប្រព័ន្ធបានកត់ត្រាទុក",
-              confirmButtonColor: "#2563eb",
-            });
+            document.getElementById("loader").style.display = "flex";
+            try {
+              const response = await fetch(`/api/orders/${orderId}/confirm`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              });
+              const data = await response.json();
+              if (data.success) {
+                Swal.fire({
+                  icon: "success",
+                  title: "អរគុណ!",
+                  text: "ប្រព័ន្ធបានកត់ត្រាទុក",
+                  confirmButtonColor: "#2563eb",
+                });
+                fetchOrders(); // Refresh ទិន្នន័យដើម្បីប្តូរ Status
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "បរាជ័យ",
+                  text: data.message,
+                });
+              }
+            } catch (error) {
+              Swal.fire({
+                icon: "error",
+                title: "បញ្ហាប្រព័ន្ធ",
+                text: "មិនអាចភ្ជាប់ទៅ Server បានទេ",
+              });
+            } finally {
+              document.getElementById("loader").style.display = "none";
+            }
           }
         });
       }
 
-      function contactSeller(orderId) {
+      // ==========================================
+      // ៦. បាញ់ API វាយតម្លៃ (Submit Review)
+      // ==========================================
+      function openReviewModal(orderId) {
+        currentOrderIdToReview = orderId;
+        document
+          .querySelectorAll(".star-rating input")
+          .forEach((r) => (r.checked = false));
+        document.getElementById("review-text").value = "";
+        document.getElementById("review-modal").style.display = "flex";
+      }
+
+      function closeReviewModal() {
+        document.getElementById("review-modal").style.display = "none";
+        currentOrderIdToReview = null;
+      }
+
+      async function submitReview() {
+        const ratingEle = document.querySelector(
+          'input[name="rating"]:checked',
+        );
+        if (!ratingEle) {
+          return Swal.fire({
+            icon: "warning",
+            text: "សូមជ្រើសរើសចំនួនផ្កាយសិន!",
+            confirmButtonColor: "#2563eb",
+          });
+        }
+
+        const rating = ratingEle.value;
+        const comment = document.getElementById("review-text").value;
+
+        document.getElementById("review-modal").style.display = "none";
+        document.getElementById("loader").style.display = "flex";
+
+        try {
+          const response = await fetch(
+            `/api/orders/${currentOrderIdToReview}/review`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              body: JSON.stringify({ rating, comment }),
+            },
+          );
+          const data = await response.json();
+
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ!",
+              text: "អរគុណសម្រាប់ការវាយតម្លៃ",
+              confirmButtonColor: "#2563eb",
+            });
+            fetchOrders(); // Refresh ទិន្នន័យដើម្បីលាក់ប៊ូតុងវាយតម្លៃ
+          } else {
+            Swal.fire({ icon: "error", title: "បរាជ័យ", text: data.message });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "បញ្ហាប្រព័ន្ធ",
+            text: "មិនអាចភ្ជាប់ទៅ Server បានទេ",
+          });
+        } finally {
+          document.getElementById("loader").style.display = "none";
+        }
+      }
+
+      function contactSeller(storeId) {
         Swal.fire({
           icon: "info",
           title: "កំពុងអភិវឌ្ឍ",
@@ -689,51 +780,9 @@
         });
       }
 
-      // ==========================================
-      // មុខងារវាយតម្លៃ (Review Modal)
-      // ==========================================
-      function openReviewModal(orderId) {
-        currentOrderIdToReview = orderId;
-        // ជម្រះទិន្នន័យចាស់ក្នុង Modal
-        document
-          .querySelectorAll(".star-rating input")
-          .forEach((r) => (r.checked = false));
-        document.getElementById("review-text").value = "";
-        document.getElementById("review-modal").style.display = "flex";
-      }
-
-      function closeReviewModal() {
-        document.getElementById("review-modal").style.display = "none";
-        currentOrderIdToReview = null;
-      }
-
-      function submitReview() {
-        const ratingEle = document.querySelector(
-          'input[name="rating"]:checked',
-        );
-        if (!ratingEle) {
-          return Swal.fire({
-            icon: "warning",
-            text: "សូមជ្រើសរើសចំនួនផ្កាយសិន!",
-            confirmButtonColor: "#2563eb",
-          });
-        }
-        const rating = ratingEle.value;
-        const comment = document.getElementById("review-text").value;
-
-        // កន្លែងនេះត្រូវបាញ់ API POST /api/orders/:id/review ទៅកាន់ Backend
-        document.getElementById("review-modal").style.display = "none";
-        Swal.fire({
-          icon: "success",
-          title: "ជោគជ័យ!",
-          text: "អរគុណសម្រាប់ការវាយតម្លៃ",
-          confirmButtonColor: "#2563eb",
-        });
-      }
-
-      // Render ទិន្នន័យពេលបើកទំព័រដំបូង
+      // ទាញយកទិន្នន័យពី Server ពេលបើកទំព័រដំបូង
       window.onload = () => {
-        renderOrders("all");
+        fetchOrders();
       };
     </script>
   </body>

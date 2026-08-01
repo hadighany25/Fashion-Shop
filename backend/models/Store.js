@@ -4,7 +4,7 @@ const storeSchema = new mongoose.Schema(
   {
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // ភ្ជាប់ទៅកាន់ User (អ្នកដែលជាម្ចាស់ហាង)
+      ref: "User",
       required: true,
     },
     storeName: {
@@ -15,52 +15,51 @@ const storeSchema = new mongoose.Schema(
     storeCategory: {
       type: String,
       required: true,
-      trim: true, // Admin អាចវាយបញ្ចូលប្រភេទអីក៏បានតាមចិត្ត
+      trim: true,
     },
-    description: {
-      type: String,
-      default: "",
-    },
-    logoUrl: {
-      type: String,
-      default: "", // ទុកចំហរឱ្យ Admin ឬ Seller ដាក់ Link រូបតាមក្រោយ
-    },
-    coverUrl: {
-      // 👈 បន្ថែមថ្មីនៅទីនេះ
-      type: String,
-      default: "", // ទុកចំហរឱ្យ Seller ដាក់ Link រូប Cover
-    },
-    address: {
-      type: String,
-      default: "", // ទីតាំងហាង
-    },
+    description: { type: String, default: "" },
+    logoUrl: { type: String, default: "" },
+    coverUrl: { type: String, default: "" },
+    address: { type: String, default: "" },
 
     // ==========================================
-    // ចំណុចដែលទើបតែបន្ថែមថ្មីសម្រាប់ Seller Center
+    // ចំណុចសម្រាប់ Seller Center
     // ==========================================
     categories: {
-      type: [String], // ទម្រង់ Array សម្រាប់ទុកឈ្មោះ Category ច្រើន (ឧ. ["អាវ", "ខោ", "ស្បែកជើង"])
+      type: [String],
       default: [],
     },
     paymentInfo: {
-      bankName: { type: String, default: "" }, // ឈ្មោះធនាគារ (ឧ. ABA, ACLEDA)
-      accountName: { type: String, default: "" }, // ឈ្មោះម្ចាស់គណនី
-      accountNumber: { type: String, default: "" }, // លេខគណនី
+      bankName: { type: String, default: "" },
+      accountName: { type: String, default: "" },
+      accountNumber: { type: String, default: "" },
+    },
+    commissionRate: { type: Number, default: 10 },
+    walletBalance: { type: Number, default: 0 },
+
+    // ==========================================
+    // 🌟 ផ្នែកបន្ថែមថ្មី៖ ប្រព័ន្ធវាយតម្លៃ និងស្ថិតិលក់ (Ratings & Stats)
+    // ==========================================
+    averageRating: {
+      type: Number,
+      default: 0, // ចំនួនផ្កាយជាមធ្យម (ឧ. 4.5 ផ្កាយ)
+      min: 0,
+      max: 5,
+    },
+    totalRatings: {
+      type: Number,
+      default: 0, // ចំនួនអ្នកដែលបានចុចវាយតម្លៃសរុប (ឧ. 150 នាក់)
+    },
+    totalSales: {
+      type: Number,
+      default: 0, // ចំនួនដងដែលហាងលក់អីវ៉ាន់បានជោគជ័យ (Completed Orders)
     },
     // ==========================================
 
-    commissionRate: {
-      type: Number,
-      default: 10, // ឧទាហរណ៍៖ ប្រព័ន្ធកាត់កុង ១០% ពីរាល់ការលក់
-    },
-    walletBalance: {
-      type: Number,
-      default: 0, // លុយដែលហាងលក់បាន ត្រៀមដក (Payout)
-    },
     status: {
       type: String,
       enum: ["active", "suspended"],
-      default: "active", // admin អាចបិទហាងនេះបានដោយដូរទៅ suspended
+      default: "active",
     },
   },
   {
