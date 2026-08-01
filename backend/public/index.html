@@ -1162,9 +1162,13 @@
         }
       }
 
-      // --- Slider ---
+      // =================================================================
+      // --- Slider Function (កែសម្រួលឱ្យដើរតាម Direction និង នាទី Admin) ---
+      // =================================================================
       function setupSlider(containerId, sectionData, showArrows) {
         const container = document.getElementById(containerId);
+
+        // ១. ឆែកមើលបើសិនជាអត់មានទិន្នន័យ ឱ្យវាលោតរូប Default
         if (
           !sectionData ||
           !sectionData.items ||
@@ -1173,87 +1177,135 @@
           container.innerHTML = `<img src="https://via.placeholder.com/800x400/2563eb/ffffff?text=U-Mall" class="w-full h-full object-cover" />`;
           return;
         }
+
+        // ២. ចម្រាញ់យកតែ Banner ណាដែលមិនទាន់ហួសកំណត់ (Expired Date)
         const validItems = sectionData.items.filter(
           (i) => !i.endDate || new Date(i.endDate) >= new Date(),
         );
         if (validItems.length === 0) return;
+
+        // ៣. បង្កើត HTML សម្រាប់ Banner នីមួយៗ
         let slidesHTML = validItems
           .map((item, index) => {
             const link = item.storeId
               ? `store.html?id=${typeof item.storeId === "object" ? item.storeId._id : item.storeId}`
               : "javascript:void(0)";
-            return `<a href="${link}" class="slide" style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};"><img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500"/></a>`;
+            return `<a href="${link}" class="slide absolute top-0 left-0 w-full h-full" style="transform: translateX(${index === 0 ? "0" : "100%"}); display: ${index === 0 ? "block" : "none"};"><img src="${item.imageUrl}" class="w-full h-full object-cover hover:scale-105 transition duration-500"/></a>`;
           })
           .join("");
+
+        // បន្ថែមប៊ូតុងព្រួញឆ្វេងស្តាំ បើមាន Banner លើសពី ១
         if (showArrows && validItems.length > 1) {
-          slidesHTML += `<div class="slider-nav-btn nav-left" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
-                         <div class="slider-nav-btn nav-right" onclick="moveSlide('${containerId}', 1, event)"><i class="fas fa-chevron-right"></i></div>`;
+          slidesHTML += `<div class="slider-nav-btn nav-left absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer bg-white/50 p-2 rounded-full" onclick="moveSlide('${containerId}', -1, event)"><i class="fas fa-chevron-left"></i></div>
+                         <div class="slider-nav-btn nav-right absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer bg-white/50 p-2 rounded-full" onclick="moveSlide('${containerId}', 1, event)"><i class="fas fa-chevron-right"></i></div>`;
         }
         container.innerHTML = slidesHTML;
+
+        // ៤. ដំណើរការ Auto-Slide (ចាប់យកនាទី និង ទិសដៅពិតពី DB)
         if (validItems.length > 1) {
           container.dataset.currentIndex = 0;
           container.dataset.total = validItems.length;
+
+          // 🔥 កំណត់ទិសដៅ (Direction) តាម Admin: "right" = -1 ដើរថយក្រោយ, "left" = 1 ដើរទៅមុខ
+          const slideDirection =
+            sectionData.slideDirection === "right" ? -1 : 1;
           container.dataset.direction = sectionData.slideDirection || "left";
+
+          // 🔥 ការពារកុំឱ្យ Interval រត់ជាន់គ្នាពេលទំព័រលោតសារថ្មី
+          if (container.dataset.intervalId) {
+            clearInterval(parseInt(container.dataset.intervalId));
+          }
+
+          // 🔥 ចាប់យកនាទីពិតប្រាកដគុណនឹង 1000 (មិល្លីវិនាទី) និងបញ្ជូនទិសដៅ(slideDirection)
           container.dataset.intervalId = setInterval(
-            () => moveSlide(containerId, 1),
+            () => moveSlide(containerId, slideDirection),
             (sectionData.intervalSeconds || 3) * 1000,
           );
         }
       }
 
+      // =================================================================
+      // --- Move Slide Function (រក្សាទុកលំនាំដើមតែបន្ថែមការពារ Error) ---
+      // =================================================================
       function moveSlide(containerId, step, event) {
         if (event) event.preventDefault();
         const container = document.getElementById(containerId);
+        if (!container) return; // ការពារ Error ពេលរក Container មិនឃើញ
+
         let currentIndex = parseInt(container.dataset.currentIndex);
         const total = parseInt(container.dataset.total);
         const slides = container.querySelectorAll(".slide");
+
+        if (slides.length === 0) return;
+
         let nextIndex = currentIndex + step;
         if (nextIndex >= total) nextIndex = 0;
         if (nextIndex < 0) nextIndex = total - 1;
-        if (event) clearInterval(parseInt(container.dataset.intervalId));
+
+        // បើអ្នកប្រើប្រាស់ចុចព្រួញដៃ ឱ្យវាផ្អាក Auto Slide
+        if (event && container.dataset.intervalId) {
+          clearInterval(parseInt(container.dataset.intervalId));
+        }
+
         slides[nextIndex].style.transition = "none";
         slides[nextIndex].style.display = "block";
         slides[nextIndex].style.transform =
-          step === 1 ? "translateX(100%)" : "translateX(-100%)";
-        void container.offsetWidth;
+          step === 1 || step === true
+            ? "translateX(100%)"
+            : "translateX(-100%)"; // តម្រូវទីតាំងត្រៀម
+
+        void container.offsetWidth; // Force Re-flow
+
         slides[currentIndex].style.transition = "transform 0.5s ease-in-out";
         slides[nextIndex].style.transition = "transform 0.5s ease-in-out";
+
         slides[currentIndex].style.transform =
-          step === 1 ? "translateX(-100%)" : "translateX(100%)";
+          step === 1 || step === true
+            ? "translateX(-100%)"
+            : "translateX(100%)";
         slides[nextIndex].style.transform = "translateX(0)";
+
         setTimeout(() => {
-          slides[currentIndex].style.display = "none";
+          if (slides[currentIndex]) slides[currentIndex].style.display = "none";
         }, 500);
+
         container.dataset.currentIndex = nextIndex;
       }
 
-      // --- Marquee ហាង ---
+      // =================================================================
+      // --- Marquee ហាង (កែឱ្យស្អាត និងលោតតែហាងដែលមាន Logo ពិត) ---
+      // =================================================================
       function renderStoreMarquee() {
         const stores = Object.values(allStoresMap);
         const wrapper = document.getElementById("store-marquee-wrapper");
         const container = document.getElementById("store-marquee-content");
+
         if (stores.length === 0) {
           wrapper.style.display = "none";
           return;
         }
-        // 🌟 បើមានហាង លេចចេញមកស្អាតៗ
+
+        // 🌟 បង្ហាញ wrapper
         wrapper.style.display = "flex";
 
         let itemsHTML = stores
           .map(
             (s) => `
-            <div class="marquee-item border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700" onclick="window.location.href='store.html?id=${s._id}'">
-               <img src="${s.logoUrl || "https://via.placeholder.com/40"}" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
+            <div class="marquee-item border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 p-2 rounded-lg" onclick="window.location.href='store.html?id=${s._id}'">
+               <img src="${s.logoUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(s.storeName)}" class="w-8 h-8 rounded-full border border-gray-200 object-cover bg-white">
                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm whitespace-nowrap">${s.storeName}</span>
             </div>
           `,
           )
           .join("");
 
+        // ចម្លងទិន្នន័យឱ្យបានច្រើនដង ដើម្បីឱ្យអក្សររត់ (Marquee) អត់ដាច់កណ្តាលទី
         let finalHTML = "";
-        for (let i = 0; i < (stores.length < 5 ? 6 : 3); i++) {
+        const duplicateCount = stores.length < 5 ? 6 : 3;
+        for (let i = 0; i < duplicateCount; i++) {
           finalHTML += itemsHTML;
         }
+
         container.innerHTML = finalHTML;
       }
 
