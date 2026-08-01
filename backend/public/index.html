@@ -1397,6 +1397,336 @@
           setTimeout(() => (badge.style.transform = "scale(1)"), 200);
         }
       }
+      // --- ប្រព័ន្ធ Sidebar Profile ថ្មី (Real Database) ---
+      function toggleProfileSidebar() {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (!token) {
+          Swal.fire({
+            icon: "info",
+            title: "សូមចូលគណនី",
+            text: "អ្នកត្រូវចូលគណនីដើម្បីមើលប្រវត្តិរូប។",
+            confirmButtonText: "ចូលគណនី",
+            confirmButtonColor: "#2563eb",
+            showCancelButton: true,
+            cancelButtonText: "បិទ",
+          }).then((res) => {
+            if (res.isConfirmed) window.location.href = "login.html";
+          });
+          return;
+        }
+        const sidebar = document.getElementById("profile-sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        if (sidebar.classList.contains("translate-x-full")) {
+          sidebar.classList.remove("translate-x-full");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("translate-x-full");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      // ទាញទិន្នន័យពី Database ពិតប្រាកដ
+      async function fetchUserProfileReal() {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        if (!token) return;
+        try {
+          const res = await fetch("/api/user/profile", {
+            // ប្តូរ Link API តាម Backend បង
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) {
+            currentUser = data.user;
+            updateSidebarUI();
+          }
+        } catch (err) {
+          console.log("Error fetching profile:", err);
+        }
+      }
+
+      // ជំនួសមុខងារចាស់ ពេល checkAuthUI ក៏ទាញយកទិន្នន័យពិតដែរ
+      function checkAuthUI() {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        const container = document.getElementById("auth-buttons-container");
+        if (token) {
+          container.innerHTML = `<a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
+          fetchUserProfileReal(); // ទាញយកព័ត៌មាន Profile ពី Database ពិត
+        } else {
+          container.innerHTML = `
+            <a href="login.html" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600">ចូលគណនី</a>
+            <a href="admin-login.html" class="text-sm font-medium text-white bg-blue-600 px-4 py-1.5 rounded-md hover:bg-blue-700 shadow-sm transition">ហាងរបស់ខ្ញុំ</a>
+          `;
+        }
+      }
+
+      function updateSidebarUI() {
+        document.getElementById("side-profile-name").innerText =
+          currentUser.fullName || currentUser.username || "អ្នកប្រើប្រាស់";
+        if (currentUser.profileImage)
+          document.getElementById("side-profile-img").src =
+            currentUser.profileImage;
+        document.getElementById("info-fullname").innerText =
+          currentUser.fullName || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-phone").innerText =
+          currentUser.phone || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-email").innerText =
+          currentUser.email || "មិនទាន់បញ្ជាក់";
+        document.getElementById("info-address").innerText =
+          currentUser.address || "មិនទាន់បញ្ជាក់";
+      }
+
+      // B. API រក្សាទុកទិន្នន័យទូទៅ
+      async function saveBasicProfile(updateData) {
+        const token =
+          localStorage.getItem("token") || localStorage.getItem("adminToken");
+        try {
+          const res = await fetch("/api/user/profile/basic", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updateData),
+          });
+          const data = await res.json();
+          if (data.success) {
+            currentUser = data.user;
+            updateSidebarUI();
+            Swal.fire({
+              icon: "success",
+              title: "ជោគជ័យ",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          } else {
+            Swal.fire({ icon: "error", title: "បរាជ័យ", text: data.message });
+          }
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "បរាជ័យ",
+            text: "មានបញ្ហាបណ្តាញ!",
+          });
+        }
+      }
+
+      function editProfileImage() {
+        Swal.fire({
+          title: "កែប្រែរូបថតប្រវត្តិរូប",
+          input: "url",
+          inputPlaceholder: "បញ្ចូល Link រូបភាពទីនេះ (http...)",
+          inputValue: currentUser.profileImage,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed && res.value)
+            saveBasicProfile({
+              profileImage: res.value,
+              fullName: currentUser.fullName,
+              address: currentUser.address,
+            });
+        });
+      }
+
+      function editFullName() {
+        Swal.fire({
+          title: "កែប្រែឈ្មោះពេញ",
+          input: "text",
+          inputValue: currentUser.fullName,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed)
+            saveBasicProfile({
+              fullName: res.value,
+              profileImage: currentUser.profileImage,
+              address: currentUser.address,
+            });
+        });
+      }
+
+      function editAddress() {
+        Swal.fire({
+          title: "កែប្រែទីតាំង/អាសយដ្ឋាន",
+          input: "textarea",
+          inputValue: currentUser.address,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          confirmButtonColor: "#2563eb",
+        }).then((res) => {
+          if (res.isConfirmed)
+            saveBasicProfile({
+              address: res.value,
+              fullName: currentUser.fullName,
+              profileImage: currentUser.profileImage,
+            });
+        });
+      }
+
+      // C. API រក្សាទុកលេខទូរស័ព្ទ / អ៊ីមែល (Secure Data)
+      function requestPasswordToEdit(
+        title,
+        placeholder,
+        fieldName,
+        currentValue,
+      ) {
+        let html = `<input id="swal-input-val" class="swal-custom-input" placeholder="${placeholder}" value="${currentValue || ""}">`;
+        if (currentValue) {
+          // បើមានស្រាប់ ទាមទារ Pass ចាស់
+          html += `<input id="swal-input-pass" type="password" class="swal-custom-input mt-2" placeholder="វាយលេខសម្ងាត់របស់អ្នកដើម្បីបញ្ជាក់">`;
+        }
+
+        Swal.fire({
+          title: title,
+          html: html,
+          showCancelButton: true,
+          confirmButtonText: "រក្សាទុក",
+          confirmButtonColor: "#2563eb",
+          preConfirm: () => {
+            const val = document.getElementById("swal-input-val").value;
+            const pass = currentValue
+              ? document.getElementById("swal-input-pass").value
+              : "";
+            if (!val) Swal.showValidationMessage("សូមបំពេញទិន្នន័យ");
+            if (currentValue && !pass)
+              Swal.showValidationMessage("សូមបញ្ចូលលេខសម្ងាត់");
+            return { val, pass };
+          },
+        }).then(async (res) => {
+          if (res.isConfirmed) {
+            const token =
+              localStorage.getItem("token") ||
+              localStorage.getItem("adminToken");
+            const response = await fetch("/api/user/profile/secure", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                field: fieldName,
+                value: res.value.val,
+                password: res.value.pass,
+              }),
+            });
+            const data = await response.json();
+            if (data.success) {
+              currentUser = data.user;
+              updateSidebarUI();
+              Swal.fire({
+                icon: "success",
+                title: data.message,
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({ icon: "error", title: "បរាជ័យ", text: data.message });
+            }
+          }
+        });
+      }
+
+      function editPhone() {
+        requestPasswordToEdit(
+          "កែប្រែលេខទូរស័ព្ទ",
+          "បញ្ចូលលេខទូរស័ព្ទថ្មី",
+          "phone",
+          currentUser.phone,
+        );
+      }
+      function editEmail() {
+        requestPasswordToEdit(
+          "កែប្រែអ៊ីមែល",
+          "បញ្ចូលអ៊ីមែលថ្មី",
+          "email",
+          currentUser.email,
+        );
+      }
+
+      // D. API ដូរលេខសម្ងាត់ពិតប្រាកដ
+      function changePassword() {
+        Swal.fire({
+          title: "ប្តូរលេខសម្ងាត់",
+          html: `
+               <input id="pass-old" type="password" class="swal-custom-input" placeholder="លេខសម្ងាត់ចាស់">
+               <input id="pass-new" type="password" class="swal-custom-input" placeholder="លេខសម្ងាត់ថ្មី">
+               <input id="pass-conf" type="password" class="swal-custom-input" placeholder="បញ្ជាក់លេខសម្ងាត់ថ្មី">
+            `,
+          showCancelButton: true,
+          confirmButtonText: "ផ្លាស់ប្តូរ",
+          confirmButtonColor: "#2563eb",
+          preConfirm: () => {
+            const oldPassword = document.getElementById("pass-old").value;
+            const newPassword = document.getElementById("pass-new").value;
+            const c = document.getElementById("pass-conf").value;
+            if (!oldPassword || !newPassword || !c)
+              Swal.showValidationMessage("សូមបំពេញឲ្យគ្រប់ប្រអប់");
+            else if (newPassword !== c)
+              Swal.showValidationMessage("លេខសម្ងាត់ថ្មីមិនស៊ីគ្នាទេ");
+            return { oldPassword, newPassword };
+          },
+        }).then(async (res) => {
+          if (res.isConfirmed) {
+            const token =
+              localStorage.getItem("token") ||
+              localStorage.getItem("adminToken");
+            const response = await fetch("/api/user/profile/password", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                oldPassword: res.value.oldPassword,
+                newPassword: res.value.newPassword,
+              }),
+            });
+            const data = await response.json();
+            if (data.success) {
+              Swal.fire({
+                icon: "success",
+                title: data.message,
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({ icon: "error", title: "បរាជ័យ", text: data.message });
+            }
+          }
+        });
+      }
+
+      function handleLogout() {
+        toggleProfileSidebar(); // បិទ sidebar សិន
+        Swal.fire({
+          title: "បញ្ជាក់ការចាកចេញ?",
+          text: "តើអ្នកពិតជាចង់ចាកចេញពីគណនីមែនទេ?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "ចាកចេញ",
+          cancelButtonText: "ទេ",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("adminToken");
+            Swal.fire({
+              icon: "success",
+              title: "ចាកចេញជោគជ័យ",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload();
+            });
+          }
+        });
+      }
     </script>
   </body>
 </html>
