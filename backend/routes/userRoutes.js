@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-// Import Middleware ដើម្បីឆែក Token
-// (បងត្រូវប្រាកដថា Path ត្រូវនឹងឯកសារ Middleware របស់បង)
-const { authMiddleware } = require("../middleware/auth");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 // Import Functions ពី Controller មកវិញ
 const {
