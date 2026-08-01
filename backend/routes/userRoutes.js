@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
-const { verifyToken } = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/auth");
 
 // Import Functions ពី Controller មកវិញ
 const {
