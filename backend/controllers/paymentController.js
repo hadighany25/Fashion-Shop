@@ -33,7 +33,7 @@ const createUPayQR = async (req, res) => {
       .update(rawSignature)
       .digest("hex");
 
-    // បាញ់ទិន្នន័យទៅកាន់ U-Pay API (ប្រើប្រាស់ Route ថ្មីដែលបានកំណត់)
+    // បាញ់ទិន្នន័យទៅកាន់ U-Pay API
     const response = await axios.post(
       `${baseUrl}/api/merchants/qr/create`,
       {
@@ -41,7 +41,7 @@ const createUPayQR = async (req, res) => {
         order_id: orderId,
         amount: amount,
         remark: remark,
-        notify_url: "https://fashion-shop-kh.fly.dev/api/payment/webhook", // ទីតាំងដែល U-Pay ត្រូវបាញ់សារប្រាប់ពេលលុយចូល
+        notify_url: "https://fashion-shop-kh.fly.dev/api/payment/webhook",
         req_time: reqTime,
         sign: hashSignature,
       },
@@ -58,7 +58,6 @@ const createUPayQR = async (req, res) => {
         deepLink: response.data.data.deeplink,
       });
     } else {
-      // ករណីធនាគារបដិសេធ (ឧទាហរណ៍: គណនី Merchant ត្រូវជាប់គាំង)
       res.status(400).json({
         success: false,
         message: "ធនាគារបដិសេធសំណើ",
@@ -66,19 +65,18 @@ const createUPayQR = async (req, res) => {
       });
     }
   } catch (error) {
-    // ចាប់យក Error ពិតប្រាកដមកបង្ហាញ (ឧទាហរណ៍: ខុស Route, ខុស Signature)
     const errorMsg = error.response ? error.response.data : error.message;
     console.error("❌ Error creating U-Pay QR:", errorMsg);
     res.status(500).json({
       success: false,
       message: "បញ្ហាបច្ចេកទេសតភ្ជាប់ទៅធនាគារ U-Pay",
-      detail: errorMsg, // បោះ Error លម្អិតនេះទៅឲ្យ Frontend ធ្វើការលោត Pop-up ប្រាប់អតិថិជន
+      detail: errorMsg,
     });
   }
 };
 
 // ២. មុខងារសម្រាប់ចាំទទួលដំណឹង (Webhook) ពី U-Pay ពេលអតិថិជនទូទាត់ជោគជ័យ
-exports.handleWebhook = async (req, res) => {
+const handleWebhook = async (req, res) => {
   try {
     const { orderId, amount, status, upayTransactionId } = req.body;
 
@@ -128,4 +126,5 @@ const checkOrderStatus = async (req, res) => {
   }
 };
 
+// ✅ រៀបចំ Export មុខងារទាំងបីរួមគ្នាតែម្តង ឲ្យត្រូវតាមស្តង់ដារ CommonJS
 module.exports = { createUPayQR, handleWebhook, checkOrderStatus };
