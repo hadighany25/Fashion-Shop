@@ -159,7 +159,7 @@
             id="order-items"
             class="flex-1 overflow-y-auto pr-2 space-y-3 mb-6 no-scrollbar max-h-[40vh]"
           >
-            <!-- JS នឹងគូរទំនិញនៅទីនេះ (គ្មានប៊ូតុងកែប្រែ) -->
+            <!-- JS នឹងគូរទំនិញនៅទីនេះ -->
           </div>
 
           <div class="border-t border-gray-100 pt-4 space-y-2">
@@ -288,12 +288,16 @@
               .classList.remove("pointer-events-none", "opacity-50");
             startPolling();
           } else {
-            // ចាប់យក Error លម្អិតពី Backend
-            throw new Error(
-              qrData.detail
-                ? JSON.stringify(qrData.detail)
-                : qrData.message || "មិនអាចបង្កើត QR បានទេ",
-            );
+            // ចាប់យក Error លម្អិតពី Backend បើមានបញ្ហា
+            let errorMsg = qrData.message || "មិនអាចបង្កើត QR បានទេ";
+            if (qrData.detail) {
+              // ប្រសិនបើធនាគារបោះ Detail មក (ឧ. Invalid Signature)
+              errorMsg =
+                typeof qrData.detail === "object"
+                  ? JSON.stringify(qrData.detail)
+                  : qrData.detail;
+            }
+            throw new Error(errorMsg);
           }
         } catch (error) {
           console.error("កំហុស:", error);
@@ -326,7 +330,9 @@
                 window.location.href = "index.html";
               });
             }
-          } catch (e) {}
+          } catch (e) {
+            console.error("Polling Error:", e);
+          }
         }, 3000);
       }
 

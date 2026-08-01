@@ -78,37 +78,30 @@ const createUPayQR = async (req, res) => {
 };
 
 // ២. មុខងារសម្រាប់ចាំទទួលដំណឹង (Webhook) ពី U-Pay ពេលអតិថិជនទូទាត់ជោគជ័យ
-const handleWebhook = async (req, res) => {
+exports.handleWebhook = async (req, res) => {
   try {
-    const { order_id, status, tran_id } = req.body;
-    console.log("🔔 ទទួលបាន Webhook ពី U-Pay:", req.body);
+    const { orderId, amount, status, upayTransactionId } = req.body;
 
-    // ប្រសិនបើធនាគារបញ្ជាក់ថាទទួលបានប្រាក់ពិតមែន
-    if (status === "SUCCESS" || status === "PAID") {
-      const updatedOrder = await Order.findOneAndUpdate(
-        { orderId: order_id },
-        {
-          paymentStatus: "PAID",
-          upayTransactionId: tran_id,
-          paidAt: new Date(),
-        },
-        { new: true },
-      );
-
-      if (updatedOrder) {
-        console.log(
-          `✅ វិក័យប័ត្រលេខ ${order_id} ទទួលបានការទូទាត់ជោគជ័យ និងបានអាប់ដេតក្នុង Database!`,
-        );
-      }
+    // ស្វែងរក Order ក្នុង Database របស់ Fashion Shop ហើយអាប់ដេតស្ថានភាព
+    const order = await Order.findOne({ orderId: orderId });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ" });
     }
 
-    // ត្រូវតែឆ្លើយតប HTTP 200 ទៅធនាគារវិញ ដើម្បីឲ្យធនាគារឈប់បាញ់ Webhook មកទៀត
+    // អាប់ដេតស្ថានភាពទៅជា PAID
+    order.paymentStatus = status || "PAID";
+    order.upayTransactionId = upayTransactionId;
+    order.paidAt = new Date();
+    await order.save();
+
     res
       .status(200)
-      .json({ code: "SUCCESS", message: "Webhook received and processed" });
+      .json({ success: true, message: "Webhook received successfully" });
   } catch (error) {
-    console.error("❌ បញ្ហាក្នុងការទទួល Webhook:", error);
-    res.status(500).json({ message: "Server processing error" });
+    console.error("Webhook Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
