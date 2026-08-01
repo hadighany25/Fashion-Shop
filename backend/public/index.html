@@ -797,14 +797,21 @@
         document.getElementById("side-profile-name").innerText =
           currentUser.fullName || currentUser.username || "អ្នកប្រើប្រាស់";
 
-        if (currentUser.profileImage) {
-          // ដាក់ក្នុង Sidebar
-          document.getElementById("side-profile-img").src =
-            currentUser.profileImage;
-          // 🔥 ដាក់ក្នុង Icon ខាងក្រៅ Header ផងដែរ
-          const headerAvatar = document.getElementById("header-user-avatar");
-          if (headerAvatar) headerAvatar.src = currentUser.profileImage;
-        }
+        // 🛑 កែតម្រូវត្រង់នេះ៖ កំណត់រៀបចំ Link រូបភាពឲ្យបានត្រឹមត្រូវ
+        const defaultAvatar =
+          "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // Icon រាងមនុស្សស្តង់ដារស្អាត
+        const userAvatar =
+          currentUser.profileImage && currentUser.profileImage.trim() !== ""
+            ? currentUser.profileImage
+            : defaultAvatar;
+
+        // ដាក់ក្នុង Sidebar
+        const sideImg = document.getElementById("side-profile-img");
+        if (sideImg) sideImg.src = userAvatar;
+
+        // ដាក់ក្នុង Icon ខាងក្រៅ Header
+        const headerAvatar = document.getElementById("header-user-avatar");
+        if (headerAvatar) headerAvatar.src = userAvatar;
 
         document.getElementById("info-fullname").innerText =
           currentUser.fullName || "មិនទាន់បញ្ជាក់";
@@ -812,9 +819,8 @@
           currentUser.phone || "មិនទាន់បញ្ជាក់";
         document.getElementById("info-email").innerText =
           currentUser.email || "មិនទាន់បញ្ជាក់";
-        (document.getElementById("info-address").innerText,
-          (document.getElementById("info-address").innerText =
-            currentUser.address || "មិនទាន់បញ្ជាក់"));
+        document.getElementById("info-address").innerText =
+          currentUser.address || "មិនទាន់បញ្ជាក់";
       }
 
       // --- អនុគមន៍កែ Profile ដោយប្រើ SweetAlert2 ---
