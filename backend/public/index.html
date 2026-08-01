@@ -260,12 +260,17 @@
               >
             </a>
 
-            <!-- 🔥 Profile Icon ថ្មី -->
+            <!-- 🔥 Profile Icon ឲ្យវាដូរទៅជារูป Profile វិញពេលមាន User ដាក់ -->
             <button
               onclick="toggleProfileSidebar()"
-              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition ml-2"
+              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition ml-2 flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-gray-300 dark:border-gray-600"
             >
-              <i class="fas fa-user-circle text-2xl md:text-3xl"></i>
+              <img
+                id="header-user-avatar"
+                src="https://via.placeholder.com/150"
+                class="w-full h-full object-cover"
+                alt="User Avatar"
+              />
             </button>
 
             <div
@@ -788,19 +793,28 @@
       }
 
       function updateSidebarUI() {
+        // ឈ្មោះ និង Role ក្នុង Sidebar
         document.getElementById("side-profile-name").innerText =
           currentUser.fullName || currentUser.username || "អ្នកប្រើប្រាស់";
-        if (currentUser.profileImage)
+
+        if (currentUser.profileImage) {
+          // ដាក់ក្នុង Sidebar
           document.getElementById("side-profile-img").src =
             currentUser.profileImage;
+          // 🔥 ដាក់ក្នុង Icon ខាងក្រៅ Header ផងដែរ
+          const headerAvatar = document.getElementById("header-user-avatar");
+          if (headerAvatar) headerAvatar.src = currentUser.profileImage;
+        }
+
         document.getElementById("info-fullname").innerText =
           currentUser.fullName || "មិនទាន់បញ្ជាក់";
         document.getElementById("info-phone").innerText =
           currentUser.phone || "មិនទាន់បញ្ជាក់";
         document.getElementById("info-email").innerText =
           currentUser.email || "មិនទាន់បញ្ជាក់";
-        document.getElementById("info-address").innerText =
-          currentUser.address || "មិនទាន់បញ្ជាក់";
+        (document.getElementById("info-address").innerText,
+          (document.getElementById("info-address").innerText =
+            currentUser.address || "មិនទាន់បញ្ជាក់"));
       }
 
       // --- អនុគមន៍កែ Profile ដោយប្រើ SweetAlert2 ---
