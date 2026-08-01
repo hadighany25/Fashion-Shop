@@ -701,15 +701,20 @@
     </main>
 
     <script>
+      // =================================================================
+      // ផ្នែកទី១៖ កំណត់អញ្ញាត និង ការចាប់ផ្តើម (Variables & Init)
+      // =================================================================
       const API_BASE = "/api/admin";
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
 
       document.addEventListener("DOMContentLoaded", () => {
+        // ពិនិត្យមើលសិទ្ធិ (Auth Check)
         if (!TOKEN || (ROLE !== "admin" && ROLE !== "super_admin")) {
           window.location.href = "admin-login.html";
           return;
         }
+
         document.getElementById("admin-name").innerText =
           localStorage.getItem("username");
         toggleStoreFields();
@@ -717,23 +722,35 @@
         loadStoresData();
       });
 
-      // មុខងារប្ដូរ Tab
+      function handleLogout() {
+        localStorage.clear();
+        window.location.href = "admin-login.html";
+      }
+
+      // =================================================================
+      // ផ្នែកទី២៖ គ្រប់គ្រង UI និង ការផ្លាស់ប្តូរ Tab (UI & Navigation)
+      // =================================================================
+
+      // មុខងារប្ដូរ Tab (បានបញ្ជូល loadPromotionsData នៅទីនេះផ្ទាល់)
       function switchTab(tabId, element) {
         document
           .querySelectorAll(".nav-link")
           .forEach((link) => link.classList.remove("active"));
         element.classList.add("active");
+
         document
           .querySelectorAll(".view-section")
           .forEach((section) => section.classList.remove("active"));
         document.getElementById(tabId).classList.add("active");
 
+        // ហៅទិន្នន័យមកបង្ហាញទៅតាម Tab នីមួយៗ
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresData();
-        if (tabId === "storefront-settings") loadSettingsData(); // 👈 បន្ថែមបន្ទាត់នេះ
+        if (tabId === "storefront-settings") loadSettingsData();
+        if (tabId === "promotions-settings") loadPromotionsData(); // 👈 កែសម្រួល៖ ដាក់បញ្ចូលទីនេះតែម្តង
       }
 
-      // លាក់/បង្ហាញប្រអប់ហាង
+      // លាក់/បង្ហាញប្រអប់ហាង ពេលរើស Role
       function toggleStoreFields() {
         const role = document.getElementById("new-role").value;
         const storeGroups = document.querySelectorAll(".store-field");
@@ -743,6 +760,10 @@
           storeGroups.forEach((el) => (el.style.display = "none"));
         }
       }
+
+      // =================================================================
+      // ផ្នែកទី៣៖ ផ្ទាំងគ្រប់គ្រងទូទៅ និង អ្នកប្រើប្រាស់ (Dashboard & Users)
+      // =================================================================
 
       // ទាញទិន្នន័យ Users សរុបសម្រាប់ Dashboard
       async function loadDashboardData() {
@@ -760,24 +781,46 @@
           document.getElementById("user-table-body").innerHTML = users
             .map(
               (u) => `
-            <tr>
-              <td>${u.username}</td>
-              <td>${u.phone || "N/A"}</td>
-              <td><span class="badge ${u.role}">${u.role}</span></td>
-              <td>
-                <button class="btn-action" style="color:var(--danger)" onclick="deleteUser('${u._id}')"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          `,
+              <tr>
+                <td>${u.username}</td>
+                <td>${u.phone || "N/A"}</td>
+                <td><span class="badge ${u.role}">${u.role}</span></td>
+                <td>
+                  <button class="btn-action" style="color:var(--danger)" onclick="deleteUser('${u._id}')"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+            `,
             )
             .join("");
         } catch (error) {
-          console.error(error);
+          console.error("Error loading dashboard:", error);
         }
       }
 
-      // ទាញទិន្នន័យ Stores ទាំងអស់សម្រាប់ Store Management Tab
+      function deleteUser(id) {
+        Swal.fire({
+          title: "Delete user?",
+          icon: "warning",
+          showCancelButton: true,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await fetch(`${API_BASE}/users/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            loadDashboardData();
+            loadStoresData();
+          }
+        });
+      }
+
+      // =================================================================
+      // ផ្នែកទី៤៖ ការគ្រប់គ្រងហាង និង ការស្វែងរក (Store Management)
+      // =================================================================
+
       let allStores = []; // រក្សាទុកសម្រាប់ធ្វើ Search
+
+      // ទាញទិន្នន័យ Stores ទាំងអស់
       async function loadStoresData() {
         try {
           const res = await fetch(`${API_BASE}/stores`, {
@@ -787,11 +830,11 @@
           allStores = data.stores || [];
           renderStoreTable(allStores);
         } catch (error) {
-          console.error(error);
+          console.error("Error loading stores:", error);
         }
       }
 
-      // Render តារាងហាង (មានមុខងារ Search)
+      // Render តារាងហាង
       function renderStoreTable(stores) {
         const tbody = document.getElementById("store-table-body");
         if (stores.length === 0) {
@@ -801,17 +844,17 @@
         tbody.innerHTML = stores
           .map(
             (s) => `
-          <tr>
-            <td><strong>${s.storeName}</strong></td>
-            <td>${s.storeCategory}</td>
-            <td><i class="fas fa-user text-muted"></i> ${s.owner?.username || "Unknown"}</td>
-            <td>${s.owner?.phone || "N/A"} <br> <small>${s.owner?.email || ""}</small></td>
-            <td style="color:var(--success); font-weight:bold;">$${s.walletBalance || 0}</td>
-            <td>
-              <button class="btn-action" style="color:var(--accent)" title="Edit Store" onclick="alert('មុខងារ Edit នឹងបន្ថែមនៅវគ្គក្រោយ')"><i class="fas fa-edit"></i></button>
-            </td>
-          </tr>
-        `,
+            <tr>
+              <td><strong>${s.storeName}</strong></td>
+              <td>${s.storeCategory}</td>
+              <td><i class="fas fa-user text-muted"></i> ${s.owner?.username || "Unknown"}</td>
+              <td>${s.owner?.phone || "N/A"} <br> <small>${s.owner?.email || ""}</small></td>
+              <td style="color:var(--success); font-weight:bold;">$${s.walletBalance || 0}</td>
+              <td>
+                <button class="btn-action" style="color:var(--accent)" title="Edit Store" onclick="alert('មុខងារ Edit នឹងបន្ថែមនៅវគ្គក្រោយ')"><i class="fas fa-edit"></i></button>
+              </td>
+            </tr>
+          `,
           )
           .join("");
       }
@@ -833,7 +876,10 @@
         renderStoreTable(filtered);
       }
 
-      // Submit Form បង្កើតគណនី + ហាង
+      // =================================================================
+      // ផ្នែកទី៥៖ ការបង្កើតគណនី និងហាងថ្មី (Create Account & Store)
+      // =================================================================
+
       document
         .getElementById("createAccountForm")
         .addEventListener("submit", async function (e) {
@@ -880,26 +926,13 @@
           }
         });
 
-      function deleteUser(id) {
-        Swal.fire({
-          title: "Delete user?",
-          icon: "warning",
-          showCancelButton: true,
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            await fetch(`${API_BASE}/users/${id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${TOKEN}` },
-            });
-            loadDashboardData();
-            loadStoresData();
-          }
-        });
-      }
+      // =================================================================
+      // ផ្នែកទី៦៖ ការកំណត់ផ្ទាំងបដា មុខទំព័រ (Storefront Banner Settings)
+      // =================================================================
 
       let storesListForDropdown = [];
 
-      // ទាញយកបញ្ជីហាងមកទុកធ្វើ Dropdown
+      // ទាញយកបញ្ជីហាងមកទុកធ្វើ Dropdown សម្រាប់ Banners & Promotions
       async function loadStoresForDropdown() {
         try {
           const res = await fetch(`${API_BASE}/stores`, {
@@ -912,7 +945,7 @@
         }
       }
 
-      // បន្ថែមช่องបញ្ចូលរូបភាពថ្មីក្នុង Section នីមួយៗ
+      // បន្ថែមช่องបញ្ចូលរូបភាពថ្មីក្នុង Section Banners នីមួយៗ
       function addBannerItem(sectionNum, data = {}) {
         const container = document.getElementById(
           `sec${sectionNum}-items-container`,
@@ -955,7 +988,7 @@
         container.appendChild(itemDiv);
       }
 
-      // ទាញយក Settings មកបង្ហាញលើ Form
+      // ទាញយក Settings Banners មកបង្ហាញលើ Form
       async function loadSettingsData() {
         await loadStoresForDropdown();
         try {
@@ -968,7 +1001,7 @@
             // Section 1
             if (s.section1) {
               document.getElementById("sec1-interval").value =
-                s.section1.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
+                s.section1.intervalSeconds || 3;
               document.getElementById("sec1-direction").value =
                 s.section1.slideDirection || "left";
               document.getElementById("sec1-items-container").innerHTML = "";
@@ -978,7 +1011,7 @@
             // Section 2
             if (s.section2) {
               document.getElementById("sec2-interval").value =
-                s.section2.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
+                s.section2.intervalSeconds || 3;
               document.getElementById("sec2-direction").value =
                 s.section2.slideDirection || "left";
               document.getElementById("sec2-items-container").innerHTML = "";
@@ -988,7 +1021,7 @@
             // Section 3
             if (s.section3) {
               document.getElementById("sec3-interval").value =
-                s.section3.intervalSeconds || 3; // 👈 ប្រើ intervalSeconds
+                s.section3.intervalSeconds || 3;
               document.getElementById("sec3-direction").value =
                 s.section3.slideDirection || "left";
               document.getElementById("sec3-items-container").innerHTML = "";
@@ -1001,7 +1034,7 @@
         }
       }
 
-      // មុខងារប្រមូលទិន្នន័យពី Form យកไป Save
+      // ប្រមូលទិន្នន័យពី Form Banners យកไป Save
       function getSectionData(num) {
         const rows = document.querySelectorAll(
           `#sec${num}-items-container .banner-item-row`,
@@ -1023,7 +1056,7 @@
         };
       }
 
-      // Event Listener ពេល Submit រក្សាទុក
+      // Save Banner Settings ទៅ Database
       document
         .getElementById("settingForm")
         .addEventListener("submit", async function (e) {
@@ -1067,16 +1100,11 @@
           }
         });
 
-      let allProductsForDropdown = [];
+      // =================================================================
+      // ផ្នែកទី៧៖ ការកំណត់ Flash Sale និង Top Stores (Promotions Settings)
+      // =================================================================
 
-      // កែប្រែ switchTab បន្តិច ដើម្បីឱ្យវា Load ទិន្នន័យពេលចូល Tab នេះ
-      const originalSwitchTab = switchTab;
-      switchTab = function (tabId, element) {
-        originalSwitchTab(tabId, element);
-        if (tabId === "promotions-settings") {
-          loadPromotionsData();
-        }
-      };
+      let allProductsForDropdown = [];
 
       // ទាញយកផលិតផល និងហាងទាំងអស់ មកធ្វើជា Dropdown ឱ្យ Admin រើស
       async function loadDropdownOptions() {
@@ -1130,7 +1158,7 @@
         container.appendChild(div);
       }
 
-      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសហាងល្បី
+      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសហាងល្បី Top Stores
       function addTopStoreRow(storeId = "") {
         const container = document.getElementById("top-stores-container");
         const div = document.createElement("div");
@@ -1152,7 +1180,7 @@
         container.appendChild(div);
       }
 
-      // ទាញយកទិន្នន័យចាស់មកបង្ហាញ
+      // ទាញយកទិន្នន័យ Promotions (Flash Sale, Top Stores) មកបង្ហាញ
       async function loadPromotionsData() {
         await loadDropdownOptions();
         try {
@@ -1160,10 +1188,10 @@
           const data = await res.json();
           if (data.success && data.setting) {
             const s = data.setting;
+
             // Load Flash Sale
             if (s.flashSale) {
               if (s.flashSale.endTime) {
-                // បំប្លែងម៉ោងឲ្យត្រូវ Format `YYYY-MM-DDThh:mm` របស់ input[type=datetime-local]
                 document.getElementById("flash-endTime").value = new Date(
                   s.flashSale.endTime,
                 )
@@ -1174,6 +1202,7 @@
               if (s.flashSale.items)
                 s.flashSale.items.forEach((item) => addFlashSaleRow(item));
             }
+
             // Load Top Stores
             if (s.topStores) {
               document.getElementById("top-stores-container").innerHTML = "";
@@ -1185,7 +1214,7 @@
         }
       }
 
-      // Save ទិន្នន័យទៅ DB
+      // Save ទិន្នន័យ Promotions ទៅ Database
       async function savePromotionsData() {
         const flashItems = [];
         document.querySelectorAll(".flash-item-row").forEach((row) => {
@@ -1234,11 +1263,6 @@
         } finally {
           btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores`;
         }
-      }
-
-      function handleLogout() {
-        localStorage.clear();
-        window.location.href = "admin-login.html";
       }
     </script>
   </body>
