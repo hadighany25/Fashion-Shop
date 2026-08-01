@@ -735,7 +735,7 @@
         const container = document.getElementById("auth-buttons-container");
         if (token) {
           // Logged In
-          container.innerHTML = `<a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
+          container.innerHTML = `<a href="my-orders.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
           fetchUserProfileMock(); // ទាញយកព័ត៌មាន Profile ពេលមាន Token
         } else {
           // Guest State
@@ -1532,7 +1532,7 @@
           localStorage.getItem("token") || localStorage.getItem("adminToken");
         const container = document.getElementById("auth-buttons-container");
         if (token) {
-          container.innerHTML = `<a href="history.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
+          container.innerHTML = `<a href="my-orders.html" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">ប្រវត្តិការទិញ</a>`;
           fetchUserProfileReal(); // ទាញយកព័ត៌មាន Profile ពី Database ពិត
         } else {
           container.innerHTML = `
