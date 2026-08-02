@@ -988,7 +988,7 @@
       // 🌟 ៤. Render Data
       function renderProfileInfo() {
         document.getElementById("top-store-name").innerText =
-          storeData.storeName;
+          storeData.storeName || "មិនស្គាល់";
         if (storeData.logoUrl)
           document.getElementById("top-store-logo").src = storeData.logoUrl;
 
@@ -997,32 +997,37 @@
         document.getElementById("dash-rating").innerText =
           `${avg.toFixed(1)} (${totalRates})`;
 
-        document.getElementById("store-name").value = storeData.storeName;
+        document.getElementById("store-name").value = storeData.storeName || "";
         document.getElementById("store-logo").value = storeData.logoUrl || "";
         document.getElementById("store-cover").value = storeData.coverUrl || "";
         document.getElementById("store-desc").value =
           storeData.description || "";
 
-        document.getElementById("bank-name").value =
-          storeData.paymentInfo.bankName;
+        // 🌟 ការពារ Error ពេល paymentInfo ត្រលប់មកវិញអត់មានទិន្នន័យ (Undefined)
+        const payInfo = storeData.paymentInfo || {};
+        document.getElementById("bank-name").value = payInfo.bankName || "";
         document.getElementById("account-name").value =
-          storeData.paymentInfo.accountName;
+          payInfo.accountName || "";
         document.getElementById("account-number").value =
-          storeData.paymentInfo.accountNumber;
+          payInfo.accountNumber || "";
 
         document.getElementById("lbl-bank").innerText =
-          storeData.paymentInfo.bankName || "មិនទាន់កំណត់";
+          payInfo.bankName || "មិនទាន់កំណត់";
         document.getElementById("lbl-acc-name").innerText =
-          storeData.paymentInfo.accountName || "មិនទាន់កំណត់";
+          payInfo.accountName || "មិនទាន់កំណត់";
         document.getElementById("lbl-acc-num").innerText =
-          storeData.paymentInfo.accountNumber || "មិនទាន់កំណត់";
+          payInfo.accountNumber || "មិនទាន់កំណត់";
+
+        // 🌟 ការពារ Error គាំងទំព័រ (Cannot read properties of undefined reading 'toFixed')
+        const walletBal = storeData.walletBalance || 0;
+        const totalWith = storeData.totalWithdrawn || 0;
 
         document.getElementById("pay-available-balance").innerText =
-          `$${storeData.walletBalance.toFixed(2)}`;
+          `$${walletBal.toFixed(2)}`;
         document.getElementById("dash-balance").innerText =
-          `$${storeData.walletBalance.toFixed(2)}`;
+          `$${walletBal.toFixed(2)}`;
         document.getElementById("dash-withdrawn").innerText =
-          `$${storeData.totalWithdrawn.toFixed(2)}`;
+          `$${totalWith.toFixed(2)}`;
 
         updateCategoryDropdown();
       }
@@ -1034,8 +1039,11 @@
           cancCount = 0;
         let uniqueCustomers = new Set();
 
+        // គណនា Order ទាំងអស់
         orders.forEach((o) => {
           if (o.buyer) uniqueCustomers.add(o.buyer._id || o.buyer);
+
+          // បូកលុយតែ Order ណាដែលជោគជ័យ (completed) ប៉ុណ្ណោះ
           if (o.status === "completed") {
             totalRev += o.totalAmount;
             compCount++;
@@ -1044,6 +1052,7 @@
           if (o.status === "cancelled") cancCount++;
         });
 
+        // បង្ហាញទិន្នន័យលើ Dashboard
         document.getElementById("dash-revenue").innerText =
           "$" + totalRev.toFixed(2);
         document.getElementById("dash-completed-orders").innerText = compCount;
@@ -1051,6 +1060,22 @@
         document.getElementById("dash-cancelled-orders").innerText = cancCount;
         document.getElementById("dash-customers").innerText =
           uniqueCustomers.size;
+
+        // 🌟 គណនាលុយដែលអាចដកបាន (Available Balance) ដោយស្វ័យប្រវត្តិ
+        let withdrawn = storeData.totalWithdrawn || 0;
+        let availableBalance = totalRev - withdrawn;
+
+        // ការពារក្រែងលោវាជាប់លេខអវិជ្ជមាន
+        if (availableBalance < 0) availableBalance = 0;
+
+        // អាប់ដេតចូលទៅអថេរ storeData ដើម្បីឱ្យមុខងារដកលុយស្គាល់
+        storeData.walletBalance = availableBalance;
+
+        // បង្ហាញលុយដែលអាចដកបានទៅកាន់អេក្រង់ (ទាំង Dashboard និង Tab Payment)
+        document.getElementById("dash-balance").innerText =
+          "$" + availableBalance.toFixed(2);
+        document.getElementById("pay-available-balance").innerText =
+          "$" + availableBalance.toFixed(2);
       }
 
       function renderDashboardOrders() {
@@ -1665,6 +1690,7 @@
             Swal.fire("ជោគជ័យ!", "ការកំណត់ត្រូវបានរក្សាទុក!", "success");
           }
         } catch (err) {
+          console.error("កំហុសពិតប្រាកដគឺ:", err); // 👈 ពេលវាគាំងម្ដងទៀត បងអាចមើលក្នុង Console បានថាវាមកពីណា
           Swal.fire("Error", "មានបញ្ហាបច្ចេកទេស", "error");
         }
       }
