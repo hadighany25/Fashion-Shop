@@ -1,5 +1,6 @@
 // ទីតាំង៖ models/Order.js
 const mongoose = require("mongoose");
+const User = require("./Users");
 
 const orderSchema = new mongoose.Schema(
   {
@@ -70,29 +71,24 @@ const orderSchema = new mongoose.Schema(
 // វាមានតួនាទីជា "អ្នកស្ទាក់ត្រួតពិនិត្យ" មុនពេល Order ត្រូវបាន Save ចូល Database
 orderSchema.pre("save", async function (next) {
   try {
-    // ឆែកមើលថា បើមាន buyer ID ហើយលេខទូរស័ព្ទ ឬ អាសយដ្ឋាននៅជាប់ពាក្យ "មិនទាន់បញ្ជាក់"
     if (
       this.buyer &&
       (this.phone === "មិនទាន់បញ្ជាក់" ||
         this.shippingAddress === "មិនទាន់បញ្ជាក់")
     ) {
-      // ហៅ Model User មកប្រើដើម្បីរកទិន្នន័យពិតប្រាកដ
-      const User = mongoose.model("User");
+      // 🌟 ប្រើប្រាស់ User Model ដែលយើងបាន Import ពីលើមកប្រើផ្ទាល់
       const user = await User.findById(this.buyer);
 
       if (user) {
-        // បើក្នុង User ពិតជាមានលេខទូរស័ព្ទមែន ទាញយកមកជំនួសពាក្យ "មិនទាន់បញ្ជាក់" ភ្លាម
         if (this.phone === "មិនទាន់បញ្ជាក់" && user.phone) {
           this.phone = user.phone;
         }
-
-        // បើក្នុង User ពិតជាមានអាសយដ្ឋានមែន ទាញយកមកជំនួសភ្លាម
         if (this.shippingAddress === "មិនទាន់បញ្ជាក់" && user.address) {
           this.shippingAddress = user.address;
         }
       }
     }
-    next(); // បន្តដំណើរការ Save ចូល Database
+    next();
   } catch (error) {
     console.error("Error auto-fetching user info for Order:", error);
     next(error);

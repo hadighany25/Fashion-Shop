@@ -359,14 +359,29 @@
                   ? `${currentOrderId}-${index + 1}`
                   : currentOrderId;
 
+              // 🌟 កែតម្រូវទី១៖ ផ្គូផ្គងទិន្នន័យឱ្យត្រូវប្រឡោះ Schema របស់ Database ចំៗ
               const orderPayload = {
                 orderId: uniqueOrderId,
                 totalAmount: storeSubTotal,
-                items: storeItems,
+                items: storeItems.map((i) => ({
+                  product: i.productId || i.id || i.product, // ចាប់យក ID ឱ្យត្រូវ
+                  name: i.name,
+                  price: i.price,
+                  quantity: i.quantity || 1,
+                  image: i.image || "https://via.placeholder.com/80",
+                  variant: i.variant || "",
+                })),
                 buyer: currentBuyerId,
                 shippingAddress: currentAddress,
                 phone: currentPhone,
-                store: storeId !== "unknown_store" ? storeId : null,
+                // ការពារ Mongoose Error (Cast to ObjectId failed) ពេលអត់មានហាង
+                store:
+                  storeId &&
+                  storeId !== "unknown_store" &&
+                  storeId !== "undefined" &&
+                  storeId !== "null"
+                    ? storeId
+                    : null,
               };
 
               return fetch(API_ORDER_CREATE, {
