@@ -191,7 +191,44 @@
       let uPayWebLink = "";
       let pollingInterval;
 
+      // 🌟 បន្ថែមអថេរសម្រាប់ផ្ទុកទិន្នន័យ អ្នកទិញ និង ទីតាំង
+      let currentBuyerId = null;
+      let currentPhone = "មិនទាន់បញ្ជាក់";
+      let currentAddress = "មិនទាន់បញ្ជាក់";
+
       document.addEventListener("DOMContentLoaded", () => {
+        // ១. ចាប់យក Token ដើម្បីទាញយក Buyer ID
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+              window
+                .atob(base64)
+                .split("")
+                .map(function (c) {
+                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join(""),
+            );
+            const decoded = JSON.parse(jsonPayload);
+            currentBuyerId = decoded.id; // បាន ID អ្នកទិញហើយ!
+          } catch (e) {
+            console.error("កំហុសក្នុងការអាន Token");
+          }
+        }
+
+        // ២. ព្យាយាមចាប់យក លេខទូរស័ព្ទ និង ទីតាំង ពីប្រវត្តិ Login (បើមាន)
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            if (parsedUser.phone) currentPhone = parsedUser.phone;
+            if (parsedUser.address) currentAddress = parsedUser.address;
+          } catch (e) {}
+        }
+
         const savedCart = localStorage.getItem("umall_cart");
         if (!savedCart || JSON.parse(savedCart).length === 0) {
           window.location.href = "cart.html";
@@ -250,14 +287,21 @@
           document.getElementById("qr-instruction").innerText =
             "កំពុងកត់ត្រាវិក័យប័ត្រ...";
 
+          // 🌟 រៀបចំកញ្ចប់ទិន្នន័យ (Payload) បញ្ចូលទាំងព័ត៌មានសម្រាប់អ្នកទិញ និងអ្នកលក់
+          const orderPayload = {
+            orderId: currentOrderId,
+            totalAmount: currentTotal,
+            items: cartItems, // បញ្ជូនទំនិញដែលបានទិញទាំងអស់
+            buyer: currentBuyerId, // បញ្ជូន ID អ្នកទិញ សម្រាប់ my-orders
+            shippingAddress: currentAddress, // ត្រៀមសម្រាប់បង្ហាញអ្នកលក់
+            phone: currentPhone, // ត្រៀមសម្រាប់បង្ហាញអ្នកលក់
+            store: cartItems.length > 0 ? cartItems[0].storeId : null, // (បើកន្ត្រកមានផ្ទុក storeId វានឹងចាប់យកអូតូ)
+          };
+
           const orderResponse = await fetch(API_ORDER_CREATE, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              orderId: currentOrderId,
-              totalAmount: currentTotal,
-              items: cartItems,
-            }),
+            body: JSON.stringify(orderPayload), // បាញ់ទិន្នន័យពេញលេញទៅកាន់ Database
           });
 
           if (!orderResponse.ok)
@@ -288,10 +332,8 @@
               .classList.remove("pointer-events-none", "opacity-50");
             startPolling();
           } else {
-            // ចាប់យក Error លម្អិតពី Backend បើមានបញ្ហា
             let errorMsg = qrData.message || "មិនអាចបង្កើត QR បានទេ";
             if (qrData.detail) {
-              // ប្រសិនបើធនាគារបោះ Detail មក (ឧ. Invalid Signature)
               errorMsg =
                 typeof qrData.detail === "object"
                   ? JSON.stringify(qrData.detail)
@@ -326,8 +368,8 @@
                 timer: 3000,
                 showConfirmButton: false,
               }).then(() => {
-                localStorage.setItem("umall_cart", "[]");
-                window.location.href = "index.html";
+                localStorage.setItem("umall_cart", "[]"); // ជម្រះកន្ត្រក
+                window.location.href = "my-orders.html"; // 🌟 ប្ដូរឱ្យលោតទៅទំព័រប្រវត្តិទិញវិញ ពេលបង់ជោគជ័យ!
               });
             }
           } catch (e) {
@@ -356,7 +398,7 @@
           showConfirmButton: false,
         }).then(() => {
           localStorage.setItem("umall_cart", "[]");
-          window.location.href = "index.html";
+          window.location.href = "my-orders.html"; // 🌟 ប្ដូរឱ្យលោតទៅទំព័រប្រវត្តិទិញវិញ ពេលបង់ជោគជ័យ!
         });
       }
     </script>
