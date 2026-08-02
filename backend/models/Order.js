@@ -17,16 +17,20 @@ const orderSchema = new mongoose.Schema(
     // ==========================================
     buyer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      ref: "User", // 👈 លុប required: true ចេញ
     },
     store: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Store",
-      required: true,
+      ref: "Store", // 👈 លុប required: true ចេញ
     },
-    shippingAddress: { type: String, required: true },
-    phone: { type: String, required: true },
+    shippingAddress: {
+      type: String,
+      default: "មិនទាន់បញ្ជាក់", // 👈 ដាក់ default ជំនួស required: true
+    },
+    phone: {
+      type: String,
+      default: "មិនទាន់បញ្ជាក់", // 👈 ដាក់ default ជំនួស required: true
+    },
 
     // ==========================================
     // ៣. បញ្ជីទំនិញ (ជំនួស Array ធម្មតា ទៅជា Array ដែលមានទម្រង់ច្បាស់លាស់ ដើម្បីស្រួលបង្ហាញរូប និងតម្លៃ)
