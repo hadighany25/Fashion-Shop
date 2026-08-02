@@ -5,11 +5,12 @@ const axios = require("axios");
 // ១. មុខងារសម្រាប់ស្នើសុំ QR Code ពី U-Pay Bank (General API)
 const createUPayQR = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    // 🌟 ចាប់យក amount ពី Frontend (បើមាន)
+    const { orderId, amount: frontendAmount } = req.body;
 
-    // រកមើល Order ក្នុង Database សិន
-    const order = await Order.findOne({ orderId });
-    if (!order) {
+    // 🌟 ប្រើ .find() ជំនួស .findOne() ដើម្បីទាញយក Order គ្រប់ហាងទាំងអស់ដែលមាន orderId ដូចគ្នា
+    const orders = await Order.find({ orderId });
+    if (!orders || orders.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ!" });
@@ -19,14 +20,23 @@ const createUPayQR = async (req, res) => {
     const merchantId = process.env.UPAY_MERCHANT_ID;
     const apiKey = process.env.UPAY_API_KEY;
     const apiSecret = process.env.UPAY_API_SECRET;
-    const baseUrl = process.env.UPAY_BASE_URL; // ឧទាហរណ៍: https://u-pay-bank.fly.dev
+    const baseUrl = process.env.UPAY_BASE_URL;
+
+    // 🌟 គណនាតម្លៃសរុបពិតប្រាកដ
+    let finalAmount = frontendAmount;
+
+    // បើ Frontend អត់មានបោះតម្លៃមកទេ ត្រូវបូកសរុបតម្លៃ Order គ្រប់ហាងដោយស្វ័យប្រវត្តិ
+    if (!finalAmount) {
+      const subTotal = orders.reduce((sum, ord) => sum + ord.totalAmount, 0);
+      finalAmount = subTotal + 1.5; // បូក 1.5 ថ្លៃដឹកជញ្ជូន
+    }
 
     // រៀបចំទិន្នន័យផ្ញើទៅ U-Pay
-    const amount = order.totalAmount.toFixed(2);
+    const amount = Number(finalAmount).toFixed(2); // ធានាថាចេញ $9.00
     const remark = `ទូទាត់សម្រាប់វិក័យប័ត្រលេខ: ${orderId}`;
     const reqTime = Date.now().toString();
 
-    // បង្កើតសោរសម្ងាត់ (Signature) តាមទម្រង់ U-Pay ដើម្បីសុវត្ថិភាព
+    // បង្កើតសោរសម្ងាត់ (Signature)
     const rawSignature = `${merchantId}${orderId}${amount}${apiKey}${reqTime}`;
     const hashSignature = crypto
       .createHmac("sha256", apiSecret)
@@ -50,7 +60,6 @@ const createUPayQR = async (req, res) => {
       },
     );
 
-    // ទទួលយក QR ហើយបោះទៅឲ្យ Frontend វិញ
     if (response.data && response.data.code === "SUCCESS") {
       res.status(200).json({
         success: true,
@@ -80,23 +89,30 @@ const handleWebhook = async (req, res) => {
   try {
     const { orderId, amount, status, upayTransactionId } = req.body;
 
-    // ស្វែងរក Order ក្នុង Database របស់ Fashion Shop ហើយអាប់ដេតស្ថានភាព
-    const order = await Order.findOne({ orderId: orderId });
-    if (!order) {
+    // 🌟 ប្រើ updateMany ដើម្បីអាប់ដេត Order របស់គ្រប់ហាងទាំងអស់ដែលមាន orderId នេះទៅជា PAID
+    const result = await Order.updateMany(
+      { orderId: orderId },
+      {
+        $set: {
+          paymentStatus: status || "PAID",
+          upayTransactionId: upayTransactionId,
+          paidAt: new Date(),
+        },
+      },
+    );
+
+    if (result.matchedCount === 0) {
       return res
         .status(404)
         .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ" });
     }
 
-    // អាប់ដេតស្ថានភាពទៅជា PAID
-    order.paymentStatus = status || "PAID";
-    order.upayTransactionId = upayTransactionId;
-    order.paidAt = new Date();
-    await order.save();
-
     res
       .status(200)
-      .json({ success: true, message: "Webhook received successfully" });
+      .json({
+        success: true,
+        message: "Webhook received and all orders updated successfully",
+      });
   } catch (error) {
     console.error("Webhook Error:", error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -107,6 +123,8 @@ const handleWebhook = async (req, res) => {
 const checkOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
+
+    // ឆែកមើលតែ ១ គឺគ្រប់គ្រាន់ ព្រោះ Webhook បាន Update ទាំងអស់ព្រមគ្នារួចហើយ
     const order = await Order.findOne({ orderId });
 
     if (!order) {
@@ -126,5 +144,5 @@ const checkOrderStatus = async (req, res) => {
   }
 };
 
-// ✅ រៀបចំ Export មុខងារទាំងបីរួមគ្នាតែម្តង ឲ្យត្រូវតាមស្តង់ដារ CommonJS
+// ✅ រៀបចំ Export មុខងារទាំងបីរួមគ្នាតែម្តង
 module.exports = { createUPayQR, handleWebhook, checkOrderStatus };
