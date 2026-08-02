@@ -3,216 +3,1225 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Portal | Fashion Shop</title>
+    <title>U-Mall Admin Control Panel</title>
+
+    <!-- 📌 Font Kantumruy Pro (ដាក់អោយគ្រប់កន្លែងទាំងអស់) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons & Alert -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
+      /* ==========================================
+           🎨 ១. Theme & CSS Variables (Dark/Light Mode)
+           ========================================== */
+      :root {
+        /* 🌙 Dark Mode (Default) */
+        --bg-body: #0f172a;
+        --bg-sidebar: #1e293b;
+        --bg-card: #334155;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #475569;
+        --accent: #0284c7;
+        --accent-hover: #0369a1;
+        --danger: #ef4444;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
+
+      body.light-mode {
+        /* ☀️ Light Mode */
+        --bg-body: #f8fafc;
+        --bg-sidebar: #ffffff;
+        --bg-card: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+      }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "DM Sans", sans-serif;
+        font-family:
+          "Kantumruy Pro", sans-serif !important; /* 👈 Font គ្រប់កន្លែង */
       }
+
       body {
-        background-color: #1e293b;
         display: flex;
-        justify-content: center;
-        align-items: center;
         height: 100vh;
-        overflow: hidden; /* ការពារកុំឱ្យមាន Scrollbar លោតចុះឡើង */
-        color: #fff;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        overflow: hidden;
+        transition:
+          background-color 0.3s,
+          color 0.3s;
       }
-      .admin-login-card {
-        background: #0f172a;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        width: 100%;
-        max-width: 400px;
-        border: 1px solid #334155;
+
+      /* ==========================================
+           📱 ២. Layout & Sidebar
+           ========================================== */
+      .sidebar {
+        width: 260px;
+        background-color: var(--bg-sidebar);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-color);
+        transition: 0.3s;
+        z-index: 100;
+      }
+      .sidebar-logo {
+        font-size: 1.5rem;
+        font-weight: 700;
         text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
       }
-      .admin-login-card h2 {
-        margin-bottom: 5px;
-        color: #38bdf8;
+      .sidebar-logo span {
+        color: var(--accent);
       }
-      .admin-login-card p {
-        color: #94a3b8;
-        font-size: 0.9rem;
-        margin-bottom: 25px;
+      .nav-menu {
+        list-style: none;
+        flex: 1;
+        overflow-y: auto;
+        padding-top: 10px;
       }
-      .input-group {
-        text-align: left;
-        margin-bottom: 20px;
+      .nav-menu a {
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: 0.3s;
+        gap: 15px;
+        cursor: pointer;
       }
-      .input-group label {
-        display: block;
-        font-size: 0.9rem;
-        color: #cbd5e1;
-        margin-bottom: 8px;
+      .nav-menu a:hover,
+      .nav-menu a.active {
+        background-color: rgba(2, 132, 199, 0.1);
+        color: var(--accent);
+        border-right: 4px solid var(--accent);
       }
-      .input-group input {
-        width: 100%;
+      .logout-btn {
+        margin: 20px;
         padding: 12px;
-        background: #1e293b;
-        border: 1px solid #475569;
-        border-radius: 6px;
-        color: #fff;
-        font-size: 1rem;
-        outline: none;
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
         transition: 0.3s;
       }
-      .input-group input:focus {
-        border-color: #38bdf8;
-      }
-      .btn-login {
-        width: 100%;
-        padding: 14px;
-        background: #0284c7;
+      .logout-btn:hover {
+        background-color: var(--danger);
         color: white;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 30px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .admin-profile {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      /* ☀️/🌙 Theme Toggle Button */
+      .theme-toggle {
+        background: none;
         border: none;
-        border-radius: 6px;
-        font-size: 1.1rem;
-        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.5rem;
         cursor: pointer;
         transition: 0.3s;
       }
-      .btn-login:hover {
-        background: #0369a1;
+      .theme-toggle:hover {
+        color: var(--accent);
       }
-      .btn-login:disabled {
-        background: #475569;
-        cursor: not-allowed;
+
+      .view-section {
+        display: none;
+        animation: fadeIn 0.3s;
+      }
+      .view-section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ==========================================
+           📊 ៣. Dashboard (15 Stats Boxes)
+           ========================================== */
+      .stats-grid-15 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background-color: var(--bg-card);
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .stat-card i {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--accent);
+      }
+      .stat-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 5px;
+      }
+      .stat-card p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      /* ==========================================
+           📝 ៤. Forms, Tables & UI Elements
+           ========================================== */
+      .card {
+        background-color: var(--bg-card);
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border-color);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .input-group label {
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        font-weight: 500;
+      }
+
+      /* Form Inputs */
+      input,
+      select,
+      textarea {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        outline: none;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+      }
+
+      .btn-primary {
+        padding: 12px 20px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: var(--accent-hover);
+      }
+
+      /* Search Box */
+      .search-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .search-wrapper i {
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        color: var(--text-muted);
+      }
+      .search-box {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border-radius: 25px;
+        font-size: 1rem;
+      }
+
+      /* Tables */
+      .table-responsive {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+      }
+      th,
+      td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+      th {
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+      }
+
+      .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+      .badge.super_admin {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+      }
+      .badge.admin {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+      }
+      .badge.seller {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--success);
+      }
+      .badge.buyer {
+        background: rgba(148, 163, 184, 0.2);
+        color: var(--text-muted);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--border-color);
+          padding: 10px;
+        }
+        .nav-menu {
+          display: flex;
+          flex-direction: row;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+        .nav-menu a {
+          padding: 10px;
+          font-size: 0.9rem;
+        }
+        .logout-btn {
+          margin: 10px;
+        }
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+        .stats-grid-15 {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
     </style>
   </head>
   <body>
-    <div class="admin-login-card">
-      <h2>Admin Portal</h2>
-      <p>Restricted Access - Authorized Personnel Only</p>
+    <!-- ==========================================
+         🗂️ Sidebar Navigation
+         ========================================== -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-crown"></i> <span>U-Mall</span> Admin
+      </div>
+      <ul class="nav-menu">
+        <li>
+          <a
+            class="nav-link active"
+            onclick="switchTab('dashboard')"
+            id="nav-dashboard"
+            ><i class="fas fa-chart-pie"></i> ទិដ្ឋភាពទូទៅ</a
+          >
+        </li>
+        <li>
+          <a
+            class="nav-link"
+            onclick="switchTab('create-account')"
+            id="nav-create-account"
+            ><i class="fas fa-user-plus"></i> បង្កើតគណនី</a
+          >
+        </li>
+        <li>
+          <a
+            class="nav-link"
+            onclick="switchTab('manage-stores')"
+            id="nav-manage-stores"
+            ><i class="fas fa-store"></i> គ្រប់គ្រងហាងលក់</a
+          >
+        </li>
+        <li>
+          <a
+            class="nav-link"
+            onclick="switchTab('withdrawals')"
+            id="nav-withdrawals"
+            ><i class="fas fa-money-bill-transfer"></i> សំណើដកប្រាក់</a
+          >
+        </li>
+        <li>
+          <a
+            class="nav-link"
+            onclick="switchTab('storefront-settings')"
+            id="nav-storefront-settings"
+            ><i class="fas fa-sliders-h"></i> រូបរាងកម្មវិធី</a
+          >
+        </li>
+        <li>
+          <a
+            class="nav-link"
+            onclick="switchTab('promotions-settings')"
+            id="nav-promotions-settings"
+            ><i class="fas fa-bolt"></i> Flash Sale & ប្រូម៉ូសិន</a
+          >
+        </li>
+      </ul>
+      <button class="logout-btn" onclick="handleLogout()">
+        <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+      </button>
+    </aside>
 
-      <!-- លុប onsubmit ចេញពី HTML ប្រើប្រាស់ id ជំនួសវិញ -->
-      <form id="admin-login-form">
-        <div class="input-group">
-          <label>Admin Username</label>
-          <input
-            type="text"
-            id="admin-user"
-            required
-            placeholder="Enter username"
-            autocomplete="username"
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <h2>
+          <i class="fas fa-shield-alt text-accent"></i> មជ្ឈមណ្ឌលត្រួតពិនិត្យ
+          (Control Center)
+        </h2>
+        <div class="admin-profile">
+          <!-- ប៊ូតុងប្ដូរពណ៍ Dark/Light Mode -->
+          <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+            title="ប្ដូរទម្រង់ពណ៌"
+          >
+            <i class="fas fa-moon" id="theme-icon"></i>
+          </button>
+          <div style="text-align: right">
+            <strong id="admin-name">Admin</strong><br />
+            <small style="color: var(--text-muted)" id="admin-role">Role</small>
+          </div>
+          <img
+            src="https://via.placeholder.com/40"
+            style="border-radius: 50%; border: 2px solid var(--accent)"
           />
         </div>
-        <div class="input-group">
-          <label>Password</label>
-          <input
-            type="password"
-            id="admin-pass"
-            required
-            placeholder="Enter password"
-            autocomplete="current-password"
-          />
+      </header>
+
+      <!-- ==========================================
+             📌 TAB 1: DASHBOARD
+             ========================================== -->
+      <div id="dashboard" class="view-section active">
+        <!-- ប្រអប់ទិន្នន័យទាំង ១៥ ជា ៣ ជួរ -->
+        <div class="stats-grid-15">
+          <!-- ជួរទី១: អ្នកប្រើប្រាស់ -->
+          <div class="stat-card">
+            <i class="fas fa-users" style="color: #0ea5e9"></i>
+            <h3 id="st-buyers">0</h3>
+            <p>អ្នកទិញសរុប (Buyers)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-store" style="color: #10b981"></i>
+            <h3 id="st-sellers">0</h3>
+            <p>អ្នកលក់សរុប (Sellers)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-user-shield" style="color: #f59e0b"></i>
+            <h3 id="st-admins">0</h3>
+            <p>អ្នកគ្រប់គ្រង (Admins)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-user-plus" style="color: #8b5cf6"></i>
+            <h3 id="st-new">0</h3>
+            <p>គណនីថ្មី (ថ្ងៃនេះ)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-ban" style="color: #ef4444"></i>
+            <h3 id="st-banned">0</h3>
+            <p>គណនីត្រូវបានបិទ</p>
+          </div>
+
+          <!-- ជួរទី២: ការលក់ -->
+          <div class="stat-card">
+            <i class="fas fa-box" style="color: #3b82f6"></i>
+            <h3 id="st-products">0</h3>
+            <p>ទំនិញសរុប</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-exclamation-triangle" style="color: #f97316"></i>
+            <h3 id="st-outstock">0</h3>
+            <p>ទំនិញអស់ស្តុក</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-shopping-cart" style="color: #14b8a6"></i>
+            <h3 id="st-orders">0</h3>
+            <p>ការបញ្ជាទិញ (ថ្ងៃនេះ)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-dollar-sign" style="color: #10b981"></i>
+            <h3 id="st-revenue">$0</h3>
+            <p>ចំណូលសរុប (ថ្ងៃនេះ)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-truck" style="color: #6366f1"></i>
+            <h3 id="st-shipping">0</h3>
+            <p>កំពុងដឹកជញ្ជូន</p>
+          </div>
+
+          <!-- ជួរទី៣: ហិរញ្ញវត្ថុ និងផ្សេងៗ -->
+          <div class="stat-card">
+            <i class="fas fa-hand-holding-dollar" style="color: #f43f5e"></i>
+            <h3 id="st-withdrawals">0</h3>
+            <p>សំណើដកប្រាក់ថ្មី</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-piggy-bank" style="color: #10b981"></i>
+            <h3 id="st-commission">$0</h3>
+            <p>កម្រៃជើងសារ Admin</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-store-slash" style="color: #f59e0b"></i>
+            <h3 id="st-pending-stores">0</h3>
+            <p>ហាងរង់ចាំអនុម័ត</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-bolt" style="color: #eab308"></i>
+            <h3 id="st-flash">0</h3>
+            <p>ទំនិញ Flash Sale</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-undo" style="color: #64748b"></i>
+            <h3 id="st-refunds">0</h3>
+            <p>សំណើរប្ដូរទំនិញ (Refund)</p>
+          </div>
         </div>
-        <button type="submit" id="submit-btn" class="btn-login">
-          Login to Dashboard
-        </button>
-      </form>
-    </div>
+
+        <!-- តារាងអ្នកប្រើប្រាស់ -->
+        <div class="card">
+          <h3>
+            <i class="fas fa-users-cog"></i> បញ្ជីអ្នកប្រើប្រាស់ (Users List)
+          </h3>
+          <br />
+          <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="user-search"
+              class="search-box"
+              placeholder="ស្វែងរកតាម ឈ្មោះគណនី (Username), លេខទូរស័ព្ទ, Email, ឬឈ្មោះពេញ..."
+              onkeyup="filterUsers()"
+            />
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>គណនី (Username / ឈ្មោះពេញ)</th>
+                  <th>ទំនាក់ទំនង (Phone / Email)</th>
+                  <th>តួនាទី (Role)</th>
+                  <th>សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="user-table-body">
+                <tr>
+                  <td colspan="4" style="text-align: center">
+                    កំពុងទាញទិន្នន័យ...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+             📌 TAB 2: CREATE ACCOUNT & STORE
+             ========================================== -->
+      <div id="create-account" class="view-section">
+        <div class="card" style="max-width: 900px; margin: 0 auto">
+          <h2><i class="fas fa-user-plus"></i> បង្កើតគណនីថ្មី</h2>
+          <hr style="border-color: var(--border-color); margin: 15px 0" />
+
+          <form id="createAccountForm">
+            <!-- ១. រើស Role មុនគេ -->
+            <div class="input-group" style="margin-bottom: 25px">
+              <label style="color: var(--accent); font-size: 1.1rem"
+                ><i class="fas fa-user-tag"></i> តួនាទីគណនី (Account Role)
+                *</label
+              >
+              <select
+                id="new-role"
+                onchange="toggleFormFields()"
+                style="
+                  font-size: 1.1rem;
+                  padding: 15px;
+                  border-color: var(--accent);
+                  font-weight: bold;
+                "
+              >
+                <option value="buyer">អ្នកទិញធម្មតា (Buyer)</option>
+                <option value="seller">អ្នកលក់ (Seller / Vendor)</option>
+                <option value="admin">អ្នកគ្រប់គ្រង (Admin)</option>
+              </select>
+            </div>
+
+            <!-- ២. ព័ត៌មានផ្ទាល់ខ្លួន (ប្រើសម្រាប់គ្រប់ Role) -->
+            <h3 style="margin-bottom: 15px">
+              <i class="fas fa-id-card"></i> ព័ត៌មានផ្ទាល់ខ្លួន
+            </h3>
+            <div class="form-grid" style="margin-bottom: 25px">
+              <div class="input-group">
+                <label>ឈ្មោះគណនី (Username) *</label
+                ><input type="text" id="u-username" required />
+              </div>
+              <div class="input-group">
+                <label>លេខសម្ងាត់ (Password) *</label
+                ><input type="password" id="u-password" required />
+              </div>
+              <div class="input-group">
+                <label>ឈ្មោះពេញ (Full Name)</label
+                ><input type="text" id="u-fullname" />
+              </div>
+              <div class="input-group">
+                <label>លេខទូរស័ព្ទ (Phone)</label
+                ><input type="text" id="u-phone" />
+              </div>
+              <div class="input-group">
+                <label>អ៊ីមែល (Email)</label><input type="email" id="u-email" />
+              </div>
+              <div class="input-group">
+                <label>ភេទ (Gender)</label>
+                <select id="u-gender">
+                  <option value="">មិនបញ្ជាក់</option>
+                  <option value="male">ប្រុស (Male)</option>
+                  <option value="female">ស្រី (Female)</option>
+                </select>
+              </div>
+              <div class="input-group" style="grid-column: 1 / -1">
+                <label>អាសយដ្ឋាន (Address)</label
+                ><input type="text" id="u-address" />
+              </div>
+              <div class="input-group" style="grid-column: 1 / -1">
+                <label>Link រូបភាព Profile</label
+                ><input type="text" id="u-profile" placeholder="https://..." />
+              </div>
+            </div>
+
+            <!-- ៣. ព័ត៌មានហាង (បង្ហាញតែពេលរើស Seller) -->
+            <div
+              id="seller-fields"
+              style="
+                display: none;
+                background: rgba(2, 132, 199, 0.05);
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 25px;
+              "
+            >
+              <h3 style="margin-bottom: 15px; color: var(--accent)">
+                <i class="fas fa-store"></i> ព័ត៌មានហាងលក់ (Store Details)
+              </h3>
+              <div class="form-grid">
+                <div class="input-group">
+                  <label>ឈ្មោះហាង (Store Name) *</label
+                  ><input type="text" id="s-name" />
+                </div>
+                <div class="input-group">
+                  <label>ប្រភេទហាង (Category) *</label>
+                  <select id="s-category">
+                    <option value="Fashion">សម្លៀកបំពាក់ (Fashion)</option>
+                    <option value="Electronics">គ្រឿងអេឡិចត្រូនិក</option>
+                    <option value="Beauty">សម្រស់ & សុខភាព</option>
+                    <option value="Food">អាហារ & ភេសជ្ជៈ</option>
+                    <option value="Other">ផ្សេងៗ</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label>អត្រាកាត់កម្រៃ (Commission Rate %)</label
+                  ><input
+                    type="number"
+                    id="s-commission"
+                    value="10"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div class="input-group">
+                  <label>ស្ថានភាពហាង</label>
+                  <select id="s-status">
+                    <option value="active">ដំណើរការ (Active)</option>
+                    <option value="suspended">ផ្អាក (Suspended)</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label>ផ្កាយវាយតម្លៃ (Average Rating)</label
+                  ><input
+                    type="number"
+                    id="s-rating"
+                    value="0"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                  />
+                </div>
+                <div class="input-group">
+                  <label>Link រូបភាព Logo</label
+                  ><input type="text" id="s-logo" placeholder="https://..." />
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1">
+                  <label>Link រូបភាព Cover</label
+                  ><input type="text" id="s-cover" placeholder="https://..." />
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1">
+                  <label>អាសយដ្ឋានហាង</label
+                  ><input type="text" id="s-address" />
+                </div>
+              </div>
+
+              <!-- Payment Info -->
+              <div style="margin-top: 20px">
+                <label style="cursor: pointer; font-weight: bold">
+                  <input
+                    type="checkbox"
+                    id="check-payment"
+                    onchange="
+                      document.getElementById('payment-fields').style.display =
+                        this.checked ? 'grid' : 'none'
+                    "
+                  />
+                  <i class="fas fa-money-check"></i> បន្ថែមព័ត៌មានធនាគារ
+                  (Payment Info)
+                </label>
+                <div
+                  id="payment-fields"
+                  class="form-grid"
+                  style="display: none; margin-top: 15px"
+                >
+                  <div class="input-group">
+                    <label>ឈ្មោះធនាគារ</label
+                    ><input
+                      type="text"
+                      id="p-bank"
+                      placeholder="ឧ. U-Pay, ABA..."
+                    />
+                  </div>
+                  <div class="input-group">
+                    <label>ឈ្មោះគណនី (Account Name)</label
+                    ><input type="text" id="p-accname" />
+                  </div>
+                  <div class="input-group">
+                    <label>លេខគណនី (Account Number)</label
+                    ><input type="text" id="p-accnum" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              style="width: 100%; font-size: 1.1rem; padding: 15px"
+            >
+              <i class="fas fa-save"></i> រក្សាទុក និងបង្កើតគណនី
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ==========================================
+             📌 TAB 3: STORE MANAGEMENT (ប្រើ iframe)
+             ========================================== -->
+      <div id="manage-stores" class="view-section">
+        <div class="card">
+          <h2><i class="fas fa-store-alt"></i> គ្រប់គ្រងហាងលក់</h2>
+          <p style="color: var(--text-muted); margin-bottom: 15px">
+            ស្វែងរកហាងដែលអ្នកចង់គ្រប់គ្រង បន្ទាប់មកផ្ទាំងអ្នកលក់ (Seller Center)
+            នឹងបង្ហាញនៅទីនេះ។
+          </p>
+
+          <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="store-quick-search"
+              class="search-box"
+              placeholder="ស្វែងរកតាម ឈ្មោះហាង, Username, លេខទូរស័ព្ទ..."
+              onkeyup="filterStoreIframe()"
+            />
+          </div>
+
+          <!-- បញ្ជីហាងតូចមួយសម្រាប់ចុចរើស -->
+          <div
+            id="store-select-list"
+            style="max-height: 200px; overflow-y: auto; margin-bottom: 20px"
+          ></div>
+
+          <!-- Iframe Container សម្រាប់ Load Seller.html -->
+          <div
+            id="store-iframe-container"
+            style="
+              display: none;
+              border: 1px solid var(--border-color);
+              border-radius: 12px;
+              overflow: hidden;
+              height: 80vh;
+            "
+          >
+            <iframe
+              id="seller-iframe"
+              src=""
+              style="width: 100%; height: 100%; border: none"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+             📌 TAB 4: WITHDRAWALS & PAYMENT (U-Fund Logic)
+             ========================================== -->
+      <div id="withdrawals" class="view-section">
+        <div class="card">
+          <h2>
+            <i class="fas fa-money-bill-transfer text-accent"></i>
+            សំណើដកប្រាក់ចូលធនាគារ (U-Pay Escrow)
+          </h2>
+          <p style="color: var(--text-muted); margin-bottom: 15px">
+            ពេលអ្នកចុច "ពិនិត្យត្រឹមត្រូវ" ប្រព័ន្ធនឹងកាត់ប្រាក់ពី U-Mall ទៅ
+            Hold នៅធនាគារកណ្ដាល ហើយទូទាត់ចូលកុងអ្នកលក់ដោយស្វ័យប្រវត្តិ។
+          </p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>កាលបរិច្ឆេទ</th>
+                  <th>ឈ្មោះហាង</th>
+                  <th>ចំនួនប្រាក់ស្នើសុំ</th>
+                  <th>ព័ត៌មានធនាគារ (U-Pay)</th>
+                  <th>ស្ថានភាព</th>
+                  <th>សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="withdrawal-table-body">
+                <!-- ឧទាហរណ៍ទិន្នន័យ (Hardcode សម្រាប់មើល UI សិន) -->
+                <tr>
+                  <td>2026-08-02 10:30</td>
+                  <td><strong>Fashion Shop KH</strong></td>
+                  <td style="color: var(--danger); font-weight: bold">
+                    $500.00
+                  </td>
+                  <td>U-Pay: 012345678<br /><small>HENG SOK</small></td>
+                  <td>
+                    <span
+                      class="badge"
+                      style="background: #f59e0b; color: white"
+                      >រង់ចាំ (Pending)</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn-primary"
+                      style="background: var(--success); padding: 8px 15px"
+                      onclick="approveWithdrawal('WD001', 500)"
+                    >
+                      <i class="fas fa-check-circle"></i> ពិនិត្យត្រឹមត្រូវ
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ទុក Tab 5 (Storefront) និង Tab 6 (Promotions) ទទេសម្រាប់ដាក់កូដចាស់ចូល -->
+      <div id="storefront-settings" class="view-section">
+        <div class="card">
+          <h2>
+            <i class="fas fa-sliders-h"></i> រូបរាងកម្មវិធី
+            (សូមដាក់កូដចាស់នៅទីនេះ)
+          </h2>
+        </div>
+      </div>
+      <div id="promotions-settings" class="view-section">
+        <div class="card">
+          <h2>
+            <i class="fas fa-bolt"></i> Flash Sale & Top Stores
+            (សូមដាក់កូដចាស់នៅទីនេះ)
+          </h2>
+        </div>
+      </div>
+    </main>
 
     <script>
-      // ដោយសារ Frontend និង Backend នៅជាមួយគ្នា យើងអាចប្រើ Path ខ្លីបែបនេះបាន
-      const API_URL = "/api/auth";
+      const API_BASE = "/api/admin";
 
-      // ចាប់យក Form តាមរយៈ ID
-      const loginForm = document.getElementById("admin-login-form");
-      const submitBtn = document.getElementById("submit-btn");
+      // ==========================================
+      // 🔒 រក្សាទុកការ Login & Refresh State (URL Hash)
+      // ==========================================
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
 
-      // ប្រើ addEventListener ដើម្បីធានាថា preventDefault ដំណើរការបាន ១០០%
-      loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh ដាច់ខាត
-
-        const username = document.getElementById("admin-user").value.trim();
-        const password = document.getElementById("admin-pass").value;
-
-        // ដូរ UI ប៊ូតុងពេលកំពុងរង់ចាំ
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Logging in...";
-
-        try {
-          const res = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-          });
-          const data = await res.json();
-
-          if (data.success) {
-            // ទាញយក Role របស់អ្នកប្រើប្រាស់
-            const userRole = data.role || (data.user && data.user.role);
-
-            // ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យតែ super_admin, admin និង seller ប៉ុណ្ណោះ
-            if (
-              userRole !== "super_admin" &&
-              userRole !== "admin" &&
-              userRole !== "seller"
-            ) {
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Login to Dashboard";
-              return Swal.fire({
-                icon: "error",
-                title: "Access Denied",
-                text: "You do not have administrative privileges!",
-                confirmButtonColor: "#0284c7",
-              });
-            }
-
-            // រក្សាទុក Token និងទិន្នន័យចាំបាច់
-            localStorage.setItem("token", data.token);
-            localStorage.setItem(
-              "username",
-              data.username || (data.user && data.user.username),
-            );
-            localStorage.setItem("role", userRole);
-
-            Swal.fire({
-              icon: "success",
-              title: "Welcome Back",
-              text: "Redirecting to Dashboard...",
-              showConfirmButton: false,
-              timer: 1500,
-            }).then(() => {
-              // បញ្ជូនទៅកាន់ទំព័រទៅតាម Role
-              if (userRole === "super_admin" || userRole === "admin") {
-                window.location.href = "admin.html";
-              } else if (userRole === "seller") {
-                window.location.href = "seller.html";
-              }
-            });
-          } else {
-            // បើ Login ខុស
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Login to Dashboard";
-            Swal.fire({
-              icon: "error",
-              title: "Login Failed",
-              text: data.message || "Invalid username or password!",
-              confirmButtonColor: "#0284c7",
-            });
-          }
-        } catch (error) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Login to Dashboard";
-          Swal.fire({
-            icon: "error",
-            title: "Connection Error",
-            text: "Cannot connect to server. Please try again.",
-            confirmButtonColor: "#0284c7",
-          });
+        if (!token || (role !== "admin" && role !== "super_admin")) {
+          window.location.href = "admin-login.html";
+          return;
         }
+
+        // បង្ហាញឈ្មោះ Admin
+        document.getElementById("admin-name").innerText =
+          localStorage.getItem("username") || "Admin";
+        document.getElementById("admin-role").innerText =
+          role === "super_admin" ? "👑 Super Admin" : "🛡️ Admin";
+
+        // រក្សាទម្រង់ពណ៌ (Theme)
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        if (savedTheme === "light") document.body.classList.add("light-mode");
+        updateThemeIcon();
+
+        // រក្សា Tab បច្ចុប្បន្នពេល Refresh
+        const hash = window.location.hash.replace("#", "") || "dashboard";
+        switchTab(hash);
+
+        // ហៅទិន្នន័យចាំបាច់
+        toggleFormFields();
       });
+
+      // មុខងារប្ដូរ Tab
+      function switchTab(tabId) {
+        // Update URL Hash ដើម្បីកុំអោយបាត់ពេល Refresh
+        window.location.hash = tabId;
+
+        // ដក Active ពីគ្រប់កន្លែង
+        document
+          .querySelectorAll(".nav-link")
+          .forEach((l) => l.classList.remove("active"));
+        document
+          .querySelectorAll(".view-section")
+          .forEach((s) => s.classList.remove("active"));
+
+        // ដាក់ Active អោយ Tab ដែលរើស
+        const nav = document.getElementById(`nav-${tabId}`);
+        const sec = document.getElementById(tabId);
+        if (nav) nav.classList.add("active");
+        if (sec) sec.classList.add("active");
+
+        // ហៅ Data តាម Tab
+        if (tabId === "dashboard") loadDashboardData();
+        if (tabId === "manage-stores") loadStoresForIframe();
+      }
+
+      // ==========================================
+      // 🌙/☀️ Theme Toggle
+      // ==========================================
+      function toggleTheme() {
+        document.body.classList.toggle("light-mode");
+        const isLight = document.body.classList.contains("light-mode");
+        localStorage.setItem("theme", isLight ? "light" : "dark");
+        updateThemeIcon();
+      }
+      function updateThemeIcon() {
+        const isLight = document.body.classList.contains("light-mode");
+        const icon = document.getElementById("theme-icon");
+        icon.className = isLight ? "fas fa-sun" : "fas fa-moon";
+        icon.style.color = isLight ? "#f59e0b" : "#f8fafc";
+      }
+
+      // ==========================================
+      // 🚪 Logout ជាមួយការបញ្ជាក់
+      // ==========================================
+      function handleLogout() {
+        Swal.fire({
+          title: "ចាកចេញ?",
+          text: "តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធមែនទេ?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#475569",
+          confirmButtonText: "បាទ/ចាស ចាកចេញ",
+          cancelButtonText: "បោះបង់",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.clear(); // លុប Token ទាំងអស់
+            window.location.href = "admin-login.html";
+          }
+        });
+      }
+
+      // ==========================================
+      // 📊 DASHBOARD & USER LIST
+      // ==========================================
+      let allUsers = [];
+
+      async function loadDashboardData() {
+        // Placeholder សម្រាប់ហៅ API ពិត
+        // const res = await fetch(`${API_BASE}/users`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+        // allUsers = await res.json();
+
+        // ឧទាហរណ៍ទិន្នន័យ (Mock Data)
+        allUsers = [
+          {
+            _id: "1",
+            username: "sokha123",
+            fullName: "Sokha Chan",
+            phone: "012345678",
+            email: "sokha@mail.com",
+            role: "buyer",
+          },
+          {
+            _id: "2",
+            username: "fashion_kh",
+            fullName: "Mengly",
+            phone: "098765432",
+            email: "meng@mail.com",
+            role: "seller",
+          },
+          {
+            _id: "3",
+            username: "superadmin",
+            fullName: "Owner",
+            phone: "000",
+            email: "admin@mail.com",
+            role: "super_admin",
+          },
+        ];
+
+        // គណនាស្ថិតិ (បញ្ចូលទិន្នន័យទៅប្រអប់ទាំង១៥)
+        document.getElementById("st-buyers").innerText = allUsers.filter(
+          (u) => u.role === "buyer",
+        ).length;
+        document.getElementById("st-sellers").innerText = allUsers.filter(
+          (u) => u.role === "seller",
+        ).length;
+        document.getElementById("st-admins").innerText = allUsers.filter(
+          (u) => u.role === "admin" || u.role === "super_admin",
+        ).length;
+
+        renderUserTable(allUsers);
+      }
+
+      function renderUserTable(users) {
+        const tbody = document.getElementById("user-table-body");
+        tbody.innerHTML = users
+          .map(
+            (u) => `
+                <tr>
+                    <td><strong>${u.username}</strong><br><small style="color:var(--text-muted)">${u.fullName || "គ្មានឈ្មោះ"}</small></td>
+                    <td>${u.phone || "N/A"}<br><small style="color:var(--text-muted)">${u.email || "N/A"}</small></td>
+                    <td><span class="badge ${u.role}">${u.role}</span></td>
+                    <td>
+                        <button class="btn-action" style="color:var(--danger); border:none; background:none; cursor:pointer;" onclick="deleteUser('${u._id}', '${u.role}', '${u.username}')">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      function filterUsers() {
+        const q = document.getElementById("user-search").value.toLowerCase();
+        const filtered = allUsers.filter(
+          (u) =>
+            (u.username && u.username.toLowerCase().includes(q)) ||
+            (u.fullName && u.fullName.toLowerCase().includes(q)) ||
+            (u.phone && u.phone.includes(q)) ||
+            (u.email && u.email.toLowerCase().includes(q)),
+        );
+        renderUserTable(filtered);
+      }
+
+      // ការពារ Super Admin និងទាមទារមូលហេតុពេលលុប
+      async function deleteUser(id, role, username) {
+        if (role === "super_admin") {
+          Swal.fire(
+            "បដិសេធ",
+            "ប្រព័ន្ធមិនអនុញ្ញាតអោយលុបគណនី Super Admin ឡើយ!",
+            "error",
+          );
+          return;
+        }
+
+        const { value: reason } = await Swal.fire({
+          title: `លុបគណនី: ${username}`,
+          input: "textarea",
+          inputLabel: "សូមបញ្ជាក់មូលហេតុនៃការលុបគណនីនេះ *",
+          inputPlaceholder: "វាយបញ្ចូលមូលហេតុនៅទីនេះ...",
+          inputAttributes: { "aria-label": "មូលហេតុ" },
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          confirmButtonText: "លុបគណនី",
+          inputValidator: (value) => {
+            if (!value) return "អ្នកត្រូវតែបញ្ចូលមូលហេតុ!";
+          },
+        });
+
+        if (reason) {
+          // កន្លែងនេះត្រូវហៅ API លុបពិតប្រាកដ រួចផ្ញើ reason ទៅ Backend ទុកជាកំណត់ត្រា
+          Swal.fire(
+            "បានលុបជោគជ័យ!",
+            `គណនីត្រូវបានលុប។ មូលហេតុ: ${reason}`,
+            "success",
+          );
+          loadDashboardData(); // Refresh Data
+        }
+      }
+
+      // ==========================================
+      // 📝 CREATE ACCOUNT (Dynamic Form)
+      // ==========================================
+      function toggleFormFields() {
+        const role = document.getElementById("new-role").value;
+        const sellerFields = document.getElementById("seller-fields");
+
+        // បើក/បិទ ប្រអប់សម្រាប់អ្នកលក់
+        if (role === "seller") {
+          sellerFields.style.display = "block";
+          // តម្រូវអោយបំពេញឈ្មោះហាង
+          document.getElementById("s-name").setAttribute("required", "true");
+        } else {
+          sellerFields.style.display = "none";
+          document.getElementById("s-name").removeAttribute("required");
+        }
+      }
+
+      document
+        .getElementById("createAccountForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          // នៅទីនេះបងអាចទាញ Value ពី Form យកទៅចងជា JSON ផ្ញើទៅ Backend ផ្អែកលើ Models User/Store
+          Swal.fire("ជោគជ័យ", "គណនីត្រូវបានបង្កើតរួចរាល់", "success");
+          e.target.reset();
+          toggleFormFields();
+        });
+
+      // ==========================================
+      // 🏪 STORE MANAGEMENT (Iframe)
+      // ==========================================
+      let storeList = [];
+      async function loadStoresForIframe() {
+        // Placeholder: ទាញទិន្នន័យហាងពី API
+        storeList = [
+          { _id: "store123", storeName: "Fashion Shop KH", phone: "012345" },
+          { _id: "store456", storeName: "Tech Store", phone: "098765" },
+        ];
+        renderStoreSelectList(storeList);
+      }
+
+      function renderStoreSelectList(stores) {
+        const container = document.getElementById("store-select-list");
+        if (stores.length === 0) {
+          container.innerHTML = "<p>រកមិនឃើញហាងទេ។</p>";
+          return;
+        }
+        container.innerHTML = stores
+          .map(
+            (s) => `
+                <div style="padding:10px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${s.storeName}</strong> <br><small>${s.phone}</small></div>
+                    <button class="btn-primary" onclick="openStoreInIframe('${s._id}')">ចូលគ្រប់គ្រងហាង</button>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function filterStoreIframe() {
+        const q = document
+          .getElementById("store-quick-search")
+          .value.toLowerCase();
+        const filtered = storeList.filter(
+          (s) => s.storeName.toLowerCase().includes(q) || s.phone.includes(q),
+        );
+        renderStoreSelectList(filtered);
+      }
+
+      // បើក seller.html ក្នុង iframe ដោយភ្ជាប់ adminView=true
+      function openStoreInIframe(storeId) {
+        const container = document.getElementById("store-iframe-container");
+        const iframe = document.getElementById("seller-iframe");
+
+        // ផ្ញើសញ្ញាប្រាប់ seller.html ថា Admin កំពុងមើល
+        iframe.src = `seller.html?adminView=true&viewStoreId=${storeId}`;
+        container.style.display = "block";
+        document.getElementById("store-select-list").style.display = "none"; // លាក់បញ្ជីរស្វែងរកសិន
+      }
+
+      // ==========================================
+      // 💸 WITHDRAWALS (U-Fund Logic)
+      // ==========================================
+      function approveWithdrawal(txId, amount) {
+        Swal.fire({
+          title: "បញ្ជាក់ការផ្ទេរប្រាក់",
+          html: `អ្នកកំពុងពិនិត្យសំណើដកប្រាក់ចំនួន <b style="color:red">$${amount}</b>។<br><br>ប្រព័ន្ធនឹងកាត់ប្រាក់ទៅ <b>ធនាគារកណ្ដាល (Escrow)</b> ហើយទូទាត់អោយអ្នកលក់ដោយស្វ័យប្រវត្តិ។`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#10b981",
+          confirmButtonText: "យល់ព្រមអនុម័ត (Approve)",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // កន្លែងនេះ Call API ទៅកាន់ Backend ដើម្បីអោយ Backend និយាយជាមួយ U-Pay API (U-Fund Flow)
+            Swal.fire(
+              "ជោគជ័យ",
+              "សំណើត្រូវបានកត់ត្រា និងបន្តនីតិវិធីទូទាត់ដោយស្វ័យប្រវត្តិ។",
+              "success",
+            );
+          }
+        });
+      }
     </script>
   </body>
 </html>
