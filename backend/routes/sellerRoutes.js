@@ -29,4 +29,15 @@ router.delete("/products/:id", sellerController.deleteProduct);
 router.get("/orders", sellerController.getOrders);
 router.put("/orders/:id/status", sellerController.updateOrderStatus);
 
+// ==========================================
+// Orders
+// ==========================================
+router.get("/orders", sellerController.getOrders);
+router.put("/orders/:id/status", sellerController.updateOrderStatus);
+
+// ✅ នេះគឺជាខ្សែដែលត្រូវបន្ថែមសម្រាប់មុខងារ Cancel Order
+router.put("/orders/:id/cancel", sellerController.cancelOrder);
+
+module.exports = router;
+
 module.exports = router;

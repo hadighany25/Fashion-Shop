@@ -173,9 +173,71 @@ const submitReview = async (req, res) => {
   }
 };
 
+// ==========================================
+// 📌 API សម្រាប់ Seller បោះបង់ការបញ្ជាទិញ (Cancel Order)
+// ==========================================
+exports.cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id; // ចាប់យក _id របស់ Order ពី URL
+    const { reason } = req.body; // ចាប់យកមូលហេតុពី Frontend
+
+    // ១. ឆែកមើលថាតើគាត់បានបញ្ជាក់មូលហេតុឬអត់
+    if (!reason || reason.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "សូមបញ្ចូលមូលហេតុនៃការបោះបង់ការបញ្ជាទិញ!",
+      });
+    }
+
+    // ២. ស្វែងរក Order នៅក្នុង Database
+    const order = await Order.findById(orderId); // ផ្លាស់ប្ដូរ 'Order' ទៅតាមឈ្មោះ Model របស់បង
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "រកមិនឃើញការបញ្ជាទិញនេះទេ!",
+      });
+    }
+
+    // ៣. (Optional) ឆែកមើលសិទ្ធិ: ការពារកុំឱ្យ Seller ម្នាក់ ទៅលុប Order របស់ Seller ផ្សេង
+    // បើសិន Order Model របស់បងមាន field `seller` ឬ `store` អាចឆែកបាន៖
+    // if (order.seller.toString() !== req.user._id.toString()) {
+    //   return res.status(403).json({ success: false, message: "អ្នកគ្មានសិទ្ធិបោះបង់ Order នេះទេ!" });
+    // }
+
+    // ៤. ឆែកមើលក្រែងលោ Order នេះត្រូវបានគេ Cancel រួចហើយ
+    if (order.status === "cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "ការបញ្ជាទិញនេះត្រូវបានបោះបង់រួចហើយ!",
+      });
+    }
+
+    // ៥. Update ស្ថានភាព និង មូលហេតុចូល Database
+    order.status = "cancelled";
+    order.cancelReason = reason;
+
+    await order.save(); // Save ចូល Database
+
+    // ៦. បោះសញ្ញាជោគជ័យទៅកាន់ Frontend វិញ
+    res.status(200).json({
+      success: true,
+      message: "ការបញ្ជាទិញត្រូវបានបោះបង់ដោយជោគជ័យ!",
+      order,
+    });
+  } catch (error) {
+    console.error("❌ Error Cancel Order: ", error);
+    res.status(500).json({
+      success: false,
+      message: "មានបញ្ហាបច្ចេកទេសលើ Server (500)",
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getMyOrders,
   confirmReceipt,
   submitReview,
+  cancelOrder,
 };

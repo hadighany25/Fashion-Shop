@@ -176,3 +176,41 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// បន្ថែមពីក្រោម exports.updateOrderStatus
+exports.cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res
+        .status(400)
+        .json({ success: false, message: "សូមបញ្ជាក់មូលហេតុនៃការបោះបង់!" });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "រកមិនឃើញ Order នេះទេ" });
+    }
+
+    if (order.status === "cancelled") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Order នេះត្រូវបានបោះបង់រួចហើយ" });
+    }
+
+    order.status = "cancelled";
+    order.cancelReason = reason; // រក្សាទុកមូលហេតុចូល Database
+    await order.save();
+
+    res.json({ success: true, message: "បោះបង់ជោគជ័យ", order });
+  } catch (error) {
+    console.error("Error Cancel Order:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "មានបញ្ហាបច្ចេកទេសលើ Server" });
+  }
+};

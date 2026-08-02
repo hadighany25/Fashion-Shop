@@ -50,10 +50,15 @@ const orderSchema = new mongoose.Schema(
     // ==========================================
     // ៤. ផ្នែកគ្រប់គ្រងការដឹកជញ្ជូន
     // ==========================================
+    // កូដមួយផ្នែកនៅក្នុង Order Schema
     status: {
       type: String,
       enum: ["pending", "processing", "shipped", "completed", "cancelled"],
       default: "pending",
+    },
+    cancelReason: {
+      type: String, // សម្រាប់រក្សាទុកមូលហេតុដែលលុប
+      default: null,
     },
     timeline: [
       {
