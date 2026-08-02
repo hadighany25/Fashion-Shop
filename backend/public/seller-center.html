@@ -713,12 +713,15 @@
 
       function viewOrderDetails(id) {
         const order = orders.find((o) => o._id === id);
+
+        // 🌟 ប្រើប្រាស់ (i.quantity || i.qty || 1) ដើម្បីដោះស្រាយការបាត់ចំនួន
         let itemsHTML = order.items
           .map(
             (i) =>
-              `<li class="border-b py-1 border-gray-100 last:border-0">${i.qty}x ${i.name} <span class="float-right text-gray-500">$${i.price}</span></li>`,
+              `<li class="border-b py-1 border-gray-100 last:border-0">${i.quantity || i.qty || 1}x ${i.name} <span class="float-right text-gray-500">$${i.price}</span></li>`,
           )
           .join("");
+
         Swal.fire({
           title: "វិក័យប័ត្រលម្អិត",
           html: `

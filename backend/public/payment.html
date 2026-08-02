@@ -191,13 +191,11 @@
       let uPayWebLink = "";
       let pollingInterval;
 
-      // 🌟 បន្ថែមអថេរសម្រាប់ផ្ទុកទិន្នន័យ អ្នកទិញ និង ទីតាំង
       let currentBuyerId = null;
       let currentPhone = "មិនទាន់បញ្ជាក់";
       let currentAddress = "មិនទាន់បញ្ជាក់";
 
       document.addEventListener("DOMContentLoaded", () => {
-        // ១. ចាប់យក Token ដើម្បីទាញយក Buyer ID
         const token = localStorage.getItem("token");
         if (token) {
           try {
@@ -207,19 +205,17 @@
               window
                 .atob(base64)
                 .split("")
-                .map(function (c) {
-                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-                })
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
                 .join(""),
             );
-            const decoded = JSON.parse(jsonPayload);
-            currentBuyerId = decoded.id; // បាន ID អ្នកទិញហើយ!
+            currentBuyerId = JSON.parse(jsonPayload).id;
           } catch (e) {
             console.error("កំហុសក្នុងការអាន Token");
           }
         }
 
-        // ២. ព្យាយាមចាប់យក លេខទូរស័ព្ទ និង ទីតាំង ពីប្រវត្តិ Login (បើមាន)
         const savedUser = localStorage.getItem("user");
         if (savedUser) {
           try {
@@ -255,11 +251,13 @@
 
         itemsContainer.innerHTML = cartItems
           .map((item) => {
-            subTotal += item.price * item.qty;
-            const imgHtml = item.image
-              ? `<img src="${item.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+            const itemQty = item.qty || item.quantity || 1; // ដោះស្រាយករណី qty
+            subTotal += item.price * itemQty;
+            const imgHtml =
+              item.image || item.imageUrl
+                ? `<img src="${item.image || item.imageUrl}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
                  <div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center hidden"><i class="fas fa-image text-gray-400"></i></div>`
-              : `<div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>`;
+                : `<div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>`;
 
             return `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -267,10 +265,10 @@
                     ${imgHtml}
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500 mt-0.5">ចំនួន: ${item.qty}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">ចំនួន: ${itemQty}</div>
                     </div>
                 </div>
-                <div class="font-bold text-blue-600 text-sm pl-2">$${(item.price * item.qty).toFixed(2)}</div>
+                <div class="font-bold text-blue-600 text-sm pl-2">$${(item.price * itemQty).toFixed(2)}</div>
             </div>`;
           })
           .join("");
@@ -287,28 +285,58 @@
           document.getElementById("qr-instruction").innerText =
             "កំពុងកត់ត្រាវិក័យប័ត្រ...";
 
-          // 🌟 រៀបចំកញ្ចប់ទិន្នន័យ (Payload) បញ្ចូលទាំងព័ត៌មានសម្រាប់អ្នកទិញ និងអ្នកលក់
-          const orderPayload = {
-            orderId: currentOrderId,
-            totalAmount: currentTotal,
-            items: cartItems, // បញ្ជូនទំនិញដែលបានទិញទាំងអស់
-            buyer: currentBuyerId, // បញ្ជូន ID អ្នកទិញ សម្រាប់ my-orders
-            shippingAddress: currentAddress, // ត្រៀមសម្រាប់បង្ហាញអ្នកលក់
-            phone: currentPhone, // ត្រៀមសម្រាប់បង្ហាញអ្នកលក់
-            store: cartItems.length > 0 ? cartItems[0].storeId : null, // (បើកន្ត្រកមានផ្ទុក storeId វានឹងចាប់យកអូតូ)
-          };
+          // 🌟 ១. វេទមន្តញែកអីវ៉ាន់តាមហាង (Group items by Store)
+          const ordersByStore = {};
+          cartItems.forEach((item) => {
+            const storeId = item.storeId || item.store || "unknown";
+            if (!ordersByStore[storeId]) ordersByStore[storeId] = [];
 
-          const orderResponse = await fetch(API_ORDER_CREATE, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(orderPayload), // បាញ់ទិន្នន័យពេញលេញទៅកាន់ Database
+            // ធានាថាឈ្មោះ Field ត្រូវជាមួយ Database
+            ordersByStore[storeId].push({
+              ...item,
+              quantity: item.qty || item.quantity || 1, // ប្ដូរ qty ទៅ quantity ដើម្បីកុំឱ្យលោត undefined
+              image:
+                item.image || item.imageUrl || "https://via.placeholder.com/80",
+            });
           });
 
-          if (!orderResponse.ok)
-            throw new Error("មិនអាចបង្កើតវិក័យប័ត្រក្នុង Database បានទេ");
+          // 🌟 ២. បង្កើតវិក័យប័ត្រច្រើន (១ហាង ១វិក័យប័ត្រ) តែប្រើលេខកូដ U-Pay តែមួយ
+          const orderPromises = Object.keys(ordersByStore).map((storeId) => {
+            const storeItems = ordersByStore[storeId];
+            // គិតលុយសរុបសម្រាប់ហាងនីមួយៗ
+            const storeSubTotal = storeItems.reduce(
+              (sum, i) => sum + i.price * i.quantity,
+              0,
+            );
+
+            const orderPayload = {
+              orderId: currentOrderId,
+              totalAmount: storeSubTotal, // បាញ់តម្លៃពិតប្រាកដទៅហាងនីមួយៗ
+              items: storeItems,
+              buyer: currentBuyerId,
+              shippingAddress: currentAddress,
+              phone: currentPhone,
+              store: storeId !== "unknown" ? storeId : null,
+            };
+
+            return fetch(API_ORDER_CREATE, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderPayload),
+            });
+          });
+
+          // រង់ចាំរហូតដល់កត់ត្រាចូលគ្រប់ហាងទាំងអស់សិន
+          const responses = await Promise.all(orderPromises);
+          for (let res of responses) {
+            if (!res.ok)
+              throw new Error("មិនអាចបង្កើតវិក័យប័ត្រក្នុង Database បានទេ");
+          }
 
           document.getElementById("qr-instruction").innerText =
             "កំពុងសុំ QR ពីធនាគារ...";
+
+          // 🌟 ៣. សុំ QR Code ពីធនាគារ (តម្លៃសរុបទាំងអស់)
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -333,12 +361,6 @@
             startPolling();
           } else {
             let errorMsg = qrData.message || "មិនអាចបង្កើត QR បានទេ";
-            if (qrData.detail) {
-              errorMsg =
-                typeof qrData.detail === "object"
-                  ? JSON.stringify(qrData.detail)
-                  : qrData.detail;
-            }
             throw new Error(errorMsg);
           }
         } catch (error) {
@@ -365,16 +387,14 @@
                 icon: "success",
                 title: "ជោគជ័យ!",
                 text: "ទទួលបានការទូទាត់",
-                timer: 3000,
+                timer: 2000,
                 showConfirmButton: false,
               }).then(() => {
-                localStorage.setItem("umall_cart", "[]"); // ជម្រះកន្ត្រក
-                window.location.href = "my-orders.html"; // 🌟 ប្ដូរឱ្យលោតទៅទំព័រប្រវត្តិទិញវិញ ពេលបង់ជោគជ័យ!
+                localStorage.setItem("umall_cart", "[]");
+                window.location.href = "my-orders.html";
               });
             }
-          } catch (e) {
-            console.error("Polling Error:", e);
-          }
+          } catch (e) {}
         }, 3000);
       }
 
@@ -398,7 +418,7 @@
           showConfirmButton: false,
         }).then(() => {
           localStorage.setItem("umall_cart", "[]");
-          window.location.href = "my-orders.html"; // 🌟 ប្ដូរឱ្យលោតទៅទំព័រប្រវត្តិទិញវិញ ពេលបង់ជោគជ័យ!
+          window.location.href = "my-orders.html";
         });
       }
     </script>
