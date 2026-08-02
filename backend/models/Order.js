@@ -1,6 +1,6 @@
 // ទីតាំង៖ models/Order.js
 const mongoose = require("mongoose");
-const User = require("./Users");
+const User = require("./User"); // 👈 កែត្រង់នេះ៖ លុបអក្សរ s ចេញ (ឱ្យដូចឈ្មោះ File ពិតប្រាកដ)
 
 const orderSchema = new mongoose.Schema(
   {
@@ -67,8 +67,7 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// 🌟 បន្ថែម Mongoose Pre-save Hook ទីនេះ! 🌟
-// វាមានតួនាទីជា "អ្នកស្ទាក់ត្រួតពិនិត្យ" មុនពេល Order ត្រូវបាន Save ចូល Database
+// 🌟 Mongoose Pre-save Hook
 orderSchema.pre("save", async function (next) {
   try {
     if (
@@ -76,7 +75,7 @@ orderSchema.pre("save", async function (next) {
       (this.phone === "មិនទាន់បញ្ជាក់" ||
         this.shippingAddress === "មិនទាន់បញ្ជាក់")
     ) {
-      // 🌟 ប្រើប្រាស់ User Model ដែលយើងបាន Import ពីលើមកប្រើផ្ទាល់
+      // ហៅ User Model មកប្រើ
       const user = await User.findById(this.buyer);
 
       if (user) {
