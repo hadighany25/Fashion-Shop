@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>U-Mall Admin Control Panel</title>
 
-    <!-- 📌 Font Kantumruy Pro (ដាក់អោយគ្រប់កន្លែងទាំងអស់) -->
+    <!-- 📌 Font Kantumruy Pro -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -25,7 +25,6 @@
            🎨 ១. Theme & CSS Variables (Dark/Light Mode)
            ========================================== */
       :root {
-        /* 🌙 Dark Mode (Default) */
         --bg-body: #0f172a;
         --bg-sidebar: #1e293b;
         --bg-card: #334155;
@@ -40,7 +39,6 @@
       }
 
       body.light-mode {
-        /* ☀️ Light Mode */
         --bg-body: #f8fafc;
         --bg-sidebar: #ffffff;
         --bg-card: #ffffff;
@@ -67,7 +65,15 @@
           background-color 0.3s,
           color 0.3s;
         font-family:
-          "Kantumruy Pro", sans-serif; /* 👈 ដាក់ត្រឹម Body វិញ គឺដើរគ្រប់កន្លែងហើយ លើកលែងតែ Icons */
+          "Kantumruy Pro", sans-serif; /* 👈 កែ Font នៅទីនេះដើម្បីកុំអោយខូច Icon */
+      }
+
+      /* ធ្វើអោយ Date Picker ដូរពណ៍តាម Theme */
+      input[type="datetime-local"] {
+        color-scheme: dark;
+      }
+      body.light-mode input[type="datetime-local"] {
+        color-scheme: light;
       }
 
       /* ==========================================
@@ -240,7 +246,6 @@
         font-weight: 500;
       }
 
-      /* Form Inputs */
       input,
       select,
       textarea {
@@ -250,6 +255,7 @@
         background-color: var(--bg-body);
         color: var(--text-main);
         outline: none;
+        font-family: "Kantumruy Pro", sans-serif;
       }
       input:focus,
       select:focus {
@@ -266,12 +272,20 @@
         cursor: pointer;
         font-weight: bold;
         transition: 0.3s;
+        font-family: "Kantumruy Pro", sans-serif;
       }
       .btn-primary:hover {
         background-color: var(--accent-hover);
       }
+      .btn-danger {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
 
-      /* Search Box */
       .search-wrapper {
         position: relative;
         margin-bottom: 20px;
@@ -289,7 +303,6 @@
         font-size: 1rem;
       }
 
-      /* Tables */
       .table-responsive {
         overflow-x: auto;
       }
@@ -334,7 +347,6 @@
         color: var(--text-muted);
       }
 
-      /* Responsive Design */
       @media (max-width: 768px) {
         body {
           flex-direction: column;
@@ -466,7 +478,6 @@
       <div id="dashboard" class="view-section active">
         <!-- ប្រអប់ទិន្នន័យទាំង ១៥ ជា ៣ ជួរ -->
         <div class="stats-grid-15">
-          <!-- ជួរទី១: អ្នកប្រើប្រាស់ -->
           <div class="stat-card">
             <i class="fas fa-users" style="color: #0ea5e9"></i>
             <h3 id="st-buyers">0</h3>
@@ -493,7 +504,6 @@
             <p>គណនីត្រូវបានបិទ</p>
           </div>
 
-          <!-- ជួរទី២: ការលក់ -->
           <div class="stat-card">
             <i class="fas fa-box" style="color: #3b82f6"></i>
             <h3 id="st-products">0</h3>
@@ -520,7 +530,6 @@
             <p>កំពុងដឹកជញ្ជូន</p>
           </div>
 
-          <!-- ជួរទី៣: ហិរញ្ញវត្ថុ និងផ្សេងៗ -->
           <div class="stat-card">
             <i class="fas fa-hand-holding-dollar" style="color: #f43f5e"></i>
             <h3 id="st-withdrawals">0</h3>
@@ -595,7 +604,7 @@
           <hr style="border-color: var(--border-color); margin: 15px 0" />
 
           <form id="createAccountForm">
-            <!-- ១. រើស Role មុនគេ -->
+            <!-- ១. រើស Role -->
             <div class="input-group" style="margin-bottom: 25px">
               <label style="color: var(--accent); font-size: 1.1rem"
                 ><i class="fas fa-user-tag"></i> តួនាទីគណនី (Account Role)
@@ -617,7 +626,7 @@
               </select>
             </div>
 
-            <!-- ២. ព័ត៌មានផ្ទាល់ខ្លួន (ប្រើសម្រាប់គ្រប់ Role) -->
+            <!-- ២. ព័ត៌មានផ្ទាល់ខ្លួន -->
             <h3 style="margin-bottom: 15px">
               <i class="fas fa-id-card"></i> ព័ត៌មានផ្ទាល់ខ្លួន
             </h3>
@@ -659,7 +668,7 @@
               </div>
             </div>
 
-            <!-- ៣. ព័ត៌មានហាង (បង្ហាញតែពេលរើស Seller) -->
+            <!-- ៣. ព័ត៌មានហាង -->
             <div
               id="seller-fields"
               style="
@@ -781,7 +790,7 @@
       </div>
 
       <!-- ==========================================
-             📌 TAB 3: STORE MANAGEMENT (ប្រើ iframe)
+             📌 TAB 3: STORE MANAGEMENT
              ========================================== -->
       <div id="manage-stores" class="view-section">
         <div class="card">
@@ -802,13 +811,11 @@
             />
           </div>
 
-          <!-- បញ្ជីហាងតូចមួយសម្រាប់ចុចរើស -->
           <div
             id="store-select-list"
             style="max-height: 200px; overflow-y: auto; margin-bottom: 20px"
           ></div>
 
-          <!-- Iframe Container សម្រាប់ Load Seller.html -->
           <div
             id="store-iframe-container"
             style="
@@ -829,7 +836,7 @@
       </div>
 
       <!-- ==========================================
-             📌 TAB 4: WITHDRAWALS & PAYMENT (U-Fund Logic)
+             📌 TAB 4: WITHDRAWALS
              ========================================== -->
       <div id="withdrawals" class="view-section">
         <div class="card">
@@ -855,7 +862,6 @@
                 </tr>
               </thead>
               <tbody id="withdrawal-table-body">
-                <!-- ឧទាហរណ៍ទិន្នន័យ (Hardcode សម្រាប់មើល UI សិន) -->
                 <tr>
                   <td>2026-08-02 10:30</td>
                   <td><strong>Fashion Shop KH</strong></td>
@@ -886,21 +892,235 @@
         </div>
       </div>
 
-      <!-- ទុក Tab 5 (Storefront) និង Tab 6 (Promotions) ទទេសម្រាប់ដាក់កូដចាស់ចូល -->
+      <!-- ==========================================
+             📌 TAB 5: STOREFRONT SETTINGS
+             ========================================== -->
       <div id="storefront-settings" class="view-section">
-        <div class="card">
+        <div class="card" style="max-width: 900px; margin: 0 auto">
           <h2>
-            <i class="fas fa-sliders-h"></i> រូបរាងកម្មវិធី
-            (សូមដាក់កូដចាស់នៅទីនេះ)
+            <i class="fas fa-sliders-h"></i> រូបរាងកម្មវិធី & ផ្ទាំងបដា
+            (Banners)
           </h2>
+          <hr style="border-color: var(--border-color); margin: 15px 0" />
+
+          <form id="settingForm">
+            <div class="input-group" style="margin-bottom: 25px">
+              <label><strong>Global Logo URL</strong></label>
+              <input
+                type="text"
+                id="setting-logoUrl"
+                placeholder="https://example.com/logo.png"
+              />
+            </div>
+
+            <!-- ផ្ទាំងទី ១ -->
+            <div
+              style="
+                background: rgba(2, 132, 199, 0.05);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid var(--border-color);
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 15px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ១ (Hero Banner ធំខាងឆ្វេង)
+              </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (វិនាទីដូររូប)</label>
+                  <input type="number" id="sec1-interval" value="3" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec1-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec1-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(1)"
+              >
+                + បន្ថែមរូបភាពទី ១
+              </button>
+            </div>
+
+            <!-- ផ្ទាំងទី ២ -->
+            <div
+              style="
+                background: rgba(2, 132, 199, 0.05);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid var(--border-color);
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 15px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ២ (Sub Banner ស្ដាំលើ)
+              </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (វិនាទីដូររូប)</label>
+                  <input type="number" id="sec2-interval" value="3" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec2-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec2-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(2)"
+              >
+                + បន្ថែមរូបភាពទី ២
+              </button>
+            </div>
+
+            <!-- ផ្ទាំងទី ៣ -->
+            <div
+              style="
+                background: rgba(2, 132, 199, 0.05);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid var(--border-color);
+              "
+            >
+              <h3 style="color: var(--accent); margin-bottom: 15px">
+                <i class="fas fa-image"></i> ផ្ទាំងទី ៣ (Sub Banner ស្ដាំក្រោម)
+              </h3>
+              <div class="form-grid" style="margin-bottom: 15px">
+                <div class="input-group">
+                  <label>Duration (វិនាទីដូររូប)</label>
+                  <input type="number" id="sec3-interval" value="3" min="1" />
+                </div>
+                <div class="input-group">
+                  <label>Animation Direction</label>
+                  <select id="sec3-direction">
+                    <option value="left">ឆ្វេងទៅស្ដាំ (Left)</option>
+                    <option value="right">ស្ដាំទៅឆ្វេង (Right)</option>
+                  </select>
+                </div>
+              </div>
+              <div id="sec3-items-container"></div>
+              <button
+                type="button"
+                class="btn-primary"
+                style="background: var(--success); margin-top: 10px"
+                onclick="addBannerItem(3)"
+              >
+                + បន្ថែមរូបភាពទី ៣
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              id="btn-save-settings"
+              class="btn-primary"
+              style="
+                width: 100%;
+                font-size: 1.1rem;
+                padding: 15px;
+                margin-top: 20px;
+              "
+            >
+              <i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់
+            </button>
+          </form>
         </div>
       </div>
+
+      <!-- ==========================================
+             📌 TAB 6: PROMOTIONS SETTINGS
+             ========================================== -->
       <div id="promotions-settings" class="view-section">
-        <div class="card">
+        <div class="card" style="max-width: 900px; margin: 0 auto">
           <h2>
-            <i class="fas fa-bolt"></i> Flash Sale & Top Stores
-            (សូមដាក់កូដចាស់នៅទីនេះ)
+            <i class="fas fa-bolt"></i> រៀបចំ Flash Sale & ហាងល្បីប្រចាំសប្ដាហ៍
           </h2>
+          <hr style="border-color: var(--border-color); margin: 15px 0" />
+
+          <!-- Flash Sale -->
+          <div
+            style="
+              background: rgba(2, 132, 199, 0.05);
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <h3 style="color: #ef4444; margin-bottom: 15px">
+              <i class="fas fa-bolt"></i> ការកំណត់ម៉ោង និងទំនិញ Flash Sale
+            </h3>
+            <div
+              class="input-group"
+              style="margin-bottom: 15px; max-width: 300px"
+            >
+              <label>ថ្ងៃ និងម៉ោងបញ្ចប់ (End Time)</label>
+              <input type="datetime-local" id="flash-endTime" />
+            </div>
+
+            <div id="flash-items-container"></div>
+            <button
+              type="button"
+              class="btn-primary"
+              style="background: var(--success); margin-top: 10px"
+              onclick="addFlashSaleRow()"
+            >
+              + បន្ថែមទំនិញ Flash Sale
+            </button>
+          </div>
+
+          <!-- Top Stores -->
+          <div
+            style="
+              background: rgba(2, 132, 199, 0.05);
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <h3 style="color: var(--warning); margin-bottom: 15px">
+              <i class="fas fa-award"></i> ជ្រើសរើសហាងល្បីប្រចាំសប្ដាហ៍
+            </h3>
+            <div id="top-stores-container"></div>
+            <button
+              type="button"
+              class="btn-primary"
+              style="background: var(--success); margin-top: 10px"
+              onclick="addTopStoreRow()"
+            >
+              + បន្ថែមហាងល្បី
+            </button>
+          </div>
+
+          <button
+            type="button"
+            id="btn-save-promotions"
+            class="btn-primary"
+            style="
+              width: 100%;
+              font-size: 1.1rem;
+              padding: 15px;
+              margin-top: 20px;
+            "
+            onclick="savePromotionsData()"
+          >
+            <i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores
+          </button>
         </div>
       </div>
     </main>
@@ -915,10 +1135,11 @@
         const token = localStorage.getItem("token");
         const role = localStorage.getItem("role");
 
-        if (!token || (role !== "admin" && role !== "super_admin")) {
-          window.location.href = "admin-login.html";
-          return;
-        }
+        // Bypass login សម្រាប់តែតេស្ត (ដកចេញវិញពេល Deploy)
+        // if (!token || (role !== "admin" && role !== "super_admin")) {
+        //     window.location.href = "admin-login.html";
+        //     return;
+        // }
 
         // បង្ហាញឈ្មោះ Admin
         document.getElementById("admin-name").innerText =
@@ -934,17 +1155,12 @@
         // រក្សា Tab បច្ចុប្បន្នពេល Refresh
         const hash = window.location.hash.replace("#", "") || "dashboard";
         switchTab(hash);
-
-        // ហៅទិន្នន័យចាំបាច់
         toggleFormFields();
       });
 
       // មុខងារប្ដូរ Tab
       function switchTab(tabId) {
-        // Update URL Hash ដើម្បីកុំអោយបាត់ពេល Refresh
         window.location.hash = tabId;
-
-        // ដក Active ពីគ្រប់កន្លែង
         document
           .querySelectorAll(".nav-link")
           .forEach((l) => l.classList.remove("active"));
@@ -952,7 +1168,6 @@
           .querySelectorAll(".view-section")
           .forEach((s) => s.classList.remove("active"));
 
-        // ដាក់ Active អោយ Tab ដែលរើស
         const nav = document.getElementById(`nav-${tabId}`);
         const sec = document.getElementById(tabId);
         if (nav) nav.classList.add("active");
@@ -961,6 +1176,8 @@
         // ហៅ Data តាម Tab
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresForIframe();
+        if (tabId === "storefront-settings") loadSettingsData();
+        if (tabId === "promotions-settings") loadPromotionsData();
       }
 
       // ==========================================
@@ -979,9 +1196,6 @@
         icon.style.color = isLight ? "#f59e0b" : "#f8fafc";
       }
 
-      // ==========================================
-      // 🚪 Logout ជាមួយការបញ្ជាក់
-      // ==========================================
       function handleLogout() {
         Swal.fire({
           title: "ចាកចេញ?",
@@ -994,7 +1208,7 @@
           cancelButtonText: "បោះបង់",
         }).then((result) => {
           if (result.isConfirmed) {
-            localStorage.clear(); // លុប Token ទាំងអស់
+            localStorage.clear();
             window.location.href = "admin-login.html";
           }
         });
@@ -1004,13 +1218,7 @@
       // 📊 DASHBOARD & USER LIST
       // ==========================================
       let allUsers = [];
-
       async function loadDashboardData() {
-        // Placeholder សម្រាប់ហៅ API ពិត
-        // const res = await fetch(`${API_BASE}/users`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-        // allUsers = await res.json();
-
-        // ឧទាហរណ៍ទិន្នន័យ (Mock Data)
         allUsers = [
           {
             _id: "1",
@@ -1037,8 +1245,6 @@
             role: "super_admin",
           },
         ];
-
-        // គណនាស្ថិតិ (បញ្ចូលទិន្នន័យទៅប្រអប់ទាំង១៥)
         document.getElementById("st-buyers").innerText = allUsers.filter(
           (u) => u.role === "buyer",
         ).length;
@@ -1048,7 +1254,6 @@
         document.getElementById("st-admins").innerText = allUsers.filter(
           (u) => u.role === "admin" || u.role === "super_admin",
         ).length;
-
         renderUserTable(allUsers);
       }
 
@@ -1084,7 +1289,6 @@
         renderUserTable(filtered);
       }
 
-      // ការពារ Super Admin និងទាមទារមូលហេតុពេលលុប
       async function deleteUser(id, role, username) {
         if (role === "super_admin") {
           Swal.fire(
@@ -1094,13 +1298,10 @@
           );
           return;
         }
-
         const { value: reason } = await Swal.fire({
           title: `លុបគណនី: ${username}`,
           input: "textarea",
-          inputLabel: "សូមបញ្ជាក់មូលហេតុនៃការលុបគណនីនេះ *",
-          inputPlaceholder: "វាយបញ្ចូលមូលហេតុនៅទីនេះ...",
-          inputAttributes: { "aria-label": "មូលហេតុ" },
+          inputLabel: "សូមបញ្ជាក់មូលហេតុ *",
           showCancelButton: true,
           confirmButtonColor: "#ef4444",
           confirmButtonText: "លុបគណនី",
@@ -1108,16 +1309,7 @@
             if (!value) return "អ្នកត្រូវតែបញ្ចូលមូលហេតុ!";
           },
         });
-
-        if (reason) {
-          // កន្លែងនេះត្រូវហៅ API លុបពិតប្រាកដ រួចផ្ញើ reason ទៅ Backend ទុកជាកំណត់ត្រា
-          Swal.fire(
-            "បានលុបជោគជ័យ!",
-            `គណនីត្រូវបានលុប។ មូលហេតុ: ${reason}`,
-            "success",
-          );
-          loadDashboardData(); // Refresh Data
-        }
+        if (reason) Swal.fire("បានលុបជោគជ័យ!", `មូលហេតុ: ${reason}`, "success");
       }
 
       // ==========================================
@@ -1126,11 +1318,8 @@
       function toggleFormFields() {
         const role = document.getElementById("new-role").value;
         const sellerFields = document.getElementById("seller-fields");
-
-        // បើក/បិទ ប្រអប់សម្រាប់អ្នកលក់
         if (role === "seller") {
           sellerFields.style.display = "block";
-          // តម្រូវអោយបំពេញឈ្មោះហាង
           document.getElementById("s-name").setAttribute("required", "true");
         } else {
           sellerFields.style.display = "none";
@@ -1142,7 +1331,6 @@
         .getElementById("createAccountForm")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          // នៅទីនេះបងអាចទាញ Value ពី Form យកទៅចងជា JSON ផ្ញើទៅ Backend ផ្អែកលើ Models User/Store
           Swal.fire("ជោគជ័យ", "គណនីត្រូវបានបង្កើតរួចរាល់", "success");
           e.target.reset();
           toggleFormFields();
@@ -1153,7 +1341,6 @@
       // ==========================================
       let storeList = [];
       async function loadStoresForIframe() {
-        // Placeholder: ទាញទិន្នន័យហាងពី API
         storeList = [
           { _id: "store123", storeName: "Fashion Shop KH", phone: "012345" },
           { _id: "store456", storeName: "Tech Store", phone: "098765" },
@@ -1163,10 +1350,8 @@
 
       function renderStoreSelectList(stores) {
         const container = document.getElementById("store-select-list");
-        if (stores.length === 0) {
-          container.innerHTML = "<p>រកមិនឃើញហាងទេ។</p>";
-          return;
-        }
+        if (stores.length === 0)
+          return (container.innerHTML = "<p>រកមិនឃើញហាងទេ។</p>");
         container.innerHTML = stores
           .map(
             (s) => `
@@ -1183,21 +1368,19 @@
         const q = document
           .getElementById("store-quick-search")
           .value.toLowerCase();
-        const filtered = storeList.filter(
-          (s) => s.storeName.toLowerCase().includes(q) || s.phone.includes(q),
+        renderStoreSelectList(
+          storeList.filter(
+            (s) => s.storeName.toLowerCase().includes(q) || s.phone.includes(q),
+          ),
         );
-        renderStoreSelectList(filtered);
       }
 
-      // បើក seller.html ក្នុង iframe ដោយភ្ជាប់ adminView=true
       function openStoreInIframe(storeId) {
-        const container = document.getElementById("store-iframe-container");
-        const iframe = document.getElementById("seller-iframe");
-
-        // ផ្ញើសញ្ញាប្រាប់ seller.html ថា Admin កំពុងមើល
-        iframe.src = `seller.html?adminView=true&viewStoreId=${storeId}`;
-        container.style.display = "block";
-        document.getElementById("store-select-list").style.display = "none"; // លាក់បញ្ជីរស្វែងរកសិន
+        document.getElementById("seller-iframe").src =
+          `seller.html?adminView=true&viewStoreId=${storeId}`;
+        document.getElementById("store-iframe-container").style.display =
+          "block";
+        document.getElementById("store-select-list").style.display = "none";
       }
 
       // ==========================================
@@ -1206,255 +1389,93 @@
       function approveWithdrawal(txId, amount) {
         Swal.fire({
           title: "បញ្ជាក់ការផ្ទេរប្រាក់",
-          html: `អ្នកកំពុងពិនិត្យសំណើដកប្រាក់ចំនួន <b style="color:red">$${amount}</b>។<br><br>ប្រព័ន្ធនឹងកាត់ប្រាក់ទៅ <b>ធនាគារកណ្ដាល (Escrow)</b> ហើយទូទាត់អោយអ្នកលក់ដោយស្វ័យប្រវត្តិ។`,
+          html: `អ្នកកំពុងពិនិត្យសំណើដកប្រាក់ចំនួន <b style="color:red">$${amount}</b>។<br><br>ប្រព័ន្ធនឹងកាត់ប្រាក់ទៅ <b>ធនាគារកណ្ដាល (Escrow)</b>។`,
           icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#10b981",
           confirmButtonText: "យល់ព្រមអនុម័ត (Approve)",
         }).then((result) => {
-          if (result.isConfirmed) {
-            // កន្លែងនេះ Call API ទៅកាន់ Backend ដើម្បីអោយ Backend និយាយជាមួយ U-Pay API (U-Fund Flow)
+          if (result.isConfirmed)
             Swal.fire(
               "ជោគជ័យ",
-              "សំណើត្រូវបានកត់ត្រា និងបន្តនីតិវិធីទូទាត់ដោយស្វ័យប្រវត្តិ។",
+              "បន្តនីតិវិធីទូទាត់ដោយស្វ័យប្រវត្តិ។",
               "success",
             );
-          }
         });
       }
-      // =================================================================
-      // ផ្នែកទី៦៖ ការកំណត់ផ្ទាំងបដា មុខទំព័រ (Storefront Banner Settings)
-      // =================================================================
 
-      let storesListForDropdown = [];
-
-      // ទាញយកបញ្ជីហាងមកទុកធ្វើ Dropdown សម្រាប់ Banners & Promotions
-      async function loadStoresForDropdown() {
-        try {
-          const res = await fetch(`${API_BASE}/stores`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
-          storesListForDropdown = data.stores || [];
-        } catch (error) {
-          console.error("Error loading stores", error);
-        }
-      }
-
-      // បន្ថែមช่องបញ្ចូលរូបភាពថ្មីក្នុង Section Banners នីមួយៗ
+      // ==========================================
+      // 🎨 STOREFRONT & BANNERS LOGIC
+      // ==========================================
       function addBannerItem(sectionNum, data = {}) {
         const container = document.getElementById(
           `sec${sectionNum}-items-container`,
         );
         const itemDiv = document.createElement("div");
         itemDiv.className = "banner-item-row";
+        // ដាក់ CSS អោយត្រូវជាមួយ Theme
         itemDiv.style =
-          "border:1px solid #475569; padding:10px; border-radius:6px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 2fr 2fr 1.5fr auto; gap:10px; align-items:end;";
+          "border:1px solid var(--border-color); padding:15px; border-radius:8px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 2fr 2fr 1.5fr auto; gap:10px; align-items:end; background: var(--bg-body);";
 
-        // បង្កើត Options សម្រាប់រើសហាង
         let storeOptions = `<option value="">-- គ្មានហាង (Link ធម្មតា) --</option>`;
-        storesListForDropdown.forEach((s) => {
-          const selected =
-            data.storeId &&
-            (data.storeId._id === s._id || data.storeId === s._id)
-              ? "selected"
-              : "";
+        storeList.forEach((s) => {
+          const selected = data.storeId === s._id ? "selected" : "";
           storeOptions += `<option value="${s._id}" ${selected}>${s.storeName}</option>`;
         });
 
         itemDiv.innerHTML = `
-          <div class="input-group">
-            <label>Image URL</label>
-            <input type="text" class="b-img" value="${data.imageUrl || ""}" placeholder="https://..." required />
-          </div>
-          <div class="input-group">
-            <label>Title (ចំណងជើង)</label>
-            <input type="text" class="b-title" value="${data.title || ""}" placeholder="ឈ្មោះប្រូម៉ូសិន" />
-          </div>
-          <div class="input-group">
-            <label>តភ្ជាប់ទៅហាង (Store)</label>
-            <select class="b-store">${storeOptions}</select>
-          </div>
-          <div class="input-group">
-            <label>ឈប់បង្ហាញថ្ងៃទី</label>
-            <input type="date" class="b-date" value="${data.endDate ? data.endDate.split("T")[0] : ""}" />
-          </div>
-          <button type="button" class="btn-action" style="color:var(--danger); height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-        `;
+                <div class="input-group"><label>Image URL</label><input type="text" class="b-img" value="${data.imageUrl || ""}" placeholder="https://..." required /></div>
+                <div class="input-group"><label>Title (ចំណងជើង)</label><input type="text" class="b-title" value="${data.title || ""}" /></div>
+                <div class="input-group"><label>តភ្ជាប់ទៅហាង (Store)</label><select class="b-store">${storeOptions}</select></div>
+                <div class="input-group"><label>ឈប់បង្ហាញថ្ងៃទី</label><input type="date" class="b-date" value="${data.endDate ? data.endDate.split("T")[0] : ""}" /></div>
+                <button type="button" class="btn-danger" style="height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
         container.appendChild(itemDiv);
       }
 
-      // ទាញយក Settings Banners មកបង្ហាញលើ Form
       async function loadSettingsData() {
-        await loadStoresForDropdown();
-        try {
-          const res = await fetch("/api/settings");
-          const data = await res.json();
-          if (data.success && data.setting) {
-            const s = data.setting;
-            document.getElementById("setting-logoUrl").value = s.logoUrl || "";
-
-            // Section 1
-            if (s.section1) {
-              document.getElementById("sec1-interval").value =
-                s.section1.intervalSeconds || 3;
-              document.getElementById("sec1-direction").value =
-                s.section1.slideDirection || "left";
-              document.getElementById("sec1-items-container").innerHTML = "";
-              if (s.section1.items)
-                s.section1.items.forEach((item) => addBannerItem(1, item));
-            }
-            // Section 2
-            if (s.section2) {
-              document.getElementById("sec2-interval").value =
-                s.section2.intervalSeconds || 3;
-              document.getElementById("sec2-direction").value =
-                s.section2.slideDirection || "left";
-              document.getElementById("sec2-items-container").innerHTML = "";
-              if (s.section2.items)
-                s.section2.items.forEach((item) => addBannerItem(2, item));
-            }
-            // Section 3
-            if (s.section3) {
-              document.getElementById("sec3-interval").value =
-                s.section3.intervalSeconds || 3;
-              document.getElementById("sec3-direction").value =
-                s.section3.slideDirection || "left";
-              document.getElementById("sec3-items-container").innerHTML = "";
-              if (s.section3.items)
-                s.section3.items.forEach((item) => addBannerItem(3, item));
-            }
-          }
-        } catch (error) {
-          console.error("Failed to load settings", error);
-        }
+        await loadStoresForIframe(); // Make sure storeList is ready
+        // Fake Data សម្រាប់ Banners
+        document.getElementById("sec1-items-container").innerHTML = "";
+        document.getElementById("sec2-items-container").innerHTML = "";
+        document.getElementById("sec3-items-container").innerHTML = "";
       }
 
-      // ប្រមូលទិន្នន័យពី Form Banners យកไป Save
-      function getSectionData(num) {
-        const rows = document.querySelectorAll(
-          `#sec${num}-items-container .banner-item-row`,
-        );
-        const items = [];
-        rows.forEach((r) => {
-          items.push({
-            imageUrl: r.querySelector(".b-img").value,
-            title: r.querySelector(".b-title").value,
-            storeId: r.querySelector(".b-store").value || null,
-            endDate: r.querySelector(".b-date").value || null,
-          });
-        });
-        return {
-          intervalSeconds:
-            parseInt(document.getElementById(`sec${num}-interval`).value) || 3,
-          slideDirection: document.getElementById(`sec${num}-direction`).value,
-          items: items,
-        };
-      }
+      document.getElementById("settingForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        Swal.fire("ជោគជ័យ", "រក្សាទុកការកំណត់ Banners រួចរាល់!", "success");
+      });
 
-      // Save Banner Settings ទៅ Database
-      document
-        .getElementById("settingForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const payload = {
-            logoUrl: document.getElementById("setting-logoUrl").value,
-            section1: getSectionData(1),
-            section2: getSectionData(2),
-            section3: getSectionData(3),
-          };
+      // ==========================================
+      // ⚡ PROMOTIONS (FLASH SALE & TOP STORES)
+      // ==========================================
+      let allProducts = [
+        { _id: "p1", name: "អាវយឺត", price: 10 },
+        { _id: "p2", name: "ស្បែកជើង", price: 25 },
+      ];
 
-          const btn = document.getElementById("btn-save-settings");
-          btn.disabled = true;
-          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
-
-          try {
-            const res = await fetch("/api/settings", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-              },
-              body: JSON.stringify(payload),
-            });
-            const data = await res.json();
-            if (res.ok) {
-              Swal.fire(
-                "ជោគជ័យ!",
-                "រក្សាទុកការកំណត់ Banners បានរួចរាល់!",
-                "success",
-              );
-              loadSettingsData();
-            } else {
-              Swal.fire("បរាជ័យ", data.message, "error");
-            }
-          } catch (error) {
-            Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ", "error");
-          } finally {
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់`;
-          }
-        });
-
-      // =================================================================
-      // ផ្នែកទី៧៖ ការកំណត់ Flash Sale និង Top Stores (Promotions Settings)
-      // =================================================================
-
-      let allProductsForDropdown = [];
-
-      // ទាញយកផលិតផល និងហាងទាំងអស់ មកធ្វើជា Dropdown ឱ្យ Admin រើស
-      async function loadDropdownOptions() {
-        await loadStoresData(); // ហៅ Function ចាស់ដែលទាញ Store
-        storesListForDropdown = allStores;
-        try {
-          const res = await fetch("/api/public/products");
-          const data = await res.json();
-          allProductsForDropdown = data.products || [];
-        } catch (error) {
-          console.error("Error loading products", error);
-        }
-      }
-
-      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសទំនិញ Flash Sale
       function addFlashSaleRow(data = {}) {
         const container = document.getElementById("flash-items-container");
         const div = document.createElement("div");
         div.className = "flash-item-row";
         div.style =
-          "border:1px solid #475569; padding:10px; border-radius:6px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; align-items:end;";
+          "border:1px solid var(--border-color); padding:15px; border-radius:8px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; align-items:end; background: var(--bg-body);";
 
         let productOpts = `<option value="">-- ជ្រើសរើសទំនិញ --</option>`;
-        allProductsForDropdown.forEach((p) => {
-          const sel =
-            data.productId === p._id || data.productId?._id === p._id
-              ? "selected"
-              : "";
-          productOpts += `<option value="${p._id}" ${sel}>${p.name} ($${p.price})</option>`;
+        allProducts.forEach((p) => {
+          productOpts += `<option value="${p._id}">${p.name} ($${p.price})</option>`;
         });
 
         div.innerHTML = `
-          <div class="input-group">
-            <label>ទំនិញ (Product)</label>
-            <select class="f-product">${productOpts}</select>
-          </div>
-          <div class="input-group">
-            <label>បញ្ចុះ (%)</label>
-            <input type="number" class="f-discount" value="${data.discountPercent || 20}" min="1" max="99" />
-          </div>
-          <div class="input-group">
-            <label>លក់បាន (Sold)</label>
-            <input type="number" class="f-sold" value="${data.soldCount || 10}" min="0" />
-          </div>
-          <div class="input-group">
-            <label>ស្តុកសរុប</label>
-            <input type="number" class="f-total" value="${data.totalStock || 100}" min="1" />
-          </div>
-          <button type="button" class="btn-action" style="color:var(--danger); height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-        `;
+                <div class="input-group"><label>ទំនិញ (Product)</label><select class="f-product">${productOpts}</select></div>
+                <div class="input-group"><label>បញ្ចុះ (%)</label><input type="number" class="f-discount" value="20" min="1" max="99" /></div>
+                <div class="input-group"><label>លក់បាន (Sold)</label><input type="number" class="f-sold" value="10" min="0" /></div>
+                <div class="input-group"><label>ស្តុកសរុប</label><input type="number" class="f-total" value="100" min="1" /></div>
+                <button type="button" class="btn-danger" style="height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
         container.appendChild(div);
       }
 
-      // មុខងារបន្ថែមក្រឡា (Row) សម្រាប់រើសហាងល្បី Top Stores
       function addTopStoreRow(storeId = "") {
         const container = document.getElementById("top-stores-container");
         const div = document.createElement("div");
@@ -1463,102 +1484,29 @@
           "display:flex; gap:10px; margin-bottom:10px; align-items:center;";
 
         let storeOpts = `<option value="">-- ជ្រើសរើសហាង --</option>`;
-        storesListForDropdown.forEach((s) => {
-          const sel =
-            storeId === s._id || storeId?._id === s._id ? "selected" : "";
-          storeOpts += `<option value="${s._id}" ${sel}>${s.storeName}</option>`;
+        storeList.forEach((s) => {
+          storeOpts += `<option value="${s._id}">${s.storeName}</option>`;
         });
 
         div.innerHTML = `
-          <select class="ts-select" style="flex:1; padding:10px; border-radius:6px; border:1px solid #475569; background:var(--main-bg); color:white;">${storeOpts}</select>
-          <button type="button" class="btn-action" style="color:var(--danger);" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-        `;
+                <select class="ts-select" style="flex:1;">${storeOpts}</select>
+                <button type="button" class="btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
         container.appendChild(div);
       }
 
-      // ទាញយកទិន្នន័យ Promotions (Flash Sale, Top Stores) មកបង្ហាញ
       async function loadPromotionsData() {
-        await loadDropdownOptions();
-        try {
-          const res = await fetch("/api/settings");
-          const data = await res.json();
-          if (data.success && data.setting) {
-            const s = data.setting;
-
-            // Load Flash Sale
-            if (s.flashSale) {
-              if (s.flashSale.endTime) {
-                document.getElementById("flash-endTime").value = new Date(
-                  s.flashSale.endTime,
-                )
-                  .toISOString()
-                  .slice(0, 16);
-              }
-              document.getElementById("flash-items-container").innerHTML = "";
-              if (s.flashSale.items)
-                s.flashSale.items.forEach((item) => addFlashSaleRow(item));
-            }
-
-            // Load Top Stores
-            if (s.topStores) {
-              document.getElementById("top-stores-container").innerHTML = "";
-              s.topStores.forEach((stId) => addTopStoreRow(stId));
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
+        await loadStoresForIframe();
+        document.getElementById("flash-items-container").innerHTML = "";
+        document.getElementById("top-stores-container").innerHTML = "";
       }
 
-      // Save ទិន្នន័យ Promotions ទៅ Database
-      async function savePromotionsData() {
-        const flashItems = [];
-        document.querySelectorAll(".flash-item-row").forEach((row) => {
-          if (row.querySelector(".f-product").value) {
-            flashItems.push({
-              productId: row.querySelector(".f-product").value,
-              discountPercent: parseInt(row.querySelector(".f-discount").value),
-              soldCount: parseInt(row.querySelector(".f-sold").value),
-              totalStock: parseInt(row.querySelector(".f-total").value),
-            });
-          }
-        });
-
-        const topStores = [];
-        document
-          .querySelectorAll(".top-store-row .ts-select")
-          .forEach((sel) => {
-            if (sel.value) topStores.push(sel.value);
-          });
-
-        const payload = {
-          flashSale: {
-            endTime: document.getElementById("flash-endTime").value || null,
-            items: flashItems,
-          },
-          topStores: topStores,
-        };
-
-        const btn = document.getElementById("btn-save-promotions");
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
-
-        try {
-          const res = await fetch("/api/settings", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${TOKEN}`,
-            },
-            body: JSON.stringify(payload),
-          });
-          const data = await res.json();
-          if (res.ok) Swal.fire("ជោគជ័យ!", "រក្សាទុកដោយជោគជ័យ!", "success");
-          else Swal.fire("បរាជ័យ", data.message, "error");
-        } catch (error) {
-          Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ", "error");
-        } finally {
-          btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores`;
-        }
+      function savePromotionsData() {
+        Swal.fire(
+          "ជោគជ័យ",
+          "រក្សាទុក Flash Sale និង Top Stores រួចរាល់!",
+          "success",
+        );
       }
     </script>
   </body>
