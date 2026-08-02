@@ -475,18 +475,10 @@
         loader.style.display = "flex";
 
         try {
-          // 💡 ស្វែងរកលេខសម្គាល់អតិថិជន (Buyer ID) ពី LocalStorage ដោយស្វ័យប្រវត្តិ
-          let buyerId =
-            localStorage.getItem("userId") || localStorage.getItem("_id");
-          const userData = localStorage.getItem("user");
+          const token = localStorage.getItem("token");
 
-          if (!buyerId && userData) {
-            const parsedUser = JSON.parse(userData);
-            buyerId = parsedUser._id || parsedUser.id;
-          }
-
-          // បើរកមិនឃើញ ID ទេ អោយគាត់ទៅ Login វិញ
-          if (!buyerId) {
+          // បើគ្មាន Token ទេ មានន័យថាគាត់អត់ទាន់ Login មែន
+          if (!token) {
             Swal.fire({
               icon: "warning",
               title: "សូមចូលគណនី",
@@ -496,9 +488,39 @@
             return;
           }
 
-          const token = localStorage.getItem("token") || "";
+          // 💡 វេទមន្តនៅទីនេះ៖ បំប្លែង (Decode) Token ដើម្បីទាញយក User ID មកប្រើដោយស្វ័យប្រវត្តិ
+          let buyerId = null;
+          try {
+            // កាត់យកតែផ្នែកកណ្តាលនៃ Token ហើយបំប្លែងវាពី Base64 មកជា JSON
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+              window
+                .atob(base64)
+                .split("")
+                .map(function (c) {
+                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join(""),
+            );
 
-          // 💡 បញ្ជូន buyerId ទៅក្នុង URL អោយ Backend ស្គាល់
+            const payload = JSON.parse(jsonPayload);
+            buyerId = payload.id; // ទាញយក id ដែលធ្លាប់ sign ដោយ authController
+          } catch (e) {
+            console.error("មិនអាចអាន Token បានទេ:", e);
+          }
+
+          if (!buyerId) {
+            Swal.fire({
+              icon: "error",
+              title: "បញ្ហាគណនី",
+              text: "មិនអាចសម្គាល់គណនីរបស់អ្នកបានទេ!",
+            });
+            loader.style.display = "none";
+            return;
+          }
+
+          // 💡 បញ្ជូន buyerId ទៅក្នុង URL តាមអ្វីដែល Backend ត្រូវការ
           const response = await fetch(
             `/api/orders/my-orders?buyerId=${buyerId}`,
             {
@@ -548,7 +570,7 @@
       function getActionButtons(order) {
         let btns = "";
         if (order.status === "pending" || order.status === "processing") {
-          btns += `<button class="btn btn-outline" onclick="contactSeller('${order.store._id}')"><i class="fas fa-comment-dots"></i> ទាក់ទងអ្នកលក់</button>`;
+          btns += `<button class="btn btn-outline" onclick="contactSeller('${order.store?._id || ""}')"><i class="fas fa-comment-dots"></i> ទាក់ទងអ្នកលក់</button>`;
         } else if (order.status === "shipped") {
           btns += `<button class="btn btn-primary" onclick="confirmOrder('${order._id}')"><i class="fas fa-check-circle"></i> បញ្ជាក់ការទទួល</button>`;
         } else if (order.status === "completed") {
@@ -599,7 +621,7 @@
           html += `
         <div class="order-card">
             <div class="card-header">
-                <div class="store-info"><i class="fas fa-store"></i> ${order.store?.storeName || "ហាងមិនស្គាល់"}</div>
+                <div class="store-info"><i class="fas fa-store"></i> ${order.store?.storeName || "ហាងទូទៅ"}</div>
                 <div class="status-badge ${statusInfo.class}">${statusInfo.text}</div>
             </div>
             ${itemsHtml}
