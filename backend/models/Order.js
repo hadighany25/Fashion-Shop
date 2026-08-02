@@ -67,17 +67,16 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// 🌟 Mongoose Pre-save Hook (ស៊េរីការពារការគាំង) 🌟
-orderSchema.pre("save", async function (next) {
+// 🌟 Mongoose Pre-save Hook (លុប next() ចេញព្រោះប្រើ async) 🌟
+orderSchema.pre("save", async function () {
   try {
-    // ឆែកមើលថាមាន buyer ហើយវាជា ObjectId ត្រឹមត្រូវ (កុំឱ្យ CastError)
+    // ឆែកមើលថាមាន buyer ហើយវាជា ObjectId ត្រឹមត្រូវ
     if (
       this.buyer &&
       mongoose.Types.ObjectId.isValid(this.buyer) &&
       (this.phone === "មិនទាន់បញ្ជាក់" ||
         this.shippingAddress === "មិនទាន់បញ្ជាក់")
     ) {
-      // ទាញយក User Model ដោយផ្ទាល់ ជៀសវាង Error Require Module
       const User = mongoose.models.User;
 
       if (User) {
@@ -90,10 +89,10 @@ orderSchema.pre("save", async function (next) {
         }
       }
     }
-    next();
+    // Mongoose ជំនាន់ថ្មី ប្រើ async មិនបាច់ហៅ next() ទេ វាដើរទៅមុខដោយស្វ័យប្រវត្តិពេលចប់កូដ
   } catch (error) {
-    console.error("⚠️ Hook Error (Ignored):", error);
-    next(); // 👈 សំខាន់! ទោះមាន Error ក្នុង Hook ក៏ឱ្យវាបន្ត Save Order ដែរ ដើម្បីកុំឱ្យគាំងទូទាត់លុយ
+    console.error("⚠️ Hook Error (Ignored):", error.message);
+    // បើមាន Error ក៏វាមិនគាំងដែរ វាគ្រាន់តែមិនបានទាញទិន្នន័យ User មកបញ្ចួល
   }
 });
 
