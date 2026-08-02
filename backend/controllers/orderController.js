@@ -1,7 +1,8 @@
+const mongoose = require("mongoose"); // 👈 ថែមជួរនេះ ដើម្បីយកមកឆែក ObjectId
 const Order = require("../models/Order");
 const Store = require("../models/Store");
 
-// ១. បង្កើតវិក័យប័ត្រថ្មី (កែសម្រួលឱ្យស៊ីគ្នា ១០០% ជាមួយ Schema ថ្មី)
+// ១. បង្កើតវិក័យប័ត្រថ្មី (ដាក់អាវក្រោះការពារការគាំង ១០០%)
 const createOrder = async (req, res) => {
   try {
     const {
@@ -14,24 +15,25 @@ const createOrder = async (req, res) => {
       phone,
     } = req.body;
 
-    // 🌟 ការពារសុវត្ថិភាព ទី១៖ រៀបចំទិន្នន័យទំនិញ (items) ឱ្យត្រូវប្រឡោះ Mongoose
-    const formattedItems = items.map((item) => ({
-      product: item.product || item.productId || item.id, // ចាប់យក ID អោយត្រូវ
-      name: item.name || "ទំនិញគ្មានឈ្មោះ",
-      price: Number(item.price) || 0,
-      quantity: Number(item.quantity || item.qty || 1), // ទោះ Frontend បាញ់ qty ឬ quantity ក៏ត្រូវ
-      image: item.image || item.imageUrl || "https://via.placeholder.com/80",
-      variant: item.variant || "",
-    }));
+    // 🌟 ការពារទី១៖ សម្អាតទិន្នន័យទំនិញកុំឱ្យខុសទម្រង់ DB
+    const formattedItems = items.map((item) => {
+      const pId = item.product || item.productId || item.id;
+      return {
+        // បើ ID មិនត្រឹមត្រូវ ដាក់ undefined កុំឱ្យ DB គាំង (CastError)
+        product: mongoose.Types.ObjectId.isValid(pId) ? pId : undefined,
+        name: item.name || "ទំនិញគ្មានឈ្មោះ",
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity || item.qty || 1),
+        image: item.image || item.imageUrl || "https://via.placeholder.com/80",
+        variant: item.variant || "",
+      };
+    });
 
-    // បង្កើតវិក័យប័ត្រថ្មី រួច Save ចូល MongoDB
     const newOrder = new Order({
       orderId,
       totalAmount: Number(totalAmount) || 0,
-      items: formattedItems, // 👈 ប្រើ Array ដែលសម្អាតរួច
+      items: formattedItems,
       paymentStatus: "PENDING",
-      buyer: buyer || null, // បើអត់មានដាក់ null ដើម្បីកុំឱ្យ CastError
-      store: store || null,
       shippingAddress: shippingAddress || "មិនទាន់បញ្ជាក់",
       phone: phone || "មិនទាន់បញ្ជាក់",
       status: "pending",
@@ -43,15 +45,33 @@ const createOrder = async (req, res) => {
       ],
     });
 
+    // 🌟 ការពារទី២៖ ពិនិត្យ buyer និង store កុំឱ្យជាប់ String ទទេ "" ដែលធ្វើឱ្យគាំង
+    if (buyer && mongoose.Types.ObjectId.isValid(buyer)) {
+      newOrder.buyer = buyer;
+    }
+    if (store && mongoose.Types.ObjectId.isValid(store)) {
+      newOrder.store = store;
+    }
+
     await newOrder.save();
     res.status(200).json({ success: true, message: "កត់ត្រាវិក័យប័ត្រជោគជ័យ" });
   } catch (error) {
-    // 🌟 ការពារសុវត្ថិភាព ទី២៖ បង្ហាញ Error ច្បាស់ៗឱ្យដឹងថាមកពីអី
-    console.error("កំហុសក្នុងការបង្កើតវិក័យប័ត្រ:", error.message || error);
+    console.error("🔥 កំហុសបង្កើតវិក័យប័ត្រ:", error);
+
+    // 🌟 ការពារទី៣៖ ចាប់ Error ជាន់លេខវិក័យប័ត្រ (Duplicate Key) ចំៗ
+    if (error.code === 11000) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "លេខវិក័យប័ត្រនេះមានក្នុងប្រព័ន្ធរួចហើយ សូម Refresh (F5) ទំព័រនេះ!",
+        detail: error.message,
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "បញ្ហាក្នុងការ Save ចូល Database",
-      detail: error.message, // បោះឱ្យ Frontend ឃើញប្រវត្តិ Error
+      detail: error.message, // ផ្ញើបញ្ហាពិតប្រាកដទៅឱ្យ Frontend ដឹង
     });
   }
 };
