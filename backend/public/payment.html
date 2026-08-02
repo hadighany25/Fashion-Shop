@@ -344,15 +344,19 @@
           // រង់ចាំឱ្យ Order ទាំងអស់ Save ចូល Database ជោគជ័យសិន
           await Promise.all(orderPromises);
 
-          // 🌟 ជំហានទី៣៖ សុំ QR Code ពីធនាគារ (ប្រើតម្លៃសរុបទាំងអស់ currentTotal)
+          // 🌟 ជំហានទី៣៖ សុំ QR Code ពីធនាគារ
           document.getElementById("qr-instruction").innerText =
             "កំពុងសុំ QR ពីធនាគារ...";
+
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: currentOrderId }), // Backend គួរតែដឹងតម្លៃសរុប ឬយើងបាញ់តម្លៃទៅតាមការកំណត់ចាស់
+            body: JSON.stringify({
+              orderId: currentOrderId,
+              amount: currentTotal, // 👈 បង្ខំឱ្យវាប្រើតម្លៃ $9.00 នេះផ្ទាល់
+              totalAmount: currentTotal, // 👈 (ខ្ញុំដាក់ទាំង ២ ឈ្មោះ ការពារ Backend បងទារឈ្មោះខុសគ្នា)
+            }),
           });
-
           const qrData = await qrResponse.json();
 
           if (qrData.success) {
