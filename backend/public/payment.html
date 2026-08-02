@@ -24,6 +24,7 @@
     </style>
   </head>
   <body class="text-gray-800 antialiased flex flex-col min-h-screen">
+    <!-- ================= ផ្នែក HEADER ================= -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div
         class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between"
@@ -42,7 +43,7 @@
 
     <main class="flex-grow max-w-5xl mx-auto px-4 py-8 w-full">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- ផ្នែកខាងឆ្វេង៖ ជម្រើសទូទាត់ -->
+        <!-- ================= ផ្នែកខាងឆ្វេង៖ ជម្រើសទូទាត់ ================= -->
         <div
           class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit"
         >
@@ -68,7 +69,7 @@
             </button>
           </div>
 
-          <!-- QR Section -->
+          <!-- ផ្នែក U-Pay QR -->
           <div id="qr-section" class="text-center">
             <div
               class="inline-block p-4 border-2 border-dashed border-blue-200 rounded-2xl bg-blue-50 mb-4 relative min-h-[200px] flex items-center justify-center w-full max-w-[250px] mx-auto"
@@ -108,7 +109,7 @@
             </button>
           </div>
 
-          <!-- Card Section -->
+          <!-- ផ្នែក បង់តាមកាត -->
           <div id="card-section" class="hidden">
             <div class="space-y-4">
               <div>
@@ -133,7 +134,7 @@
           </div>
         </div>
 
-        <!-- ផ្នែកខាងស្ដាំ៖ សង្ខេបការបញ្ជាទិញ -->
+        <!-- ================= ផ្នែកខាងស្ដាំ៖ សង្ខេបការបញ្ជាទិញ ================= -->
         <div
           class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit flex flex-col"
         >
@@ -180,11 +181,12 @@
       </div>
     </main>
 
+    <!-- ================= ផ្នែក JAVASCRIPT LOGIC ================= -->
     <script>
       const API_ORDER_CREATE = "/api/orders/create";
       const API_UPAY_QR = "/api/payment/create-qr";
       const API_ORDER_STATUS = "/api/payment/orders/status";
-      const API_GET_PRODUCTS = "/api/products"; // 🌟 API សម្រាប់ទាញរូបភាពពី Database
+      const API_GET_PRODUCTS = "/api/products";
 
       let currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
       let currentTotal = 0;
@@ -196,7 +198,9 @@
       let currentPhone = "មិនទាន់បញ្ជាក់";
       let currentAddress = "មិនទាន់បញ្ជាក់";
 
-      // 🌟 ប្ដូរទៅជា async ដើម្បីរង់ចាំទាញរូបភាពពី DB សិន
+      // ----------------------------------------------------
+      // ១. ចាប់ផ្ដើមទំព័រ (Init & Fetch Data)
+      // ----------------------------------------------------
       document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -239,22 +243,30 @@
         document.getElementById("display-order-id").innerText =
           "លេខវិក័យប័ត្រ: " + currentOrderId;
 
-        // 🌟 ដំណើរការទាញយករូបភាពពី Database ផ្ទាល់! 🌟
+        // ទាញយករូបភាព និងតម្លៃពិតប្រាកដពី Database
         try {
           const prodRes = await fetch(API_GET_PRODUCTS);
           const prodData = await prodRes.json();
 
           if (prodData.success && prodData.products) {
             cartItems = cartItems.map((item) => {
-              // ស្វែងរកទំនិញក្នុង DB ដែលមាន ID ដូចទំនិញក្នុងកន្ត្រក
               const realProduct = prodData.products.find(
                 (p) => p._id === item.id || p._id === item.productId,
               );
               if (realProduct) {
                 return {
                   ...item,
-                  image: realProduct.imageUrl || realProduct.image, // យក Link រូបភាពថ្មីពី DB 💯
-                  price: realProduct.price, // អាច update តម្លៃពិតប្រាកដពី DB ក៏បានការពារភ្ញៀវ hack តម្លៃ
+                  image:
+                    realProduct.imageUrl ||
+                    realProduct.image ||
+                    item.image ||
+                    item.imageUrl,
+                  price: realProduct.price,
+                  storeId:
+                    realProduct.store?._id ||
+                    realProduct.store ||
+                    item.storeId ||
+                    item.store, // ធានាសុវត្ថិភាពទិន្នន័យហាង
                 };
               }
               return item;
@@ -264,10 +276,10 @@
           console.error("មិនអាចភ្ជាប់ទៅ Database ដើម្បីទាញរូបភាពបានទេ", e);
         }
 
-        // បន្ទាប់ពី Update រូបភាពពី DB រួចរាល់ ទើប Render និង ទូទាត់
         renderOrderList();
         startPaymentProcess();
 
+        // លម្អិតការវាយបញ្ចូលលេខកាត
         const cardNum = document.getElementById("card-num");
         cardNum.addEventListener("input", function (e) {
           let val = e.target.value.replace(/[^\d]/g, "");
@@ -275,6 +287,9 @@
         });
       });
 
+      // ----------------------------------------------------
+      // ២. បង្ហាញបញ្ជីទំនិញ
+      // ----------------------------------------------------
       function renderOrderList() {
         const itemsContainer = document.getElementById("order-items");
         let subTotal = 0;
@@ -283,18 +298,13 @@
           .map((item) => {
             const itemQty = item.qty || item.quantity || 1;
             subTotal += item.price * itemQty;
-
-            // រូបភាពឥឡូវនេះគឺទាញចេញពី DB ច្បាស់ ១០០%
             const imgSrc =
               item.image || item.imageUrl || "https://via.placeholder.com/80";
-
-            const imgHtml = `<img src="${imgSrc}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
-                 <div class="w-12 h-12 rounded-lg bg-gray-200 border border-gray-200 flex items-center justify-center hidden"><i class="fas fa-image text-gray-400"></i></div>`;
 
             return `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                 <div class="flex items-center flex-1 gap-3 overflow-hidden">
-                    ${imgHtml}
+                    <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80';" class="w-12 h-12 rounded-lg object-cover border border-gray-200" />
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
                         <div class="text-xs text-gray-500 mt-0.5">ចំនួន: ${itemQty}</div>
@@ -312,11 +322,15 @@
           "$" + currentTotal.toFixed(2);
       }
 
+      // ----------------------------------------------------
+      // ៣. ដំណើរការបែងចែកហាង & បង្កើត QR (Core Logic)
+      // ----------------------------------------------------
       async function startPaymentProcess() {
         try {
           document.getElementById("qr-instruction").innerText =
             "កំពុងរៀបចំវិក័យប័ត្រ...";
 
+          // បំបែកទំនិញតាមហាងនីមួយៗ
           const ordersByStore = {};
           cartItems.forEach((item) => {
             const storeId = item.storeId || item.store || "unknown_store";
@@ -328,46 +342,61 @@
             });
           });
 
-          const orderPromises = Object.keys(ordersByStore).map((storeId) => {
-            const storeItems = ordersByStore[storeId];
-            const storeSubTotal = storeItems.reduce(
-              (sum, i) => sum + i.price * i.quantity,
-              0,
-            );
+          const totalStoresCount = Object.keys(ordersByStore).length;
 
-            const orderPayload = {
-              orderId: currentOrderId,
-              totalAmount: storeSubTotal,
-              items: storeItems,
-              buyer: currentBuyerId,
-              shippingAddress: currentAddress,
-              phone: currentPhone,
-              store: storeId !== "unknown_store" ? storeId : null,
-            };
+          // ធ្វើការ Save វិក័យប័ត្រនីមួយៗចូល Database
+          const orderPromises = Object.keys(ordersByStore).map(
+            (storeId, index) => {
+              const storeItems = ordersByStore[storeId];
+              const storeSubTotal = storeItems.reduce(
+                (sum, i) => sum + i.price * i.quantity,
+                0,
+              );
 
-            return fetch(API_ORDER_CREATE, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderPayload),
-            }).then((res) => {
-              if (!res.ok)
-                throw new Error("មិនអាចកត់ត្រាវិក័យប័ត្រចូល Database បានទេ");
-              return res.json();
-            });
-          });
+              // 🌟 គន្លឹះសំខាន់ទី ១៖ បើមានហាងលើសពី១, យើងបូកកន្ទុយលេខបញ្ញើ (ឧ. ORD-123456-1) ដើម្បីកុំឱ្យ Database លោត Error ជាន់គ្នា
+              const uniqueOrderId =
+                totalStoresCount > 1
+                  ? `${currentOrderId}-${index + 1}`
+                  : currentOrderId;
 
-          await Promise.all(orderPromises);
+              const orderPayload = {
+                orderId: uniqueOrderId,
+                totalAmount: storeSubTotal,
+                items: storeItems,
+                buyer: currentBuyerId,
+                shippingAddress: currentAddress,
+                phone: currentPhone,
+                store: storeId !== "unknown_store" ? storeId : null,
+              };
+
+              return fetch(API_ORDER_CREATE, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderPayload),
+              }).then(async (res) => {
+                if (!res.ok) {
+                  const err = await res.json();
+                  throw new Error(
+                    err.message || "មិនអាចកត់ត្រាវិក័យប័ត្រចូល Database បានទេ",
+                  );
+                }
+                return res.json();
+              });
+            },
+          );
+
+          await Promise.all(orderPromises); // រង់ចាំឲ្យ Save ជោគជ័យទាំងអស់សិន
 
           document.getElementById("qr-instruction").innerText =
             "កំពុងសុំ QR ពីធនាគារ...";
 
-          // 🌟 ជំហានទី៣៖ បាញ់តម្លៃសរុប $9.00 ទៅអោយ Backend
+          // 🌟 គន្លឹះសំខាន់ទី ២៖ បញ្ជូនលេខមេ (currentOrderId) និងលុយសរុប ទៅឱ្យធនាគារបង្កើត QR តែមួយ!
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               orderId: currentOrderId,
-              amount: currentTotal, // 👈 បាញ់តម្លៃ $9.00 ពិតប្រាកដទៅឱ្យ Backend
+              amount: currentTotal,
             }),
           });
           const qrData = await qrResponse.json();
@@ -387,8 +416,7 @@
               .classList.remove("pointer-events-none", "opacity-50");
             startPolling();
           } else {
-            let errorMsg = qrData.message || "មិនអាចបង្កើត QR បានទេ";
-            throw new Error(errorMsg);
+            throw new Error(qrData.message || "មិនអាចបង្កើត QR បានទេ");
           }
         } catch (error) {
           console.error("កំហុស:", error);
@@ -399,6 +427,9 @@
         }
       }
 
+      // ----------------------------------------------------
+      // ៤. មុខងារ Polling និង មុខងារបន្ទាប់បន្សំ
+      // ----------------------------------------------------
       function startPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
@@ -428,6 +459,7 @@
       function openUPayBank() {
         if (uPayWebLink) window.open(uPayWebLink, "_blank");
       }
+
       function switchTab(type) {
         document
           .getElementById("qr-section")
@@ -436,6 +468,7 @@
           .getElementById("card-section")
           .classList.toggle("hidden", type !== "card");
       }
+
       function processCardPayment() {
         Swal.fire({
           icon: "success",
