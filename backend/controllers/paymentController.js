@@ -2,27 +2,29 @@ const Order = require("../models/Order");
 const crypto = require("crypto");
 const axios = require("axios");
 
-// ១. មុខងារសម្រាប់ស្នើសុំ QR Code ពី U-Pay Bank (General API)
+// ============================================================================
+// ១. មុខងារសម្រាប់ស្នើសុំ QR Code ពី U-Pay Bank
+// ============================================================================
 const createUPayQR = async (req, res) => {
   try {
-    // 🌟 ចាប់យក amount ពី Frontend (បើមាន)
     const { orderId, amount: frontendAmount } = req.body;
 
-    // 🌟 ប្រើ .find() ជំនួស .findOne() ដើម្បីទាញយក Order គ្រប់ហាងទាំងអស់ដែលមាន orderId ដូចគ្នា
-    const orders = await Order.find({ orderId });
+    // 🌟 កែតម្រូវទី១៖ ប្រើ Regex ដើម្បីចាប់យក Order គ្រប់ហាងទាំងអស់ (ORD-123456, ORD-123456-1, -2...)
+    // ការពារកុំឱ្យវាច្រឡំជាមួយ ORD-1234567 ដោយប្រើ (?:-|$)
+    const orderIdRegex = new RegExp("^" + orderId + "(?:-|$)");
+
+    const orders = await Order.find({ orderId: orderIdRegex });
     if (!orders || orders.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ!" });
     }
 
-    // ទាញយកកូដសម្ងាត់ពី Fly.io Secrets
     const merchantId = process.env.UPAY_MERCHANT_ID;
     const apiKey = process.env.UPAY_API_KEY;
     const apiSecret = process.env.UPAY_API_SECRET;
     const baseUrl = process.env.UPAY_BASE_URL;
 
-    // 🌟 គណនាតម្លៃសរុបពិតប្រាកដ
     let finalAmount = frontendAmount;
 
     // បើ Frontend អត់មានបោះតម្លៃមកទេ ត្រូវបូកសរុបតម្លៃ Order គ្រប់ហាងដោយស្វ័យប្រវត្តិ
@@ -31,33 +33,28 @@ const createUPayQR = async (req, res) => {
       finalAmount = subTotal + 1.5; // បូក 1.5 ថ្លៃដឹកជញ្ជូន
     }
 
-    // រៀបចំទិន្នន័យផ្ញើទៅ U-Pay
-    const amount = Number(finalAmount).toFixed(2); // ធានាថាចេញ $9.00
+    const amount = Number(finalAmount).toFixed(2);
     const remark = `ទូទាត់សម្រាប់វិក័យប័ត្រលេខ: ${orderId}`;
     const reqTime = Date.now().toString();
 
-    // បង្កើតសោរសម្ងាត់ (Signature)
     const rawSignature = `${merchantId}${orderId}${amount}${apiKey}${reqTime}`;
     const hashSignature = crypto
       .createHmac("sha256", apiSecret)
       .update(rawSignature)
       .digest("hex");
 
-    // បាញ់ទិន្នន័យទៅកាន់ U-Pay API
     const response = await axios.post(
       `${baseUrl}/api/merchants/qr/create`,
       {
         merchant_id: merchantId,
-        order_id: orderId,
+        order_id: orderId, // បញ្ជូនលេខមេទៅកាន់ U-Pay
         amount: amount,
         remark: remark,
         notify_url: "https://fashion-shop-kh.fly.dev/api/payment/webhook",
         req_time: reqTime,
         sign: hashSignature,
       },
-      {
-        headers: { "Content-Type": "application/json" },
-      },
+      { headers: { "Content-Type": "application/json" } },
     );
 
     if (response.data && response.data.code === "SUCCESS") {
@@ -84,14 +81,18 @@ const createUPayQR = async (req, res) => {
   }
 };
 
-// ២. មុខងារសម្រាប់ចាំទទួលដំណឹង (Webhook) ពី U-Pay ពេលអតិថិជនទូទាត់ជោគជ័យ
+// ============================================================================
+// ២. មុខងារ Webhook ទទួលដំណឹងពីធនាគារ
+// ============================================================================
 const handleWebhook = async (req, res) => {
   try {
     const { orderId, amount, status, upayTransactionId } = req.body;
 
-    // 🌟 ប្រើ updateMany ដើម្បីអាប់ដេត Order របស់គ្រប់ហាងទាំងអស់ដែលមាន orderId នេះទៅជា PAID
+    // 🌟 កែតម្រូវទី២៖ ប្រើ Regex UpdateMany ដើម្បីប្រាប់ឱ្យ Database អាប់ដេតគ្រប់ហាងទាំងអស់ដែលនៅក្រោមលេខមេនេះ
+    const orderIdRegex = new RegExp("^" + orderId + "(?:-|$)");
+
     const result = await Order.updateMany(
-      { orderId: orderId },
+      { orderId: orderIdRegex },
       {
         $set: {
           paymentStatus: status || "PAID",
@@ -107,25 +108,27 @@ const handleWebhook = async (req, res) => {
         .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ" });
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Webhook received and all orders updated successfully",
-      });
+    res.status(200).json({
+      success: true,
+      message:
+        "Webhook received and all multi-store orders updated successfully",
+    });
   } catch (error) {
     console.error("Webhook Error:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
-// ៣. មុខងារសម្រាប់ Frontend ឆែកមើលស្ថានភាពលុយ (Polling) រៀងរាល់ ៣ វិនាទីម្តង
+// ============================================================================
+// ៣. មុខងារ Polling ឆែកស្ថានភាពលុយ
+// ============================================================================
 const checkOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    // ឆែកមើលតែ ១ គឺគ្រប់គ្រាន់ ព្រោះ Webhook បាន Update ទាំងអស់ព្រមគ្នារួចហើយ
-    const order = await Order.findOne({ orderId });
+    // 🌟 កែតម្រូវទី៣៖ ឆែករកមើលយ៉ាងហោចណាស់ Order ១ ដែលមានលេខមេនេះ ដើម្បីដឹងថា PAID ឬនៅ
+    const orderIdRegex = new RegExp("^" + orderId + "(?:-|$)");
+    const order = await Order.findOne({ orderId: orderIdRegex });
 
     if (!order) {
       return res
@@ -133,7 +136,6 @@ const checkOrderStatus = async (req, res) => {
         .json({ success: false, message: "រកមិនឃើញវិក័យប័ត្រនេះទេ" });
     }
 
-    // បោះស្ថានភាពបច្ចុប្បន្ន (PENDING ឬ PAID) ទៅឲ្យ Frontend
     res.status(200).json({
       success: true,
       status: order.paymentStatus,
@@ -144,5 +146,4 @@ const checkOrderStatus = async (req, res) => {
   }
 };
 
-// ✅ រៀបចំ Export មុខងារទាំងបីរួមគ្នាតែម្តង
 module.exports = { createUPayQR, handleWebhook, checkOrderStatus };
