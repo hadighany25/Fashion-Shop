@@ -2,7 +2,9 @@ const mongoose = require("mongoose"); // 👈 ថែមជួរនេះ ដើ
 const Order = require("../models/Order");
 const Store = require("../models/Store");
 
-// ១. បង្កើតវិក័យប័ត្រថ្មី (ដាក់អាវក្រោះការពារការគាំង ១០០%)
+// ==========================================
+// 📌 ១. បង្កើតវិក័យប័ត្រថ្មី (Create Order)
+// ==========================================
 const createOrder = async (req, res) => {
   try {
     const {
@@ -76,7 +78,9 @@ const createOrder = async (req, res) => {
   }
 };
 
-// ២. ទាញយកប្រវត្តិទិញរបស់អតិថិជន (Buyer)
+// ==========================================
+// 📌 ២. ទាញយកប្រវត្តិទិញរបស់អតិថិជន (Buyer Get Orders)
+// ==========================================
 const getMyOrders = async (req, res) => {
   try {
     const buyerId = req.user ? req.user.id : req.query.buyerId;
@@ -98,7 +102,9 @@ const getMyOrders = async (req, res) => {
   }
 };
 
-// ៣. អតិថិជនចុច "បញ្ជាក់ការទទួលអីវ៉ាន់"
+// ==========================================
+// 📌 ៣. អតិថិជនចុច "បញ្ជាក់ការទទួលអីវ៉ាន់" (Confirm Receipt)
+// ==========================================
 const confirmReceipt = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -123,7 +129,9 @@ const confirmReceipt = async (req, res) => {
   }
 };
 
-// ៤. អតិថិជនវាយតម្លៃហាង (Review)
+// ==========================================
+// 📌 ៤. អតិថិជនវាយតម្លៃហាង (Submit Review)
+// ==========================================
 const submitReview = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -174,9 +182,10 @@ const submitReview = async (req, res) => {
 };
 
 // ==========================================
-// 📌 API សម្រាប់ Seller បោះបង់ការបញ្ជាទិញ (Cancel Order)
+// 📌 ៥. API សម្រាប់បោះបង់ការបញ្ជាទិញ (Cancel Order)
 // ==========================================
-exports.cancelOrder = async (req, res) => {
+// ✅ កែពី exports.cancelOrder មកជា const cancelOrder វិញ ដើម្បីកុំឱ្យ Error ពេល Export
+const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id; // ចាប់យក _id របស់ Order ពី URL
     const { reason } = req.body; // ចាប់យកមូលហេតុពី Frontend
@@ -190,7 +199,7 @@ exports.cancelOrder = async (req, res) => {
     }
 
     // ២. ស្វែងរក Order នៅក្នុង Database
-    const order = await Order.findById(orderId); // ផ្លាស់ប្ដូរ 'Order' ទៅតាមឈ្មោះ Model របស់បង
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({
@@ -200,7 +209,6 @@ exports.cancelOrder = async (req, res) => {
     }
 
     // ៣. (Optional) ឆែកមើលសិទ្ធិ: ការពារកុំឱ្យ Seller ម្នាក់ ទៅលុប Order របស់ Seller ផ្សេង
-    // បើសិន Order Model របស់បងមាន field `seller` ឬ `store` អាចឆែកបាន៖
     // if (order.seller.toString() !== req.user._id.toString()) {
     //   return res.status(403).json({ success: false, message: "អ្នកគ្មានសិទ្ធិបោះបង់ Order នេះទេ!" });
     // }
@@ -234,6 +242,9 @@ exports.cancelOrder = async (req, res) => {
   }
 };
 
+// ==========================================
+// 📌 ៦. ចងក្រងនិង Export មុខងារទាំងអស់ទៅប្រើនៅកន្លែងផ្សេង
+// ==========================================
 module.exports = {
   createOrder,
   getMyOrders,
