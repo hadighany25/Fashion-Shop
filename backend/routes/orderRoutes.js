@@ -1,5 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
+// 💡 ១. Import Middleware ដែលប្រើសម្រាប់ឆែក Token (សូមប្ដូរទីតាំង Path និងឈ្មោះទៅតាម Project ពិតរបស់បង)
+// ឧទាហរណ៍៖
+const { verifyToken } = require("../middleware/authMiddleware");
+
 const {
   createOrder,
   getMyOrders,
@@ -11,8 +16,9 @@ const {
 router.post("/create", createOrder);
 
 // ផ្លូវថ្មី: សម្រាប់អតិថិជនគ្រប់គ្រងការបញ្ជាទិញ
-router.get("/my-orders", getMyOrders);
-router.put("/:id/confirm", confirmReceipt);
-router.post("/:id/review", submitReview);
+// 💡 ២. បន្ថែម verifyToken (ឬឈ្មោះ Middleware របស់បង) នៅកណ្ដាលផ្លូវទាំងនេះ
+router.get("/my-orders", verifyToken, getMyOrders);
+router.put("/:id/confirm", verifyToken, confirmReceipt);
+router.post("/:id/review", verifyToken, submitReview);
 
 module.exports = router;

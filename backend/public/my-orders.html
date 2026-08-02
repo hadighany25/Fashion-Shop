@@ -476,30 +476,57 @@
 
         try {
           const token = localStorage.getItem("token");
-
-          // បើគ្មាន Token ទេ មានន័យថាគាត់អត់ទាន់ Login
           if (!token) {
             Swal.fire({
               icon: "warning",
               title: "សូមចូលគណនី",
-              text: "អ្នកមិនទាន់បានចូលគណនី (Login) ទេ!",
+              text: "អ្នកមិនទាន់បានចូលគណនីទេ!",
             });
             loader.style.display = "none";
             return;
           }
 
-          // 💡 លែងចាំបាច់ Decode Token ខាង Frontend ទៀតហើយ!
-          // គ្រាន់តែបាញ់ Token ទៅ Backend គឺ Backend ដឹងថាជាអ្នកណាដោយស្វ័យប្រវត្តិ
-          const response = await fetch(`/api/orders/my-orders`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Backend នឹងទាញយក buyerId ពី Token នេះឯង
+          // Decode Token យក Buyer ID នៅទីនេះ
+          let buyerId = null;
+          try {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+              window
+                .atob(base64)
+                .split("")
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
+                .join(""),
+            );
+            buyerId = JSON.parse(jsonPayload).id;
+          } catch (e) {
+            console.error("កំហុសអាន Token");
+          }
+
+          if (!buyerId) {
+            loader.style.display = "none";
+            return Swal.fire({
+              icon: "error",
+              title: "បរាជ័យ",
+              text: "មិនអាចសម្គាល់គណនីបានទេ",
+            });
+          }
+
+          // បញ្ជូន ?buyerId=... ទៅឱ្យ Backend
+          const response = await fetch(
+            `/api/orders/my-orders?buyerId=${buyerId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
             },
-          });
+          );
 
           const result = await response.json();
-
           if (result.success) {
             allOrders = result.data;
             document
@@ -511,17 +538,15 @@
             Swal.fire({ icon: "error", title: "បរាជ័យ", text: result.message });
           }
         } catch (error) {
-          console.error("Error:", error);
           Swal.fire({
             icon: "error",
             title: "បញ្ហាប្រព័ន្ធ",
-            text: "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ",
+            text: "មិនអាចតភ្ជាប់ទៅ Server បានទេ",
           });
         } finally {
           loader.style.display = "none";
         }
       }
-
       // ==========================================
       // ២. មុខងារផ្សេងៗ (Status, Buttons, Render)
       // ==========================================
