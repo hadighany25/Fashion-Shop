@@ -198,6 +198,14 @@
       let currentPhone = "មិនទាន់បញ្ជាក់";
       let currentAddress = "មិនទាន់បញ្ជាក់";
 
+      // 🌟 Function សំខាន់បំផុត៖ ជួយចម្រាញ់យកតែ ID សុទ្ធសាធ ការពារកុំឱ្យជាប់ជា [object Object] ធ្វើឱ្យ DB គាំង
+      function extractId(data) {
+        if (!data) return null;
+        if (typeof data === "string") return data;
+        if (typeof data === "object") return data._id || data.id || null;
+        return null;
+      }
+
       // ----------------------------------------------------
       // ១. ចាប់ផ្ដើមទំព័រ (Init & Fetch Data)
       // ----------------------------------------------------
@@ -262,11 +270,13 @@
                     item.image ||
                     item.imageUrl,
                   price: realProduct.price,
-                  storeId:
-                    realProduct.store?._id ||
-                    realProduct.store ||
-                    item.storeId ||
-                    item.store, // ធានាសុវត្ថិភាពទិន្នន័យហាង
+                  // 🌟 ប្រើប្រាស់មុខងារ extractId ដើម្បីធានាថាវាចេញជា String ប្រាកដមែន
+                  storeId: extractId(
+                    realProduct.store || item.storeId || item.store,
+                  ),
+                  productId: extractId(
+                    realProduct._id || item.productId || item.id,
+                  ),
                 };
               }
               return item;
@@ -330,16 +340,13 @@
           document.getElementById("qr-instruction").innerText =
             "កំពុងរៀបចំវិក័យប័ត្រ...";
 
-          // បំបែកទំនិញតាមហាងនីមួយៗ
           const ordersByStore = {};
           cartItems.forEach((item) => {
-            const storeId = item.storeId || item.store || "unknown_store";
+            // 🌟 ត្រូវប្រាកដថា storeId ជា String ពិតប្រាកដ ទើបចែកប្រឡោះត្រូវ
+            const storeId =
+              extractId(item.storeId || item.store) || "unknown_store";
             if (!ordersByStore[storeId]) ordersByStore[storeId] = [];
-            ordersByStore[storeId].push({
-              ...item,
-              quantity: item.qty || item.quantity || 1,
-              image: item.image || item.imageUrl,
-            });
+            ordersByStore[storeId].push(item);
           });
 
           const totalStoresCount = Object.keys(ordersByStore).length;
@@ -349,39 +356,31 @@
             (storeId, index) => {
               const storeItems = ordersByStore[storeId];
               const storeSubTotal = storeItems.reduce(
-                (sum, i) => sum + i.price * i.quantity,
+                (sum, i) => sum + i.price * (i.qty || i.quantity || 1),
                 0,
               );
 
-              // 🌟 គន្លឹះសំខាន់ទី ១៖ បើមានហាងលើសពី១, យើងបូកកន្ទុយលេខបញ្ញើ (ឧ. ORD-123456-1) ដើម្បីកុំឱ្យ Database លោត Error ជាន់គ្នា
               const uniqueOrderId =
                 totalStoresCount > 1
                   ? `${currentOrderId}-${index + 1}`
                   : currentOrderId;
 
-              // 🌟 កែតម្រូវទី១៖ ផ្គូផ្គងទិន្នន័យឱ្យត្រូវប្រឡោះ Schema របស់ Database ចំៗ
+              // 🌟 កែតម្រូវទី១៖ ប្រើប្រាស់ extractId សម្រាប់ buyer, store និង product ការពារ Error 500
               const orderPayload = {
                 orderId: uniqueOrderId,
                 totalAmount: storeSubTotal,
                 items: storeItems.map((i) => ({
-                  product: i.productId || i.id || i.product, // ចាប់យក ID ឱ្យត្រូវ
+                  product: extractId(i.productId || i.id || i.product),
                   name: i.name,
-                  price: i.price,
-                  quantity: i.quantity || 1,
+                  price: Number(i.price),
+                  quantity: Number(i.qty || i.quantity || 1),
                   image: i.image || "https://via.placeholder.com/80",
                   variant: i.variant || "",
                 })),
-                buyer: currentBuyerId,
+                buyer: extractId(currentBuyerId),
                 shippingAddress: currentAddress,
                 phone: currentPhone,
-                // ការពារ Mongoose Error (Cast to ObjectId failed) ពេលអត់មានហាង
-                store:
-                  storeId &&
-                  storeId !== "unknown_store" &&
-                  storeId !== "undefined" &&
-                  storeId !== "null"
-                    ? storeId
-                    : null,
+                store: storeId !== "unknown_store" ? storeId : null,
               };
 
               return fetch(API_ORDER_CREATE, {
@@ -400,12 +399,11 @@
             },
           );
 
-          await Promise.all(orderPromises); // រង់ចាំឲ្យ Save ជោគជ័យទាំងអស់សិន
+          await Promise.all(orderPromises);
 
           document.getElementById("qr-instruction").innerText =
             "កំពុងសុំ QR ពីធនាគារ...";
 
-          // 🌟 គន្លឹះសំខាន់ទី ២៖ បញ្ជូនលេខមេ (currentOrderId) និងលុយសរុប ទៅឱ្យធនាគារបង្កើត QR តែមួយ!
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -474,7 +472,6 @@
       function openUPayBank() {
         if (uPayWebLink) window.open(uPayWebLink, "_blank");
       }
-
       function switchTab(type) {
         document
           .getElementById("qr-section")
@@ -483,7 +480,6 @@
           .getElementById("card-section")
           .classList.toggle("hidden", type !== "card");
       }
-
       function processCardPayment() {
         Swal.fire({
           icon: "success",
