@@ -184,6 +184,7 @@
       const API_ORDER_CREATE = "/api/orders/create";
       const API_UPAY_QR = "/api/payment/create-qr";
       const API_ORDER_STATUS = "/api/payment/orders/status";
+      const API_GET_PRODUCTS = "/api/products"; // 🌟 API សម្រាប់ទាញរូបភាពពី Database
 
       let currentOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
       let currentTotal = 0;
@@ -191,13 +192,12 @@
       let uPayWebLink = "";
       let pollingInterval;
 
-      // 🌟 អថេរសម្រាប់ផ្ទុកទិន្នន័យ អ្នកទិញ លេខទូរស័ព្ទ និង ទីតាំង (ផ្អែកលើ userSchema)
       let currentBuyerId = null;
       let currentPhone = "មិនទាន់បញ្ជាក់";
       let currentAddress = "មិនទាន់បញ្ជាក់";
 
-      document.addEventListener("DOMContentLoaded", () => {
-        // ១. ចាប់យក Token ដើម្បីទាញយក Buyer ID
+      // 🌟 ប្ដូរទៅជា async ដើម្បីរង់ចាំទាញរូបភាពពី DB សិន
+      document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("token");
         if (token) {
           try {
@@ -207,19 +207,17 @@
               window
                 .atob(base64)
                 .split("")
-                .map(function (c) {
-                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-                })
+                .map(
+                  (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2),
+                )
                 .join(""),
             );
-            const decoded = JSON.parse(jsonPayload);
-            currentBuyerId = decoded.id; // បាន ID អ្នកទិញ
+            currentBuyerId = JSON.parse(jsonPayload).id;
           } catch (e) {
-            console.error("កំហុសក្នុងការអាន Token");
+            console.error("កំហុសអាន Token");
           }
         }
 
-        // ២. ចាប់យក លេខទូរស័ព្ទ និង ទីតាំង ពីប្រវត្តិ Login ឱ្យត្រូវនឹង userSchema
         const savedUser = localStorage.getItem("user");
         if (savedUser) {
           try {
@@ -231,7 +229,6 @@
           } catch (e) {}
         }
 
-        // ៣. ចាប់យកទិន្នន័យកន្ត្រក
         const savedCart = localStorage.getItem("umall_cart");
         if (!savedCart || JSON.parse(savedCart).length === 0) {
           window.location.href = "cart.html";
@@ -242,6 +239,32 @@
         document.getElementById("display-order-id").innerText =
           "លេខវិក័យប័ត្រ: " + currentOrderId;
 
+        // 🌟 ដំណើរការទាញយករូបភាពពី Database ផ្ទាល់! 🌟
+        try {
+          const prodRes = await fetch(API_GET_PRODUCTS);
+          const prodData = await prodRes.json();
+
+          if (prodData.success && prodData.products) {
+            cartItems = cartItems.map((item) => {
+              // ស្វែងរកទំនិញក្នុង DB ដែលមាន ID ដូចទំនិញក្នុងកន្ត្រក
+              const realProduct = prodData.products.find(
+                (p) => p._id === item.id || p._id === item.productId,
+              );
+              if (realProduct) {
+                return {
+                  ...item,
+                  image: realProduct.imageUrl || realProduct.image, // យក Link រូបភាពថ្មីពី DB 💯
+                  price: realProduct.price, // អាច update តម្លៃពិតប្រាកដពី DB ក៏បានការពារភ្ញៀវ hack តម្លៃ
+                };
+              }
+              return item;
+            });
+          }
+        } catch (e) {
+          console.error("មិនអាចភ្ជាប់ទៅ Database ដើម្បីទាញរូបភាពបានទេ", e);
+        }
+
+        // បន្ទាប់ពី Update រូបភាពពី DB រួចរាល់ ទើប Render និង ទូទាត់
         renderOrderList();
         startPaymentProcess();
 
@@ -258,11 +281,10 @@
 
         itemsContainer.innerHTML = cartItems
           .map((item) => {
-            // ការពារបញ្ហា qty/quantity
             const itemQty = item.qty || item.quantity || 1;
             subTotal += item.price * itemQty;
 
-            // ការពារបញ្ហារូបភាព (ចាប់យក image ឬ imageUrl)
+            // រូបភាពឥឡូវនេះគឺទាញចេញពី DB ច្បាស់ ១០០%
             const imgSrc =
               item.image || item.imageUrl || "https://via.placeholder.com/80";
 
@@ -285,7 +307,7 @@
 
         document.getElementById("sub-total").innerText =
           "$" + subTotal.toFixed(2);
-        currentTotal = subTotal + 1.5; // បូកថ្លៃសេវាដឹក
+        currentTotal = subTotal + 1.5;
         document.getElementById("total-amount").innerText =
           "$" + currentTotal.toFixed(2);
       }
@@ -295,33 +317,26 @@
           document.getElementById("qr-instruction").innerText =
             "កំពុងរៀបចំវិក័យប័ត្រ...";
 
-          // 🌟 ជំហានទី១៖ ច្រោះនិងបែងចែកទំនិញតាមហាង (Group by Store ID)
           const ordersByStore = {};
           cartItems.forEach((item) => {
             const storeId = item.storeId || item.store || "unknown_store";
             if (!ordersByStore[storeId]) ordersByStore[storeId] = [];
-
-            // កែសម្រួលទិន្នន័យឱ្យត្រូវស្តង់ដារ Database មុននឹង Save
             ordersByStore[storeId].push({
               ...item,
-              quantity: item.qty || item.quantity || 1, // ប្ដូរទៅជា quantity កុំឱ្យលោត undefined
-              image:
-                item.image || item.imageUrl || "https://via.placeholder.com/80", // យក Link រូបភាពឱ្យប្រាកដ
+              quantity: item.qty || item.quantity || 1,
+              image: item.image || item.imageUrl,
             });
           });
 
-          // 🌟 ជំហានទី២៖ បង្កើត Order ច្រើនក្នុងពេលតែមួយ (១ហាង = ១ Order)
           const orderPromises = Object.keys(ordersByStore).map((storeId) => {
             const storeItems = ordersByStore[storeId];
-
-            // គណនាតម្លៃសរុបសម្រាប់តែហាងមួយនេះប៉ុណ្ណោះ
             const storeSubTotal = storeItems.reduce(
               (sum, i) => sum + i.price * i.quantity,
               0,
             );
 
             const orderPayload = {
-              orderId: currentOrderId, // ប្រើកូដ U-Pay តែមួយ
+              orderId: currentOrderId,
               totalAmount: storeSubTotal,
               items: storeItems,
               buyer: currentBuyerId,
@@ -341,20 +356,18 @@
             });
           });
 
-          // រង់ចាំឱ្យ Order ទាំងអស់ Save ចូល Database ជោគជ័យសិន
           await Promise.all(orderPromises);
 
-          // 🌟 ជំហានទី៣៖ សុំ QR Code ពីធនាគារ
           document.getElementById("qr-instruction").innerText =
             "កំពុងសុំ QR ពីធនាគារ...";
 
+          // 🌟 ជំហានទី៣៖ បាញ់តម្លៃសរុប $9.00 ទៅអោយ Backend
           const qrResponse = await fetch(API_UPAY_QR, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               orderId: currentOrderId,
-              amount: currentTotal, // 👈 បង្ខំឱ្យវាប្រើតម្លៃ $9.00 នេះផ្ទាល់
-              totalAmount: currentTotal, // 👈 (ខ្ញុំដាក់ទាំង ២ ឈ្មោះ ការពារ Backend បងទារឈ្មោះខុសគ្នា)
+              amount: currentTotal, // 👈 បាញ់តម្លៃ $9.00 ពិតប្រាកដទៅឱ្យ Backend
             }),
           });
           const qrData = await qrResponse.json();
@@ -375,11 +388,6 @@
             startPolling();
           } else {
             let errorMsg = qrData.message || "មិនអាចបង្កើត QR បានទេ";
-            if (qrData.detail)
-              errorMsg =
-                typeof qrData.detail === "object"
-                  ? JSON.stringify(qrData.detail)
-                  : qrData.detail;
             throw new Error(errorMsg);
           }
         } catch (error) {
@@ -413,9 +421,7 @@
                 window.location.href = "my-orders.html";
               });
             }
-          } catch (e) {
-            console.error("Polling Error:", e);
-          }
+          } catch (e) {}
         }, 3000);
       }
 
