@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ប្រវត្តិការទិញ | U-Mall</title>
+    <title>MY Orders | U-Mall</title>
 
     <!-- 🌟 Google Font: Kantumruy Pro & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,6 @@
       href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -29,21 +28,18 @@
         --bg-gray: #f8fafc;
         --border-color: #e2e8f0;
       }
-
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: "Kantumruy Pro", "Outfit", sans-serif;
       }
-
       .swal2-popup,
       .swal2-title,
       .swal2-html-container,
       .swal2-confirm {
         font-family: "Kantumruy Pro", "Outfit", sans-serif !important;
       }
-
       body {
         background-color: var(--bg-gray);
         color: var(--text-main);
@@ -107,12 +103,11 @@
         overflow-x: auto;
         padding-bottom: 10px;
         margin-bottom: 20px;
-        scrollbar-width: none; /* Firefox */
+        scrollbar-width: none;
       }
       .tabs-container::-webkit-scrollbar {
         display: none;
-      } /* Chrome */
-
+      }
       .tab {
         padding: 10px 20px;
         background: var(--white);
@@ -149,8 +144,6 @@
         border: 1px solid var(--border-color);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
       }
-
-      /* Card Header */
       .card-header {
         display: flex;
         justify-content: space-between;
@@ -175,7 +168,7 @@
         font-size: 0.85rem;
         font-weight: 600;
       }
-      /* ពណ៌តាមស្ថានភាព */
+
       .status-pending {
         background: #fef08a;
         color: #854d0e;
@@ -245,7 +238,6 @@
         display: flex;
         gap: 10px;
       }
-
       .btn {
         padding: 8px 16px;
         border-radius: 8px;
@@ -276,7 +268,7 @@
         background: var(--bg-gray);
       }
 
-      /* ================= Modal Review ================= */
+      /* Modal Review */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -314,7 +306,7 @@
         justify-content: center;
         gap: 10px;
         margin: 20px 0;
-        direction: rtl; /* វិលត្រឡប់សម្រាប់ CSS hover ទម្រង់ផ្កាយ */
+        direction: rtl;
       }
       .star-rating input {
         display: none;
@@ -328,7 +320,7 @@
       .star-rating label:hover,
       .star-rating label:hover ~ label,
       .star-rating input:checked ~ label {
-        color: #f59e0b; /* លឿងមាស */
+        color: #f59e0b;
       }
       .review-textarea {
         width: 100%;
@@ -386,9 +378,9 @@
     <div class="loader-overlay" id="loader"><div class="spinner"></div></div>
 
     <nav class="navbar">
-      <a href="index.html" class="logo">
-        <i class="fas fa-shopping-cart"></i> U-Mall
-      </a>
+      <a href="index.html" class="logo"
+        ><i class="fas fa-shopping-cart"></i> U-Mall</a
+      >
       <ul class="nav-links">
         <li>
           <a href="index.html"><i class="fas fa-home"></i> ទំព័រដើម</a>
@@ -398,8 +390,6 @@
 
     <div class="container">
       <h2 class="page-title">ប្រវត្តិការទិញរបស់ខ្ញុំ</h2>
-
-      <!-- Tabs / Filters -->
       <div class="tabs-container">
         <button class="tab active" onclick="filterOrders('all')">
           ទាំងអស់
@@ -416,11 +406,7 @@
           បានលុបចោល
         </button>
       </div>
-
-      <!-- ទម្រង់កាតអីវ៉ាន់ -->
-      <div class="order-list" id="order-container">
-        <!-- ទិន្នន័យនឹង Render ចេញមកទីនេះ -->
-      </div>
+      <div class="order-list" id="order-container"></div>
     </div>
 
     <!-- Review Modal -->
@@ -430,8 +416,6 @@
         <p style="color: var(--text-muted); font-size: 0.9rem">
           តើអ្នកពេញចិត្តនឹងផលិតផលនេះដែរឬទេ?
         </p>
-
-        <!-- Stars -->
         <div class="star-rating">
           <input type="radio" id="star5" name="rating" value="5" /><label
             for="star5"
@@ -454,14 +438,12 @@
             class="fas fa-star"
           ></label>
         </div>
-
         <textarea
           class="review-textarea"
           id="review-text"
           rows="3"
           placeholder="ចែករំលែកមតិរបស់អ្នកនៅទីនេះ... (ស្រេចចិត្ត)"
         ></textarea>
-
         <div style="display: flex; gap: 10px">
           <button
             class="btn btn-outline"
@@ -483,45 +465,62 @@
 
     <script>
       let currentOrderIdToReview = null;
-      let allOrders = []; // បង្កើតអថេរទទេដើម្បីផ្ទុកទិន្នន័យពិតពី Database
+      let allOrders = [];
 
       // ==========================================
       // ១. មុខងារទាញយកប្រវត្តិទិញពី API
       // ==========================================
       async function fetchOrders() {
         const loader = document.getElementById("loader");
-        loader.style.display = "flex"; // បង្ហាញរង្វង់វិល (Loading)
+        loader.style.display = "flex";
 
         try {
-          // ទាញយក Token ពី localStorage (ដែលបានរក្សាទុកពេល User Login)
-          const token = localStorage.getItem("token");
+          // 💡 ស្វែងរកលេខសម្គាល់អតិថិជន (Buyer ID) ពី LocalStorage ដោយស្វ័យប្រវត្តិ
+          let buyerId =
+            localStorage.getItem("userId") || localStorage.getItem("_id");
+          const userData = localStorage.getItem("user");
 
-          const response = await fetch("/api/orders/my-orders", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // បញ្ជូន Token ដើម្បីប្រាប់ Backend ថាជានរណា
+          if (!buyerId && userData) {
+            const parsedUser = JSON.parse(userData);
+            buyerId = parsedUser._id || parsedUser.id;
+          }
+
+          // បើរកមិនឃើញ ID ទេ អោយគាត់ទៅ Login វិញ
+          if (!buyerId) {
+            Swal.fire({
+              icon: "warning",
+              title: "សូមចូលគណនី",
+              text: "អ្នកមិនទាន់បានចូលគណនី (Login) ទេ!",
+            });
+            loader.style.display = "none";
+            return;
+          }
+
+          const token = localStorage.getItem("token") || "";
+
+          // 💡 បញ្ជូន buyerId ទៅក្នុង URL អោយ Backend ស្គាល់
+          const response = await fetch(
+            `/api/orders/my-orders?buyerId=${buyerId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
             },
-          });
+          );
 
           const result = await response.json();
 
           if (result.success) {
-            allOrders = result.data; // យកទិន្នន័យពី API មកដាក់ក្នុងអថេរ
-
-            // បើក Tab "ទាំងអស់" ជាលំនាំដើម
+            allOrders = result.data;
             document
               .querySelectorAll(".tab")
               .forEach((t) => t.classList.remove("active"));
             document.querySelector(".tab").classList.add("active");
-
-            renderOrders("all"); // បង្ហាញទិន្នន័យលើអេក្រង់
+            renderOrders("all");
           } else {
-            Swal.fire({
-              icon: "error",
-              title: "បរាជ័យ",
-              text: result.message || "មិនអាចទាញយកប្រវត្តិទិញបានទេ",
-            });
+            Swal.fire({ icon: "error", title: "បរាជ័យ", text: result.message });
           }
         } catch (error) {
           console.error("Error:", error);
@@ -531,12 +530,12 @@
             text: "មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ",
           });
         } finally {
-          loader.style.display = "none"; // លាក់រង្វង់វិលវិញ
+          loader.style.display = "none";
         }
       }
 
       // ==========================================
-      // ២. មុខងារបកប្រែ Status និងកំណត់ពណ៌
+      // ២. មុខងារផ្សេងៗ (Status, Buttons, Render)
       // ==========================================
       const statusConfig = {
         pending: { text: "រង់ចាំការបញ្ជាក់", class: "status-pending" },
@@ -546,9 +545,6 @@
         cancelled: { text: "បានលុបចោល", class: "status-cancelled" },
       };
 
-      // ==========================================
-      // ៣. រៀបចំប៊ូតុងឆ្លាតវៃតាម Status
-      // ==========================================
       function getActionButtons(order) {
         let btns = "";
         if (order.status === "pending" || order.status === "processing") {
@@ -566,25 +562,16 @@
         return btns;
       }
 
-      // ==========================================
-      // ៤. Render ទិន្នន័យទៅក្នុង HTML
-      // ==========================================
       function renderOrders(filter = "all") {
         const container = document.getElementById("order-container");
         container.innerHTML = "";
-
-        // ចម្រាញ់ទិន្នន័យដែលទាញបានពី API តាម Tab
         const filteredOrders =
           filter === "all"
             ? allOrders
             : allOrders.filter((o) => o.status === filter);
 
         if (filteredOrders.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h3>មិនមានប្រវត្តិទិញទេ</h3>
-            </div>`;
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>មិនមានប្រវត្តិទិញទេ</h3></div>`;
           return;
         }
 
@@ -594,7 +581,6 @@
             text: order.status,
             class: "status-pending",
           };
-
           const itemsHtml = order.items
             .map(
               (item) => `
@@ -619,17 +605,13 @@
             ${itemsHtml}
             <div class="card-footer">
                 <div class="total-price">សរុប: <span style="color: var(--accent);">$${order.totalAmount.toFixed(2)}</span></div>
-                <div class="action-buttons">
-                    ${getActionButtons(order)}
-                </div>
+                <div class="action-buttons">${getActionButtons(order)}</div>
             </div>
         </div>`;
         });
-
         container.innerHTML = html;
       }
 
-      // មុខងារចុច Tab (Filter)
       function filterOrders(status) {
         document
           .querySelectorAll(".tab")
@@ -638,9 +620,6 @@
         renderOrders(status);
       }
 
-      // ==========================================
-      // ៥. បាញ់ API បញ្ជាក់ការទទួល (Confirm)
-      // ==========================================
       function confirmOrder(orderId) {
         Swal.fire({
           title: "បញ្ជាក់ការទទួល?",
@@ -670,7 +649,7 @@
                   text: "ប្រព័ន្ធបានកត់ត្រាទុក",
                   confirmButtonColor: "#2563eb",
                 });
-                fetchOrders(); // Refresh ទិន្នន័យដើម្បីប្តូរ Status
+                fetchOrders();
               } else {
                 Swal.fire({
                   icon: "error",
@@ -691,9 +670,6 @@
         });
       }
 
-      // ==========================================
-      // ៦. បាញ់ API វាយតម្លៃ (Submit Review)
-      // ==========================================
       function openReviewModal(orderId) {
         currentOrderIdToReview = orderId;
         document
@@ -712,16 +688,12 @@
         const ratingEle = document.querySelector(
           'input[name="rating"]:checked',
         );
-        if (!ratingEle) {
+        if (!ratingEle)
           return Swal.fire({
             icon: "warning",
             text: "សូមជ្រើសរើសចំនួនផ្កាយសិន!",
             confirmButtonColor: "#2563eb",
           });
-        }
-
-        const rating = ratingEle.value;
-        const comment = document.getElementById("review-text").value;
 
         document.getElementById("review-modal").style.display = "none";
         document.getElementById("loader").style.display = "flex";
@@ -735,11 +707,13 @@
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
-              body: JSON.stringify({ rating, comment }),
+              body: JSON.stringify({
+                rating: ratingEle.value,
+                comment: document.getElementById("review-text").value,
+              }),
             },
           );
           const data = await response.json();
-
           if (data.success) {
             Swal.fire({
               icon: "success",
@@ -747,7 +721,7 @@
               text: "អរគុណសម្រាប់ការវាយតម្លៃ",
               confirmButtonColor: "#2563eb",
             });
-            fetchOrders(); // Refresh ទិន្នន័យដើម្បីលាក់ប៊ូតុងវាយតម្លៃ
+            fetchOrders();
           } else {
             Swal.fire({ icon: "error", title: "បរាជ័យ", text: data.message });
           }
@@ -770,7 +744,6 @@
           confirmButtonColor: "#2563eb",
         });
       }
-
       function reportOrder(orderId) {
         Swal.fire({
           icon: "info",
@@ -780,10 +753,7 @@
         });
       }
 
-      // ទាញយកទិន្នន័យពី Server ពេលបើកទំព័រដំបូង
-      window.onload = () => {
-        fetchOrders();
-      };
+      window.onload = () => fetchOrders();
     </script>
   </body>
 </html>
