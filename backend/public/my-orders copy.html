@@ -468,7 +468,7 @@
       let allOrders = [];
 
       // ==========================================
-      // ១. មុខងារទាញយកប្រវត្តិទិញពី API (Update ថ្មីមានសុវត្ថិភាពជាងមុន)
+      // ១. មុខងារទាញយកប្រវត្តិទិញពី API
       // ==========================================
       async function fetchOrders() {
         const loader = document.getElementById("loader");
@@ -477,7 +477,7 @@
         try {
           const token = localStorage.getItem("token");
 
-          // បើគ្មាន Token ទេ មានន័យថាគាត់អត់ទាន់ Login
+          // បើគ្មាន Token ទេ មានន័យថាគាត់អត់ទាន់ Login មែន
           if (!token) {
             Swal.fire({
               icon: "warning",
@@ -488,15 +488,49 @@
             return;
           }
 
-          // 💡 លែងចាំបាច់ Decode Token ខាង Frontend ទៀតហើយ!
-          // គ្រាន់តែបាញ់ Token ទៅ Backend គឺ Backend ដឹងថាជាអ្នកណាដោយស្វ័យប្រវត្តិ
-          const response = await fetch(`/api/orders/my-orders`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Backend នឹងទាញយក buyerId ពី Token នេះឯង
+          // 💡 វេទមន្តនៅទីនេះ៖ បំប្លែង (Decode) Token ដើម្បីទាញយក User ID មកប្រើដោយស្វ័យប្រវត្តិ
+          let buyerId = null;
+          try {
+            // កាត់យកតែផ្នែកកណ្តាលនៃ Token ហើយបំប្លែងវាពី Base64 មកជា JSON
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+              window
+                .atob(base64)
+                .split("")
+                .map(function (c) {
+                  return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join(""),
+            );
+
+            const payload = JSON.parse(jsonPayload);
+            buyerId = payload.id; // ទាញយក id ដែលធ្លាប់ sign ដោយ authController
+          } catch (e) {
+            console.error("មិនអាចអាន Token បានទេ:", e);
+          }
+
+          if (!buyerId) {
+            Swal.fire({
+              icon: "error",
+              title: "បញ្ហាគណនី",
+              text: "មិនអាចសម្គាល់គណនីរបស់អ្នកបានទេ!",
+            });
+            loader.style.display = "none";
+            return;
+          }
+
+          // 💡 បញ្ជូន buyerId ទៅក្នុង URL តាមអ្វីដែល Backend ត្រូវការ
+          const response = await fetch(
+            `/api/orders/my-orders?buyerId=${buyerId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
             },
-          });
+          );
 
           const result = await response.json();
 
