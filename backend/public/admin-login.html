@@ -3,283 +3,216 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Login | U-Mall Control Panel</title>
-
-    <!-- 📌 Font Kantumruy Pro -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Icons & Alert -->
+    <title>Admin Portal | Fashion Shop</title>
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
     />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
-      /* ==========================================
-           🎨 Theme & CSS Variables (ស៊ីគ្នាជាមួយ Admin)
-           ========================================== */
-      :root {
-        --bg-body: #0f172a;
-        --bg-card: #1e293b;
-        --text-main: #f8fafc;
-        --text-muted: #94a3b8;
-        --border-color: #475569;
-        --accent: #0284c7;
-        --accent-hover: #0369a1;
-        --danger: #ef4444;
-      }
-
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        font-family: "DM Sans", sans-serif;
       }
-
       body {
+        background-color: #1e293b;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        font-family: "Kantumruy Pro", sans-serif;
-        overflow: hidden;
+        overflow: hidden; /* ការពារកុំឱ្យមាន Scrollbar លោតចុះឡើង */
+        color: #fff;
       }
-
-      /* ផ្ទាំង Login */
-      .login-container {
+      .admin-login-card {
+        background: #0f172a;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         width: 100%;
-        max-width: 420px;
-        padding: 20px;
-        animation: fadeIn 0.5s ease-out;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .login-card {
-        background-color: var(--bg-card);
-        padding: 40px 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-color);
+        max-width: 400px;
+        border: 1px solid #334155;
         text-align: center;
       }
-
-      .logo {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        color: var(--text-main);
+      .admin-login-card h2 {
+        margin-bottom: 5px;
+        color: #38bdf8;
       }
-
-      .logo span {
-        color: var(--accent);
+      .admin-login-card p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
       }
-
-      .subtitle {
-        color: var(--text-muted);
-        margin-bottom: 30px;
-        font-size: 0.95rem;
-      }
-
-      /* Form Elements */
       .input-group {
-        display: flex;
-        flex-direction: column;
         text-align: left;
         margin-bottom: 20px;
       }
-
       .input-group label {
+        display: block;
+        font-size: 0.9rem;
+        color: #cbd5e1;
         margin-bottom: 8px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: var(--text-main);
       }
-
       .input-group input {
-        padding: 14px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        outline: none;
-        font-family: "Kantumruy Pro", sans-serif;
+        width: 100%;
+        padding: 12px;
+        background: #1e293b;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        color: #fff;
         font-size: 1rem;
+        outline: none;
         transition: 0.3s;
       }
-
       .input-group input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        border-color: #38bdf8;
       }
-
-      .btn-primary {
+      .btn-login {
         width: 100%;
         padding: 14px;
-        background-color: var(--accent);
+        background: #0284c7;
         color: white;
         border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
+        border-radius: 6px;
         font-size: 1.1rem;
-        font-family: "Kantumruy Pro", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
         transition: 0.3s;
-        margin-top: 10px;
       }
-
-      .btn-primary:hover {
-        background-color: var(--accent-hover);
+      .btn-login:hover {
+        background: #0369a1;
       }
-
-      .btn-primary:disabled {
-        background-color: var(--border-color);
+      .btn-login:disabled {
+        background: #475569;
         cursor: not-allowed;
       }
     </style>
   </head>
   <body>
-    <div class="login-container">
-      <div class="login-card">
-        <div class="logo">
-          <i class="fas fa-crown"></i> <span>U-Mall</span> Admin
+    <div class="admin-login-card">
+      <h2>Admin Portal</h2>
+      <p>Restricted Access - Authorized Personnel Only</p>
+
+      <!-- លុប onsubmit ចេញពី HTML ប្រើប្រាស់ id ជំនួសវិញ -->
+      <form id="admin-login-form">
+        <div class="input-group">
+          <label>Admin Username</label>
+          <input
+            type="text"
+            id="admin-user"
+            required
+            placeholder="Enter username"
+            autocomplete="username"
+          />
         </div>
-        <p class="subtitle">
-          សូមស្វាគមន៍មកកាន់ប្រព័ន្ធគ្រប់គ្រង (Control Panel)
-        </p>
-
-        <form id="loginForm">
-          <div class="input-group">
-            <label><i class="fas fa-user"></i> ឈ្មោះគណនី (Username)</label>
-            <input
-              type="text"
-              id="username"
-              required
-              placeholder="បញ្ចូលឈ្មោះគណនីរបស់អ្នក..."
-              autocomplete="username"
-            />
-          </div>
-
-          <div class="input-group">
-            <label><i class="fas fa-lock"></i> លេខសម្ងាត់ (Password)</label>
-            <input
-              type="password"
-              id="password"
-              required
-              placeholder="បញ្ចូលលេខសម្ងាត់..."
-              autocomplete="current-password"
-            />
-          </div>
-
-          <button type="submit" class="btn-primary" id="loginBtn">
-            <i class="fas fa-sign-in-alt"></i> ចូលប្រព័ន្ធ (Login)
-          </button>
-        </form>
-      </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input
+            type="password"
+            id="admin-pass"
+            required
+            placeholder="Enter password"
+            autocomplete="current-password"
+          />
+        </div>
+        <button type="submit" id="submit-btn" class="btn-login">
+          Login to Dashboard
+        </button>
+      </form>
     </div>
 
     <script>
-      // ==========================================
-      // 🔒 ពិនិត្យមើលសិទ្ធិ (ការពារមិនបាច់អោយ Login ម្ដងទៀតបើធ្លាប់ Login ហើយ)
-      // ==========================================
-      document.addEventListener("DOMContentLoaded", () => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
+      // ដោយសារ Frontend និង Backend នៅជាមួយគ្នា យើងអាចប្រើ Path ខ្លីបែបនេះបាន
+      const API_URL = "/api/auth";
 
-        // បើមាន Token ហើយមាន Role ជា Admin ឬ Super Admin លោតទៅ admin.html ហ្មង
-        if (token && (role === "admin" || role === "super_admin")) {
-          window.location.href = "admin.html";
+      // ចាប់យក Form តាមរយៈ ID
+      const loginForm = document.getElementById("admin-login-form");
+      const submitBtn = document.getElementById("submit-btn");
+
+      // ប្រើ addEventListener ដើម្បីធានាថា preventDefault ដំណើរការបាន ១០០%
+      loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh ដាច់ខាត
+
+        const username = document.getElementById("admin-user").value.trim();
+        const password = document.getElementById("admin-pass").value;
+
+        // ដូរ UI ប៊ូតុងពេលកំពុងរង់ចាំ
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Logging in...";
+
+        try {
+          const res = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            // ទាញយក Role របស់អ្នកប្រើប្រាស់
+            const userRole = data.role || (data.user && data.user.role);
+
+            // ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យតែ super_admin, admin និង seller ប៉ុណ្ណោះ
+            if (
+              userRole !== "super_admin" &&
+              userRole !== "admin" &&
+              userRole !== "seller"
+            ) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Login to Dashboard";
+              return Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "You do not have administrative privileges!",
+                confirmButtonColor: "#0284c7",
+              });
+            }
+
+            // រក្សាទុក Token និងទិន្នន័យចាំបាច់
+            localStorage.setItem("token", data.token);
+            localStorage.setItem(
+              "username",
+              data.username || (data.user && data.user.username),
+            );
+            localStorage.setItem("role", userRole);
+
+            Swal.fire({
+              icon: "success",
+              title: "Welcome Back",
+              text: "Redirecting to Dashboard...",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              // បញ្ជូនទៅកាន់ទំព័រទៅតាម Role
+              if (userRole === "super_admin" || userRole === "admin") {
+                window.location.href = "admin.html";
+              } else if (userRole === "seller") {
+                window.location.href = "seller-inventory.html";
+              }
+            });
+          } else {
+            // បើ Login ខុស
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Login to Dashboard";
+            Swal.fire({
+              icon: "error",
+              title: "Login Failed",
+              text: data.message || "Invalid username or password!",
+              confirmButtonColor: "#0284c7",
+            });
+          }
+        } catch (error) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Login to Dashboard";
+          Swal.fire({
+            icon: "error",
+            title: "Connection Error",
+            text: "Cannot connect to server. Please try again.",
+            confirmButtonColor: "#0284c7",
+          });
         }
       });
-
-      // ==========================================
-      // 🚀 ដំណើរការផ្ទៀងផ្ទាត់ពេលចុច Login
-      // ==========================================
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-
-          const usernameInput = document
-            .getElementById("username")
-            .value.trim();
-          const passwordInput = document.getElementById("password").value;
-          const loginBtn = document.getElementById("loginBtn");
-
-          // ប្ដូរប៊ូតុងអោយចេញជារាងវិលៗពេលកំពុង Process
-          loginBtn.disabled = true;
-          loginBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់...';
-
-          try {
-            // ចំណាំ៖ បងអាចកែ URL "/api/admin/login" នេះទៅតាម Route ពិតក្នុង Backend របស់បង
-            const response = await fetch("/api/admin/login", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: usernameInput,
-                password: passwordInput,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-              // ប្រសិនបើ Login ជោគជ័យ ត្រូវ Save ទុកក្នុង localStorage
-              localStorage.setItem("token", data.token);
-              localStorage.setItem("role", data.user.role);
-              localStorage.setItem("username", data.user.username);
-
-              // បង្ហាញសារជោគជ័យ រួចបោះទៅ admin.html
-              Swal.fire({
-                icon: "success",
-                title: "ចូលប្រព័ន្ធជោគជ័យ!",
-                text: "កំពុងនាំអ្នកទៅកាន់ទំព័រគ្រប់គ្រង...",
-                timer: 1500,
-                showConfirmButton: false,
-              }).then(() => {
-                window.location.href = "admin.html";
-              });
-            } else {
-              // បើខុស Password ឬ អត់មានគណនី
-              Swal.fire(
-                "បរាជ័យ",
-                data.message || "ឈ្មោះគណនី ឬលេខសម្ងាត់មិនត្រឹមត្រូវទេ!",
-                "error",
-              );
-            }
-          } catch (error) {
-            console.error("Login Error:", error);
-            Swal.fire(
-              "កំហុស",
-              "មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ! សូមពិនិត្យ Network របស់អ្នក។",
-              "error",
-            );
-          } finally {
-            // ទោះខុស ឬត្រូវ ក៏ត្រូវបើកប៊ូតុងអោយគេចុចវិញដែរ
-            loginBtn.disabled = false;
-            loginBtn.innerHTML =
-              '<i class="fas fa-sign-in-alt"></i> ចូលប្រព័ន្ធ (Login)';
-          }
-        });
     </script>
   </body>
 </html>
