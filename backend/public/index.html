@@ -699,6 +699,21 @@
         address: "",
       };
 
+      // Script ការពារមិនឱ្យ Seller ឬ Admin ចូលមើលទំព័រអ្នកទិញ (index.html)
+      (function enforceRoleAccess() {
+        const role = localStorage.getItem("role");
+
+        // បើមាន Role ប៉ុន្តែវាមិនមែនជា "buyer" ទេ
+        if (role && role !== "buyer") {
+          // បណ្ដេញចេញទៅកាន់ Dashboard របស់ពួកគេរៀងៗខ្លួនភ្លាមៗ!
+          if (role === "seller") {
+            window.location.replace("seller-center.html");
+          } else if (role === "admin") {
+            window.location.replace("admin-dashboard.html");
+          }
+        }
+      })();
+
       // ---------------------------------------------
       // ០. Dark Mode Setup
       // ---------------------------------------------
