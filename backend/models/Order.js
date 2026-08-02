@@ -4,12 +4,12 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     // ==========================================
-    // ១. ផ្នែកទូទាត់ប្រាក់ (រក្សាកូដចាស់បង ១០០% មិនឱ្យប៉ះពាល់)
+    // ១. ផ្នែកទូទាត់ប្រាក់
     // ==========================================
-    orderId: { type: String, required: true, unique: true }, // លេខកូដ Order សម្រាប់ផ្ទៀងផ្ទាត់ជាមួយ U-Pay
+    orderId: { type: String, required: true, unique: true },
     totalAmount: { type: Number, required: true },
-    paymentStatus: { type: String, default: "PENDING" }, // លំនាំដើម PENDING (រង់ចាំលុយ)
-    upayTransactionId: { type: String }, // កត់ត្រាលេខកូដប្រតិបត្តិការពី U-Pay
+    paymentStatus: { type: String, default: "PENDING" },
+    upayTransactionId: { type: String },
     paidAt: { type: Date },
 
     // ==========================================
@@ -17,23 +17,23 @@ const orderSchema = new mongoose.Schema(
     // ==========================================
     buyer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // 👈 លុប required: true ចេញ
+      ref: "User",
     },
     store: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Store", // 👈 លុប required: true ចេញ
+      ref: "Store",
     },
     shippingAddress: {
       type: String,
-      default: "មិនទាន់បញ្ជាក់", // 👈 ដាក់ default ជំនួស required: true
+      default: "មិនទាន់បញ្ជាក់",
     },
     phone: {
       type: String,
-      default: "មិនទាន់បញ្ជាក់", // 👈 ដាក់ default ជំនួស required: true
+      default: "មិនទាន់បញ្ជាក់",
     },
 
     // ==========================================
-    // ៣. បញ្ជីទំនិញ (ជំនួស Array ធម្មតា ទៅជា Array ដែលមានទម្រង់ច្បាស់លាស់ ដើម្បីស្រួលបង្ហាញរូប និងតម្លៃ)
+    // ៣. បញ្ជីទំនិញ
     // ==========================================
     items: [
       {
@@ -42,20 +42,18 @@ const orderSchema = new mongoose.Schema(
         price: { type: Number, required: true },
         quantity: { type: Number, required: true, default: 1 },
         image: { type: String },
-        variant: { type: String }, // ឧទាហរណ៍៖ ទំហំ XL, ពណ៌ក្រហម
+        variant: { type: String },
       },
     ],
 
     // ==========================================
-    // ៤. ផ្នែកគ្រប់គ្រងការដឹកជញ្ជូន (Order Management)
+    // ៤. ផ្នែកគ្រប់គ្រងការដឹកជញ្ជូន
     // ==========================================
     status: {
       type: String,
       enum: ["pending", "processing", "shipped", "completed", "cancelled"],
-      default: "pending", // លំនាំដើមពេលទើបបញ្ជាទិញ
+      default: "pending",
     },
-
-    // ខ្សែបន្ទាត់ពេលវេលាដើម្បីបង្ហាញអតិថិជន
     timeline: [
       {
         status: { type: String },
@@ -63,11 +61,42 @@ const orderSchema = new mongoose.Schema(
         note: { type: String },
       },
     ],
-
-    // សម្គាល់ថាគាត់បានវាយតម្លៃ (Review) ហើយឬនៅ
     isReviewed: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
+
+// 🌟 បន្ថែម Mongoose Pre-save Hook ទីនេះ! 🌟
+// វាមានតួនាទីជា "អ្នកស្ទាក់ត្រួតពិនិត្យ" មុនពេល Order ត្រូវបាន Save ចូល Database
+orderSchema.pre("save", async function (next) {
+  try {
+    // ឆែកមើលថា បើមាន buyer ID ហើយលេខទូរស័ព្ទ ឬ អាសយដ្ឋាននៅជាប់ពាក្យ "មិនទាន់បញ្ជាក់"
+    if (
+      this.buyer &&
+      (this.phone === "មិនទាន់បញ្ជាក់" ||
+        this.shippingAddress === "មិនទាន់បញ្ជាក់")
+    ) {
+      // ហៅ Model User មកប្រើដើម្បីរកទិន្នន័យពិតប្រាកដ
+      const User = mongoose.model("User");
+      const user = await User.findById(this.buyer);
+
+      if (user) {
+        // បើក្នុង User ពិតជាមានលេខទូរស័ព្ទមែន ទាញយកមកជំនួសពាក្យ "មិនទាន់បញ្ជាក់" ភ្លាម
+        if (this.phone === "មិនទាន់បញ្ជាក់" && user.phone) {
+          this.phone = user.phone;
+        }
+
+        // បើក្នុង User ពិតជាមានអាសយដ្ឋានមែន ទាញយកមកជំនួសភ្លាម
+        if (this.shippingAddress === "មិនទាន់បញ្ជាក់" && user.address) {
+          this.shippingAddress = user.address;
+        }
+      }
+    }
+    next(); // បន្តដំណើរការ Save ចូល Database
+  } catch (error) {
+    console.error("Error auto-fetching user info for Order:", error);
+    next(error);
+  }
+});
 
 module.exports = mongoose.model("Order", orderSchema);
