@@ -64,11 +64,9 @@
         transition:
           background-color 0.3s,
           color 0.3s;
-        font-family:
-          "Kantumruy Pro", sans-serif; /* 👈 កែ Font នៅទីនេះដើម្បីកុំអោយខូច Icon */
+        font-family: "Kantumruy Pro", sans-serif;
       }
 
-      /* ធ្វើអោយ Date Picker ដូរពណ៍តាម Theme */
       input[type="datetime-local"] {
         color-scheme: dark;
       }
@@ -136,7 +134,6 @@
         color: white;
       }
 
-      /* Main Content */
       .main-content {
         flex: 1;
         overflow-y: auto;
@@ -155,8 +152,6 @@
         align-items: center;
         gap: 15px;
       }
-
-      /* ☀️/🌙 Theme Toggle Button */
       .theme-toggle {
         background: none;
         border: none;
@@ -188,7 +183,7 @@
       }
 
       /* ==========================================
-           📊 ៣. Dashboard (15 Stats Boxes)
+           📊 ៣. UI Components
            ========================================== */
       .stats-grid-15 {
         display: grid;
@@ -220,9 +215,6 @@
         color: var(--text-muted);
       }
 
-      /* ==========================================
-           📝 ៤. Forms, Tables & UI Elements
-           ========================================== */
       .card {
         background-color: var(--bg-card);
         padding: 25px;
@@ -453,7 +445,7 @@
           (Control Center)
         </h2>
         <div class="admin-profile">
-          <!-- ប៊ូតុងប្ដូរពណ៍ Dark/Light Mode -->
+          <!-- Theme Toggle -->
           <button
             class="theme-toggle"
             onclick="toggleTheme()"
@@ -462,7 +454,7 @@
             <i class="fas fa-moon" id="theme-icon"></i>
           </button>
           <div style="text-align: right">
-            <strong id="admin-name">Admin</strong><br />
+            <strong id="admin-name">Loading...</strong><br />
             <small style="color: var(--text-muted)" id="admin-role">Role</small>
           </div>
           <img
@@ -476,88 +468,87 @@
              📌 TAB 1: DASHBOARD
              ========================================== -->
       <div id="dashboard" class="view-section active">
-        <!-- ប្រអប់ទិន្នន័យទាំង ១៥ ជា ៣ ជួរ -->
         <div class="stats-grid-15">
           <div class="stat-card">
             <i class="fas fa-users" style="color: #0ea5e9"></i>
-            <h3 id="st-buyers">0</h3>
+            <h3 id="stat-total-users">0</h3>
             <p>អ្នកទិញសរុប (Buyers)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-store" style="color: #10b981"></i>
-            <h3 id="st-sellers">0</h3>
+            <h3 id="stat-total-sellers">0</h3>
             <p>អ្នកលក់សរុប (Sellers)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-user-shield" style="color: #f59e0b"></i>
-            <h3 id="st-admins">0</h3>
+            <h3 id="stat-total-admins">0</h3>
             <p>អ្នកគ្រប់គ្រង (Admins)</p>
           </div>
+          <!-- ចំណុចផ្សេងៗទុក ០ សិន ព្រោះ API បច្ចុប្បន្នទាញបានតែ Users & Stores -->
           <div class="stat-card">
             <i class="fas fa-user-plus" style="color: #8b5cf6"></i>
-            <h3 id="st-new">0</h3>
+            <h3>0</h3>
             <p>គណនីថ្មី (ថ្ងៃនេះ)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-ban" style="color: #ef4444"></i>
-            <h3 id="st-banned">0</h3>
+            <h3>0</h3>
             <p>គណនីត្រូវបានបិទ</p>
           </div>
 
           <div class="stat-card">
             <i class="fas fa-box" style="color: #3b82f6"></i>
-            <h3 id="st-products">0</h3>
+            <h3>0</h3>
             <p>ទំនិញសរុប</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-exclamation-triangle" style="color: #f97316"></i>
-            <h3 id="st-outstock">0</h3>
+            <h3>0</h3>
             <p>ទំនិញអស់ស្តុក</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-shopping-cart" style="color: #14b8a6"></i>
-            <h3 id="st-orders">0</h3>
+            <h3>0</h3>
             <p>ការបញ្ជាទិញ (ថ្ងៃនេះ)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-dollar-sign" style="color: #10b981"></i>
-            <h3 id="st-revenue">$0</h3>
+            <h3>$0</h3>
             <p>ចំណូលសរុប (ថ្ងៃនេះ)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-truck" style="color: #6366f1"></i>
-            <h3 id="st-shipping">0</h3>
+            <h3>0</h3>
             <p>កំពុងដឹកជញ្ជូន</p>
           </div>
 
           <div class="stat-card">
             <i class="fas fa-hand-holding-dollar" style="color: #f43f5e"></i>
-            <h3 id="st-withdrawals">0</h3>
+            <h3>0</h3>
             <p>សំណើដកប្រាក់ថ្មី</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-piggy-bank" style="color: #10b981"></i>
-            <h3 id="st-commission">$0</h3>
+            <h3>$0</h3>
             <p>កម្រៃជើងសារ Admin</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-store-slash" style="color: #f59e0b"></i>
-            <h3 id="st-pending-stores">0</h3>
+            <h3>0</h3>
             <p>ហាងរង់ចាំអនុម័ត</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-bolt" style="color: #eab308"></i>
-            <h3 id="st-flash">0</h3>
+            <h3>0</h3>
             <p>ទំនិញ Flash Sale</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-undo" style="color: #64748b"></i>
-            <h3 id="st-refunds">0</h3>
+            <h3>0</h3>
             <p>សំណើរប្ដូរទំនិញ (Refund)</p>
           </div>
         </div>
 
-        <!-- តារាងអ្នកប្រើប្រាស់ -->
         <div class="card">
           <h3>
             <i class="fas fa-users-cog"></i> បញ្ជីអ្នកប្រើប្រាស់ (Users List)
@@ -604,7 +595,6 @@
           <hr style="border-color: var(--border-color); margin: 15px 0" />
 
           <form id="createAccountForm">
-            <!-- ១. រើស Role -->
             <div class="input-group" style="margin-bottom: 25px">
               <label style="color: var(--accent); font-size: 1.1rem"
                 ><i class="fas fa-user-tag"></i> តួនាទីគណនី (Account Role)
@@ -612,7 +602,7 @@
               >
               <select
                 id="new-role"
-                onchange="toggleFormFields()"
+                onchange="toggleStoreFields()"
                 style="
                   font-size: 1.1rem;
                   padding: 15px;
@@ -626,7 +616,6 @@
               </select>
             </div>
 
-            <!-- ២. ព័ត៌មានផ្ទាល់ខ្លួន -->
             <h3 style="margin-bottom: 15px">
               <i class="fas fa-id-card"></i> ព័ត៌មានផ្ទាល់ខ្លួន
             </h3>
@@ -668,7 +657,6 @@
               </div>
             </div>
 
-            <!-- ៣. ព័ត៌មានហាង -->
             <div
               id="seller-fields"
               style="
@@ -739,7 +727,6 @@
                 </div>
               </div>
 
-              <!-- Payment Info -->
               <div style="margin-top: 20px">
                 <label style="cursor: pointer; font-weight: bold">
                   <input
@@ -780,6 +767,7 @@
 
             <button
               type="submit"
+              id="btn-create"
               class="btn-primary"
               style="width: 100%; font-size: 1.1rem; padding: 15px"
             >
@@ -813,7 +801,7 @@
 
           <div
             id="store-select-list"
-            style="max-height: 200px; overflow-y: auto; margin-bottom: 20px"
+            style="max-height: 250px; overflow-y: auto; margin-bottom: 20px"
           ></div>
 
           <div
@@ -848,7 +836,6 @@
             ពេលអ្នកចុច "ពិនិត្យត្រឹមត្រូវ" ប្រព័ន្ធនឹងកាត់ប្រាក់ពី U-Mall ទៅ
             Hold នៅធនាគារកណ្ដាល ហើយទូទាត់ចូលកុងអ្នកលក់ដោយស្វ័យប្រវត្តិ។
           </p>
-
           <div class="table-responsive">
             <table>
               <thead>
@@ -862,6 +849,7 @@
                 </tr>
               </thead>
               <tbody id="withdrawal-table-body">
+                <!-- Data នេះនៅសល់ Mock ព្រោះអត់ទាន់មាន API Withdrawal ជាក់លាក់ទេ -->
                 <tr>
                   <td>2026-08-02 10:30</td>
                   <td><strong>Fashion Shop KH</strong></td>
@@ -928,8 +916,8 @@
               </h3>
               <div class="form-grid" style="margin-bottom: 15px">
                 <div class="input-group">
-                  <label>Duration (វិនាទីដូររូប)</label>
-                  <input type="number" id="sec1-interval" value="3" min="1" />
+                  <label>Duration (វិនាទីដូររូប)</label
+                  ><input type="number" id="sec1-interval" value="3" min="1" />
                 </div>
                 <div class="input-group">
                   <label>Animation Direction</label>
@@ -965,8 +953,8 @@
               </h3>
               <div class="form-grid" style="margin-bottom: 15px">
                 <div class="input-group">
-                  <label>Duration (វិនាទីដូររូប)</label>
-                  <input type="number" id="sec2-interval" value="3" min="1" />
+                  <label>Duration (វិនាទីដូររូប)</label
+                  ><input type="number" id="sec2-interval" value="3" min="1" />
                 </div>
                 <div class="input-group">
                   <label>Animation Direction</label>
@@ -1002,8 +990,8 @@
               </h3>
               <div class="form-grid" style="margin-bottom: 15px">
                 <div class="input-group">
-                  <label>Duration (វិនាទីដូររូប)</label>
-                  <input type="number" id="sec3-interval" value="3" min="1" />
+                  <label>Duration (វិនាទីដូររូប)</label
+                  ><input type="number" id="sec3-interval" value="3" min="1" />
                 </div>
                 <div class="input-group">
                   <label>Animation Direction</label>
@@ -1051,7 +1039,6 @@
           </h2>
           <hr style="border-color: var(--border-color); margin: 15px 0" />
 
-          <!-- Flash Sale -->
           <div
             style="
               background: rgba(2, 132, 199, 0.05);
@@ -1071,7 +1058,6 @@
               <label>ថ្ងៃ និងម៉ោងបញ្ចប់ (End Time)</label>
               <input type="datetime-local" id="flash-endTime" />
             </div>
-
             <div id="flash-items-container"></div>
             <button
               type="button"
@@ -1083,7 +1069,6 @@
             </button>
           </div>
 
-          <!-- Top Stores -->
           <div
             style="
               background: rgba(2, 132, 199, 0.05);
@@ -1126,39 +1111,36 @@
     </main>
 
     <script>
+      // ==========================================
+      // 🔒 ផ្នែកទី១៖ កំណត់អញ្ញាត និង ការចាប់ផ្តើម (Variables & Init)
+      // ==========================================
       const API_BASE = "/api/admin";
+      const TOKEN = localStorage.getItem("token");
+      const ROLE = localStorage.getItem("role");
 
-      // ==========================================
-      // 🔒 រក្សាទុកការ Login & Refresh State (URL Hash)
-      // ==========================================
       document.addEventListener("DOMContentLoaded", () => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
+        // ពិនិត្យសិទ្ធិ
+        if (!TOKEN || (ROLE !== "admin" && ROLE !== "super_admin")) {
+          window.location.href = "admin-login.html";
+          return;
+        }
 
-        // Bypass login សម្រាប់តែតេស្ត (ដកចេញវិញពេល Deploy)
-        // if (!token || (role !== "admin" && role !== "super_admin")) {
-        //     window.location.href = "admin-login.html";
-        //     return;
-        // }
-
-        // បង្ហាញឈ្មោះ Admin
         document.getElementById("admin-name").innerText =
           localStorage.getItem("username") || "Admin";
         document.getElementById("admin-role").innerText =
-          role === "super_admin" ? "👑 Super Admin" : "🛡️ Admin";
+          ROLE === "super_admin" ? "👑 Super Admin" : "🛡️ Admin";
 
-        // រក្សាទម្រង់ពណ៌ (Theme)
+        // Theme Management
         const savedTheme = localStorage.getItem("theme") || "dark";
         if (savedTheme === "light") document.body.classList.add("light-mode");
         updateThemeIcon();
 
-        // រក្សា Tab បច្ចុប្បន្នពេល Refresh
+        // Hash Navigation State
         const hash = window.location.hash.replace("#", "") || "dashboard";
         switchTab(hash);
-        toggleFormFields();
+        toggleStoreFields();
       });
 
-      // មុខងារប្ដូរ Tab
       function switchTab(tabId) {
         window.location.hash = tabId;
         document
@@ -1173,7 +1155,6 @@
         if (nav) nav.classList.add("active");
         if (sec) sec.classList.add("active");
 
-        // ហៅ Data តាម Tab
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresForIframe();
         if (tabId === "storefront-settings") loadSettingsData();
@@ -1185,8 +1166,10 @@
       // ==========================================
       function toggleTheme() {
         document.body.classList.toggle("light-mode");
-        const isLight = document.body.classList.contains("light-mode");
-        localStorage.setItem("theme", isLight ? "light" : "dark");
+        localStorage.setItem(
+          "theme",
+          document.body.classList.contains("light-mode") ? "light" : "dark",
+        );
         updateThemeIcon();
       }
       function updateThemeIcon() {
@@ -1199,11 +1182,10 @@
       function handleLogout() {
         Swal.fire({
           title: "ចាកចេញ?",
-          text: "តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធមែនទេ?",
+          text: "តើអ្នកពិតជាចង់ចាកចេញមែនទេ?",
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#ef4444",
-          cancelButtonColor: "#475569",
           confirmButtonText: "បាទ/ចាស ចាកចេញ",
           cancelButtonText: "បោះបង់",
         }).then((result) => {
@@ -1215,56 +1197,42 @@
       }
 
       // ==========================================
-      // 📊 DASHBOARD & USER LIST
+      // 📊 ផ្នែកទី២៖ DASHBOARD & USERS (API)
       // ==========================================
       let allUsers = [];
       async function loadDashboardData() {
-        allUsers = [
-          {
-            _id: "1",
-            username: "sokha123",
-            fullName: "Sokha Chan",
-            phone: "012345678",
-            email: "sokha@mail.com",
-            role: "buyer",
-          },
-          {
-            _id: "2",
-            username: "fashion_kh",
-            fullName: "Mengly",
-            phone: "098765432",
-            email: "meng@mail.com",
-            role: "seller",
-          },
-          {
-            _id: "3",
-            username: "superadmin",
-            fullName: "Owner",
-            phone: "000",
-            email: "admin@mail.com",
-            role: "super_admin",
-          },
-        ];
-        document.getElementById("st-buyers").innerText = allUsers.filter(
-          (u) => u.role === "buyer",
-        ).length;
-        document.getElementById("st-sellers").innerText = allUsers.filter(
-          (u) => u.role === "seller",
-        ).length;
-        document.getElementById("st-admins").innerText = allUsers.filter(
-          (u) => u.role === "admin" || u.role === "super_admin",
-        ).length;
-        renderUserTable(allUsers);
+        try {
+          const res = await fetch(`${API_BASE}/users`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          allUsers = data.users || [];
+
+          document.getElementById("stat-total-users").innerText =
+            allUsers.length;
+          document.getElementById("stat-total-sellers").innerText =
+            allUsers.filter((u) => u.role === "seller").length;
+          document.getElementById("stat-total-admins").innerText =
+            allUsers.filter(
+              (u) => u.role === "admin" || u.role === "super_admin",
+            ).length;
+
+          renderUserTable(allUsers);
+        } catch (error) {
+          console.error("Error loading dashboard:", error);
+        }
       }
 
       function renderUserTable(users) {
         const tbody = document.getElementById("user-table-body");
+        if (users.length === 0)
+          return (tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">មិនមានទិន្នន័យ</td></tr>`);
         tbody.innerHTML = users
           .map(
             (u) => `
                 <tr>
                     <td><strong>${u.username}</strong><br><small style="color:var(--text-muted)">${u.fullName || "គ្មានឈ្មោះ"}</small></td>
-                    <td>${u.phone || "N/A"}<br><small style="color:var(--text-muted)">${u.email || "N/A"}</small></td>
+                    <td>${u.phone || "N/A"}<br><small style="color:var(--text-muted)">${u.email || ""}</small></td>
                     <td><span class="badge ${u.role}">${u.role}</span></td>
                     <td>
                         <button class="btn-action" style="color:var(--danger); border:none; background:none; cursor:pointer;" onclick="deleteUser('${u._id}', '${u.role}', '${u.username}')">
@@ -1290,32 +1258,42 @@
       }
 
       async function deleteUser(id, role, username) {
-        if (role === "super_admin") {
-          Swal.fire(
+        if (role === "super_admin")
+          return Swal.fire(
             "បដិសេធ",
-            "ប្រព័ន្ធមិនអនុញ្ញាតអោយលុបគណនី Super Admin ឡើយ!",
+            "ប្រព័ន្ធមិនអនុញ្ញាតអោយលុប Super Admin ឡើយ!",
             "error",
           );
-          return;
-        }
         const { value: reason } = await Swal.fire({
           title: `លុបគណនី: ${username}`,
           input: "textarea",
           inputLabel: "សូមបញ្ជាក់មូលហេតុ *",
           showCancelButton: true,
           confirmButtonColor: "#ef4444",
-          confirmButtonText: "លុបគណនី",
-          inputValidator: (value) => {
-            if (!value) return "អ្នកត្រូវតែបញ្ចូលមូលហេតុ!";
+          confirmButtonText: "លុប",
+          inputValidator: (v) => {
+            if (!v) return "អ្នកត្រូវតែបញ្ចូលមូលហេតុ!";
           },
         });
-        if (reason) Swal.fire("បានលុបជោគជ័យ!", `មូលហេតុ: ${reason}`, "success");
+
+        if (reason) {
+          try {
+            await fetch(`${API_BASE}/users/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+            Swal.fire("ជោគជ័យ!", "គណនីត្រូវបានលុប។", "success");
+            loadDashboardData();
+          } catch (e) {
+            console.error(e);
+          }
+        }
       }
 
       // ==========================================
-      // 📝 CREATE ACCOUNT (Dynamic Form)
+      // 📝 ផ្នែកទី៣៖ CREATE ACCOUNT & STORE (API)
       // ==========================================
-      function toggleFormFields() {
+      function toggleStoreFields() {
         const role = document.getElementById("new-role").value;
         const sellerFields = document.getElementById("seller-fields");
         if (role === "seller") {
@@ -1329,23 +1307,84 @@
 
       document
         .getElementById("createAccountForm")
-        .addEventListener("submit", async (e) => {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
-          Swal.fire("ជោគជ័យ", "គណនីត្រូវបានបង្កើតរួចរាល់", "success");
-          e.target.reset();
-          toggleFormFields();
+          const btn = document.getElementById("btn-create");
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+
+          const payload = {
+            username: document.getElementById("u-username").value,
+            password: document.getElementById("u-password").value,
+            fullName: document.getElementById("u-fullname").value,
+            phone: document.getElementById("u-phone").value,
+            email: document.getElementById("u-email").value,
+            gender: document.getElementById("u-gender").value,
+            address: document.getElementById("u-address").value,
+            profileImage: document.getElementById("u-profile").value,
+            role: document.getElementById("new-role").value,
+
+            // Store fields
+            storeName: document.getElementById("s-name").value,
+            storeCategory: document.getElementById("s-category").value,
+            commissionRate: Number(
+              document.getElementById("s-commission").value,
+            ),
+            status: document.getElementById("s-status").value,
+            averageRating: Number(document.getElementById("s-rating").value),
+            logoUrl: document.getElementById("s-logo").value,
+            coverUrl: document.getElementById("s-cover").value,
+            storeAddress: document.getElementById("s-address").value,
+          };
+
+          // Payment info
+          if (document.getElementById("check-payment").checked) {
+            payload.paymentInfo = {
+              bankName: document.getElementById("p-bank").value,
+              accountName: document.getElementById("p-accname").value,
+              accountNumber: document.getElementById("p-accnum").value,
+            };
+          }
+
+          try {
+            const res = await fetch(`${API_BASE}/users`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+              },
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              Swal.fire("ជោគជ័យ!", "បង្កើតគណនីបានសម្រេច", "success");
+              this.reset();
+              toggleStoreFields();
+              loadDashboardData();
+            } else Swal.fire("បរាជ័យ", data.message, "error");
+          } catch (error) {
+            Swal.fire("Error", "Server connection failed.", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក និងបង្កើតគណនី`;
+          }
         });
 
       // ==========================================
-      // 🏪 STORE MANAGEMENT (Iframe)
+      // 🏪 ផ្នែកទី៤៖ STORE MANAGEMENT IFRAME (API)
       // ==========================================
-      let storeList = [];
+      let allStores = [];
       async function loadStoresForIframe() {
-        storeList = [
-          { _id: "store123", storeName: "Fashion Shop KH", phone: "012345" },
-          { _id: "store456", storeName: "Tech Store", phone: "098765" },
-        ];
-        renderStoreSelectList(storeList);
+        try {
+          const res = await fetch(`${API_BASE}/stores`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          allStores = data.stores || [];
+          renderStoreSelectList(allStores);
+        } catch (error) {
+          console.error("Error loading stores:", error);
+        }
       }
 
       function renderStoreSelectList(stores) {
@@ -1355,9 +1394,9 @@
         container.innerHTML = stores
           .map(
             (s) => `
-                <div style="padding:10px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong>${s.storeName}</strong> <br><small>${s.phone}</small></div>
-                    <button class="btn-primary" onclick="openStoreInIframe('${s._id}')">ចូលគ្រប់គ្រងហាង</button>
+                <div style="padding:15px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:var(--bg-body); border-radius:8px; margin-bottom:5px;">
+                    <div><strong>${s.storeName}</strong> <br><small style="color:var(--text-muted)"><i class="fas fa-user"></i> ${s.owner?.username || "N/A"} | ${s.owner?.phone || ""}</small></div>
+                    <button class="btn-primary" onclick="openStoreInIframe('${s._id}')"><i class="fas fa-sign-in-alt"></i> ចូលគ្រប់គ្រងហាង</button>
                 </div>
             `,
           )
@@ -1368,11 +1407,15 @@
         const q = document
           .getElementById("store-quick-search")
           .value.toLowerCase();
-        renderStoreSelectList(
-          storeList.filter(
-            (s) => s.storeName.toLowerCase().includes(q) || s.phone.includes(q),
-          ),
-        );
+        const filtered = allStores.filter((s) => {
+          const owner = s.owner || {};
+          return (
+            s.storeName.toLowerCase().includes(q) ||
+            (owner.username && owner.username.toLowerCase().includes(q)) ||
+            (owner.phone && owner.phone.includes(q))
+          );
+        });
+        renderStoreSelectList(filtered);
       }
 
       function openStoreInIframe(storeId) {
@@ -1384,7 +1427,7 @@
       }
 
       // ==========================================
-      // 💸 WITHDRAWALS (U-Fund Logic)
+      // 💸 WITHDRAWALS (U-Fund Logic Framework)
       // ==========================================
       function approveWithdrawal(txId, amount) {
         Swal.fire({
@@ -1401,11 +1444,12 @@
               "បន្តនីតិវិធីទូទាត់ដោយស្វ័យប្រវត្តិ។",
               "success",
             );
+          // ត្រៀមហៅ API នៅពេល Backend រួចរាល់: fetch('/api/admin/withdrawals/approve', { method: 'POST', body: ...})
         });
       }
 
       // ==========================================
-      // 🎨 STOREFRONT & BANNERS LOGIC
+      // 🎨 ផ្នែកទី៥៖ STOREFRONT & BANNERS LOGIC (API)
       // ==========================================
       function addBannerItem(sectionNum, data = {}) {
         const container = document.getElementById(
@@ -1413,18 +1457,21 @@
         );
         const itemDiv = document.createElement("div");
         itemDiv.className = "banner-item-row";
-        // ដាក់ CSS អោយត្រូវជាមួយ Theme
         itemDiv.style =
           "border:1px solid var(--border-color); padding:15px; border-radius:8px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 2fr 2fr 1.5fr auto; gap:10px; align-items:end; background: var(--bg-body);";
 
         let storeOptions = `<option value="">-- គ្មានហាង (Link ធម្មតា) --</option>`;
-        storeList.forEach((s) => {
-          const selected = data.storeId === s._id ? "selected" : "";
+        allStores.forEach((s) => {
+          const selected =
+            data.storeId &&
+            (data.storeId._id === s._id || data.storeId === s._id)
+              ? "selected"
+              : "";
           storeOptions += `<option value="${s._id}" ${selected}>${s.storeName}</option>`;
         });
 
         itemDiv.innerHTML = `
-                <div class="input-group"><label>Image URL</label><input type="text" class="b-img" value="${data.imageUrl || ""}" placeholder="https://..." required /></div>
+                <div class="input-group"><label>Image URL</label><input type="text" class="b-img" value="${data.imageUrl || ""}" required /></div>
                 <div class="input-group"><label>Title (ចំណងជើង)</label><input type="text" class="b-title" value="${data.title || ""}" /></div>
                 <div class="input-group"><label>តភ្ជាប់ទៅហាង (Store)</label><select class="b-store">${storeOptions}</select></div>
                 <div class="input-group"><label>ឈប់បង្ហាញថ្ងៃទី</label><input type="date" class="b-date" value="${data.endDate ? data.endDate.split("T")[0] : ""}" /></div>
@@ -1434,25 +1481,136 @@
       }
 
       async function loadSettingsData() {
-        await loadStoresForIframe(); // Make sure storeList is ready
-        // Fake Data សម្រាប់ Banners
-        document.getElementById("sec1-items-container").innerHTML = "";
-        document.getElementById("sec2-items-container").innerHTML = "";
-        document.getElementById("sec3-items-container").innerHTML = "";
+        if (allStores.length === 0) await loadStoresForIframe();
+        try {
+          const res = await fetch("/api/settings");
+          const data = await res.json();
+          if (data.success && data.setting) {
+            const s = data.setting;
+            document.getElementById("setting-logoUrl").value = s.logoUrl || "";
+            if (s.section1) {
+              document.getElementById("sec1-interval").value =
+                s.section1.intervalSeconds || 3;
+              document.getElementById("sec1-direction").value =
+                s.section1.slideDirection || "left";
+              document.getElementById("sec1-items-container").innerHTML = "";
+              if (s.section1.items)
+                s.section1.items.forEach((i) => addBannerItem(1, i));
+            }
+            if (s.section2) {
+              document.getElementById("sec2-interval").value =
+                s.section2.intervalSeconds || 3;
+              document.getElementById("sec2-direction").value =
+                s.section2.slideDirection || "left";
+              document.getElementById("sec2-items-container").innerHTML = "";
+              if (s.section2.items)
+                s.section2.items.forEach((i) => addBannerItem(2, i));
+            }
+            if (s.section3) {
+              document.getElementById("sec3-interval").value =
+                s.section3.intervalSeconds || 3;
+              document.getElementById("sec3-direction").value =
+                s.section3.slideDirection || "left";
+              document.getElementById("sec3-items-container").innerHTML = "";
+              if (s.section3.items)
+                s.section3.items.forEach((i) => addBannerItem(3, i));
+            }
+          }
+        } catch (e) {
+          console.error("Failed load settings", e);
+        }
       }
 
-      document.getElementById("settingForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        Swal.fire("ជោគជ័យ", "រក្សាទុកការកំណត់ Banners រួចរាល់!", "success");
-      });
+      function getSectionData(num) {
+        const rows = document.querySelectorAll(
+          `#sec${num}-items-container .banner-item-row`,
+        );
+        const items = [];
+        rows.forEach((r) =>
+          items.push({
+            imageUrl: r.querySelector(".b-img").value,
+            title: r.querySelector(".b-title").value,
+            storeId: r.querySelector(".b-store").value || null,
+            endDate: r.querySelector(".b-date").value || null,
+          }),
+        );
+        return {
+          intervalSeconds:
+            parseInt(document.getElementById(`sec${num}-interval`).value) || 3,
+          slideDirection: document.getElementById(`sec${num}-direction`).value,
+          items: items,
+        };
+      }
+
+      document
+        .getElementById("settingForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            logoUrl: document.getElementById("setting-logoUrl").value,
+            section1: getSectionData(1),
+            section2: getSectionData(2),
+            section3: getSectionData(3),
+          };
+          const btn = document.getElementById("btn-save-settings");
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
+          try {
+            const res = await fetch("/api/settings", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+              },
+              body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+              Swal.fire("ជោគជ័យ!", "រក្សាទុកការកំណត់រួចរាល់!", "success");
+              loadSettingsData();
+            }
+          } catch (e) {
+            Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ Server", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុកការកំណត់ទាំងអស់`;
+          }
+        });
 
       // ==========================================
-      // ⚡ PROMOTIONS (FLASH SALE & TOP STORES)
+      // ⚡ ផ្នែកទី៦៖ PROMOTIONS (API)
       // ==========================================
-      let allProducts = [
-        { _id: "p1", name: "អាវយឺត", price: 10 },
-        { _id: "p2", name: "ស្បែកជើង", price: 25 },
-      ];
+      let allProductsForDropdown = [];
+      async function loadPromotionsData() {
+        if (allStores.length === 0) await loadStoresForIframe();
+        try {
+          const pRes = await fetch("/api/public/products");
+          const pData = await pRes.json();
+          allProductsForDropdown = pData.products || [];
+
+          const res = await fetch("/api/settings");
+          const data = await res.json();
+          if (data.success && data.setting) {
+            const s = data.setting;
+            if (s.flashSale) {
+              if (s.flashSale.endTime)
+                document.getElementById("flash-endTime").value = new Date(
+                  s.flashSale.endTime,
+                )
+                  .toISOString()
+                  .slice(0, 16);
+              document.getElementById("flash-items-container").innerHTML = "";
+              if (s.flashSale.items)
+                s.flashSale.items.forEach((i) => addFlashSaleRow(i));
+            }
+            if (s.topStores) {
+              document.getElementById("top-stores-container").innerHTML = "";
+              s.topStores.forEach((stId) => addTopStoreRow(stId));
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
 
       function addFlashSaleRow(data = {}) {
         const container = document.getElementById("flash-items-container");
@@ -1462,15 +1620,19 @@
           "border:1px solid var(--border-color); padding:15px; border-radius:8px; margin-bottom:10px; display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; align-items:end; background: var(--bg-body);";
 
         let productOpts = `<option value="">-- ជ្រើសរើសទំនិញ --</option>`;
-        allProducts.forEach((p) => {
-          productOpts += `<option value="${p._id}">${p.name} ($${p.price})</option>`;
+        allProductsForDropdown.forEach((p) => {
+          const sel =
+            data.productId === p._id || data.productId?._id === p._id
+              ? "selected"
+              : "";
+          productOpts += `<option value="${p._id}" ${sel}>${p.name} ($${p.price})</option>`;
         });
 
         div.innerHTML = `
                 <div class="input-group"><label>ទំនិញ (Product)</label><select class="f-product">${productOpts}</select></div>
-                <div class="input-group"><label>បញ្ចុះ (%)</label><input type="number" class="f-discount" value="20" min="1" max="99" /></div>
-                <div class="input-group"><label>លក់បាន (Sold)</label><input type="number" class="f-sold" value="10" min="0" /></div>
-                <div class="input-group"><label>ស្តុកសរុប</label><input type="number" class="f-total" value="100" min="1" /></div>
+                <div class="input-group"><label>បញ្ចុះ (%)</label><input type="number" class="f-discount" value="${data.discountPercent || 20}" min="1" max="99" /></div>
+                <div class="input-group"><label>លក់បាន (Sold)</label><input type="number" class="f-sold" value="${data.soldCount || 10}" min="0" /></div>
+                <div class="input-group"><label>ស្តុកសរុប</label><input type="number" class="f-total" value="${data.totalStock || 100}" min="1" /></div>
                 <button type="button" class="btn-danger" style="height:42px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
             `;
         container.appendChild(div);
@@ -1484,29 +1646,58 @@
           "display:flex; gap:10px; margin-bottom:10px; align-items:center;";
 
         let storeOpts = `<option value="">-- ជ្រើសរើសហាង --</option>`;
-        storeList.forEach((s) => {
-          storeOpts += `<option value="${s._id}">${s.storeName}</option>`;
+        allStores.forEach((s) => {
+          const sel =
+            storeId === s._id || storeId?._id === s._id ? "selected" : "";
+          storeOpts += `<option value="${s._id}" ${sel}>${s.storeName}</option>`;
         });
 
-        div.innerHTML = `
-                <select class="ts-select" style="flex:1;">${storeOpts}</select>
-                <button type="button" class="btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-            `;
+        div.innerHTML = `<select class="ts-select" style="flex:1;">${storeOpts}</select><button type="button" class="btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`;
         container.appendChild(div);
       }
 
-      async function loadPromotionsData() {
-        await loadStoresForIframe();
-        document.getElementById("flash-items-container").innerHTML = "";
-        document.getElementById("top-stores-container").innerHTML = "";
-      }
+      async function savePromotionsData() {
+        const flashItems = [];
+        document.querySelectorAll(".flash-item-row").forEach((row) => {
+          if (row.querySelector(".f-product").value)
+            flashItems.push({
+              productId: row.querySelector(".f-product").value,
+              discountPercent: parseInt(row.querySelector(".f-discount").value),
+              soldCount: parseInt(row.querySelector(".f-sold").value),
+              totalStock: parseInt(row.querySelector(".f-total").value),
+            });
+        });
+        const topStores = [];
+        document
+          .querySelectorAll(".top-store-row .ts-select")
+          .forEach((sel) => {
+            if (sel.value) topStores.push(sel.value);
+          });
 
-      function savePromotionsData() {
-        Swal.fire(
-          "ជោគជ័យ",
-          "រក្សាទុក Flash Sale និង Top Stores រួចរាល់!",
-          "success",
-        );
+        const payload = {
+          flashSale: {
+            endTime: document.getElementById("flash-endTime").value || null,
+            items: flashItems,
+          },
+          topStores: topStores,
+        };
+        const btn = document.getElementById("btn-save-promotions");
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...`;
+        try {
+          const res = await fetch("/api/settings", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) Swal.fire("ជោគជ័យ!", "រក្សាទុកដោយជោគជ័យ!", "success");
+        } catch (error) {
+          Swal.fire("កំហុស", "មិនអាចតភ្ជាប់ Server", "error");
+        } finally {
+          btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores`;
+        }
       }
     </script>
   </body>
