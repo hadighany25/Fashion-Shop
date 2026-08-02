@@ -365,22 +365,27 @@
                   ? `${currentOrderId}-${index + 1}`
                   : currentOrderId;
 
-              // 🌟 កែតម្រូវទី១៖ ប្រើប្រាស់ extractId សម្រាប់ buyer, store និង product ការពារ Error 500
+              // 🌟 កែតម្រូវ៖ បញ្ជូនទាំង Key ចាស់និងថ្មី ដើម្បីផ្គាប់ចិត្តទាំង Controller ចាស់ និង Model ថ្មី
               const orderPayload = {
                 orderId: uniqueOrderId,
                 totalAmount: storeSubTotal,
-                items: storeItems.map((i) => ({
-                  product: extractId(i.productId || i.id || i.product),
-                  name: i.name,
-                  price: Number(i.price),
-                  quantity: Number(i.qty || i.quantity || 1),
-                  image: i.image || "https://via.placeholder.com/80",
-                  variant: i.variant || "",
-                })),
+                items: storeItems.map((i) => {
+                  const pId = extractId(i.productId || i.id || i.product);
+                  return {
+                    product: pId, // សម្រាប់ Schema ថ្មី
+                    productId: pId, // សម្រាប់ការពារក្រែង Controller ចាស់ត្រូវការ
+                    name: i.name || "ទំនិញគ្មានឈ្មោះ",
+                    price: Number(i.price) || 0,
+                    quantity: Number(i.qty || i.quantity || 1), // សម្រាប់ Schema ថ្មី
+                    qty: Number(i.qty || i.quantity || 1), // សម្រាប់ការពារក្រែង Controller ចាស់ត្រូវការ
+                    image: i.image || "https://via.placeholder.com/80",
+                    variant: i.variant || "",
+                  };
+                }),
                 buyer: extractId(currentBuyerId),
                 shippingAddress: currentAddress,
                 phone: currentPhone,
-                store: storeId !== "unknown_store" ? storeId : null,
+                store: storeId && storeId !== "unknown_store" ? storeId : null,
               };
 
               return fetch(API_ORDER_CREATE, {

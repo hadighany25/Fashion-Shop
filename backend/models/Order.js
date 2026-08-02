@@ -67,30 +67,33 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// 🌟 Mongoose Pre-save Hook
+// 🌟 Mongoose Pre-save Hook (ស៊េរីការពារការគាំង) 🌟
 orderSchema.pre("save", async function (next) {
   try {
+    // ឆែកមើលថាមាន buyer ហើយវាជា ObjectId ត្រឹមត្រូវ (កុំឱ្យ CastError)
     if (
       this.buyer &&
+      mongoose.Types.ObjectId.isValid(this.buyer) &&
       (this.phone === "មិនទាន់បញ្ជាក់" ||
         this.shippingAddress === "មិនទាន់បញ្ជាក់")
     ) {
-      // ហៅ User Model មកប្រើ
-      const user = await User.findById(this.buyer);
+      // ទាញយក User Model ដោយផ្ទាល់ ជៀសវាង Error Require Module
+      const User = mongoose.models.User;
 
-      if (user) {
-        if (this.phone === "មិនទាន់បញ្ជាក់" && user.phone) {
-          this.phone = user.phone;
-        }
-        if (this.shippingAddress === "មិនទាន់បញ្ជាក់" && user.address) {
-          this.shippingAddress = user.address;
+      if (User) {
+        const user = await User.findById(this.buyer);
+        if (user) {
+          if (this.phone === "មិនទាន់បញ្ជាក់" && user.phone)
+            this.phone = user.phone;
+          if (this.shippingAddress === "មិនទាន់បញ្ជាក់" && user.address)
+            this.shippingAddress = user.address;
         }
       }
     }
     next();
   } catch (error) {
-    console.error("Error auto-fetching user info for Order:", error);
-    next(error);
+    console.error("⚠️ Hook Error (Ignored):", error);
+    next(); // 👈 សំខាន់! ទោះមាន Error ក្នុង Hook ក៏ឱ្យវាបន្ត Save Order ដែរ ដើម្បីកុំឱ្យគាំងទូទាត់លុយ
   }
 });
 
