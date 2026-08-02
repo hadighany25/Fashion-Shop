@@ -3,21 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seller Center - Fashion Shop</title>
-    <!-- Tailwind CSS -->
+    <title>Seller Center - U-Mall</title>
+
+    <!-- ================= LIBRARY & FONTS ================= -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- Google Fonts (Kantumruy Pro) -->
     <link
       href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- SweetAlert2 (សម្រាប់ផ្ទាំង Alert ស្អាតៗ) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ================= CUSTOM CSS ================= -->
     <style>
       body {
         font-family: "Kantumruy Pro", sans-serif;
@@ -32,7 +32,8 @@
       .kanban-col {
         min-height: 400px;
       }
-      /* Custom Scrollbar */
+
+      /* Custom Scrollbar ឱ្យស្អាត */
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -43,8 +44,9 @@
       }
     </style>
   </head>
+
   <body class="flex h-screen overflow-hidden text-gray-800">
-    <!-- Sidebar -->
+    <!-- ================= ផ្នែក SIDEBAR (បញ្ជីចំហៀង) ================= -->
     <aside
       class="w-64 bg-gray-900 text-white flex flex-col transition-all duration-300"
     >
@@ -55,6 +57,7 @@
           <i class="fas fa-store text-blue-400 mr-2"></i> Seller Center
         </h1>
       </div>
+
       <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1">
           <li>
@@ -62,7 +65,7 @@
               href="#"
               onclick="switchTab('dashboard')"
               id="nav-dashboard"
-              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white bg-gray-800 text-white border-l-4 border-blue-500"
+              class="nav-btn block px-6 py-3 bg-gray-800 text-white border-l-4 border-blue-500 hover:bg-gray-800 transition"
             >
               <i class="fas fa-chart-line w-5"></i> ទិដ្ឋភាពទូទៅ
             </a>
@@ -72,7 +75,7 @@
               href="#"
               onclick="switchTab('orders')"
               id="nav-orders"
-              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+              class="nav-btn block px-6 py-3 text-gray-300 border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition"
             >
               <i class="fas fa-shopping-bag w-5"></i> គ្រប់គ្រងការលក់ (Orders)
             </a>
@@ -82,7 +85,7 @@
               href="#"
               onclick="switchTab('products')"
               id="nav-products"
-              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+              class="nav-btn block px-6 py-3 text-gray-300 border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition"
             >
               <i class="fas fa-box w-5"></i> ឃ្លាំងទំនិញ
             </a>
@@ -92,13 +95,14 @@
               href="#"
               onclick="switchTab('settings')"
               id="nav-settings"
-              class="nav-btn block px-6 py-3 hover:bg-gray-800 text-gray-300 hover:text-white border-l-4 border-transparent"
+              class="nav-btn block px-6 py-3 text-gray-300 border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition"
             >
               <i class="fas fa-cog w-5"></i> កំណត់ទម្រង់ហាង
             </a>
           </li>
         </ul>
       </nav>
+
       <div class="p-4 border-t border-gray-800">
         <button
           onclick="logout()"
@@ -109,9 +113,9 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- ================= ផ្នែក MAIN CONTENT (ផ្ទៃបង្ហាញខាងស្ដាំ) ================= -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50">
-      <!-- Top Header -->
+      <!-- ផ្នែក Header ខាងលើ -->
       <header
         class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10"
       >
@@ -119,12 +123,7 @@
           ទិដ្ឋភាពទូទៅ
         </h2>
         <div class="flex items-center space-x-4">
-          <a
-            href="/"
-            target="_blank"
-            class="text-sm text-blue-600 hover:underline"
-            ><i class="fas fa-external-link-alt mr-1"></i> មើលហាង</a
-          >
+          <!-- ប៊ូតុង "មើលហាង" ត្រូវបានលុបចេញ ដើម្បីកុំឱ្យអ្នកលក់ចូល index.html -->
           <div class="flex items-center space-x-2 border-l pl-4">
             <img
               id="top-store-logo"
@@ -139,9 +138,9 @@
         </div>
       </header>
 
-      <!-- Dynamic Content Area -->
+      <!-- ផ្ទៃទិន្នន័យផ្លាស់ប្ដូរ (Dynamic Content) -->
       <div class="flex-1 overflow-y-auto p-6">
-        <!-- 1. DASHBOARD TAB -->
+        <!-- 1. TAB: DASHBOARD (ទិដ្ឋភាពទូទៅ) -->
         <div id="dashboard-tab" class="tab-content active">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div
@@ -173,6 +172,7 @@
               </div>
             </div>
           </div>
+
           <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b">
               <h3 class="font-semibold text-gray-800">
@@ -190,17 +190,16 @@
                   </tr>
                 </thead>
                 <tbody id="recent-orders-list">
-                  <!-- JS នឹងបញ្ចូលទិន្នន័យទីនេះ -->
+                  <!-- JS បញ្ចូលទិន្នន័យ -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- 2. ORDERS TAB (KANBAN BOARD) -->
+        <!-- 2. TAB: ORDERS (គ្រប់គ្រងការលក់ / Kanban Board) -->
         <div id="orders-tab" class="tab-content">
           <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
-            <!-- Column: New -->
             <div
               class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-blue-400"
             >
@@ -217,7 +216,7 @@
                 class="flex-1 space-y-3 overflow-y-auto"
               ></div>
             </div>
-            <!-- Column: Packing -->
+
             <div
               class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-yellow-400"
             >
@@ -236,7 +235,7 @@
                 class="flex-1 space-y-3 overflow-y-auto"
               ></div>
             </div>
-            <!-- Column: Shipping -->
+
             <div
               class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-purple-400"
             >
@@ -255,7 +254,7 @@
                 class="flex-1 space-y-3 overflow-y-auto"
               ></div>
             </div>
-            <!-- Column: Completed -->
+
             <div
               class="bg-gray-100 rounded-lg p-3 flex flex-col kanban-col border-t-4 border-green-400"
             >
@@ -277,7 +276,7 @@
           </div>
         </div>
 
-        <!-- 3. PRODUCTS TAB -->
+        <!-- 3. TAB: PRODUCTS (ឃ្លាំងទំនិញ) -->
         <div id="products-tab" class="tab-content">
           <div
             class="bg-white rounded-xl shadow-sm p-6 mb-6 flex justify-between items-center"
@@ -306,6 +305,7 @@
               </button>
             </div>
           </div>
+
           <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <table class="w-full text-left border-collapse">
               <thead class="bg-gray-50 text-gray-600 text-sm">
@@ -318,16 +318,16 @@
                 </tr>
               </thead>
               <tbody id="products-table-body" class="divide-y divide-gray-100">
-                <!-- JS នឹងបញ្ចូលទិន្នន័យទីនេះ -->
+                <!-- JS បញ្ចូលទិន្នន័យ -->
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- 4. SETTINGS TAB -->
+        <!-- 4. TAB: SETTINGS (ការកំណត់ហាង) -->
         <div id="settings-tab" class="tab-content">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Profile Info -->
+            <!-- ផ្នែកទី១: ព័ត៌មានហាងទូទៅ -->
             <div class="bg-white rounded-xl shadow-sm p-6">
               <h3 class="text-lg font-bold mb-4 border-b pb-2">
                 ១. ព័ត៌មានហាងទូទៅ
@@ -355,7 +355,6 @@
                     placeholder="https://example.com/logo.jpg"
                   />
                 </div>
-                <!-- 👇 ផ្នែកដែលទើបបន្ថែមថ្មីសម្រាប់ Cover -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1"
                     >រូបភាពគម្របហាង (Cover URL)</label
@@ -380,7 +379,7 @@
               </form>
             </div>
 
-            <!-- Payment Info & System Info -->
+            <!-- ផ្នែកទី២: ព័ត៌មានទូទាត់ប្រាក់ និង ប្រព័ន្ធ -->
             <div class="space-y-6">
               <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-bold mb-4 border-b pb-2 text-green-600">
@@ -421,7 +420,7 @@
                 </div>
               </div>
 
-              <!-- System Info (Readonly) -->
+              <!-- ព័ត៌មានប្រព័ន្ធ (Readonly) -->
               <div class="bg-gray-50 rounded-xl border p-6">
                 <h3
                   class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider"
@@ -467,9 +466,9 @@
       </div>
     </main>
 
-    <!-- ================= MODALS ================= -->
+    <!-- ================= MODALS (ផ្ទាំងលោតពីលើ) ================= -->
 
-    <!-- Product Modal (Add/Edit) -->
+    <!-- Modal: បន្ថែម/កែប្រែទំនិញ -->
     <div
       id="product-modal"
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
@@ -567,7 +566,7 @@
       </div>
     </div>
 
-    <!-- Category Manager Modal -->
+    <!-- Modal: រៀបចំ Category -->
     <div
       id="category-modal"
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
@@ -617,34 +616,39 @@
       </div>
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
       const API_URL = "/api/seller";
       const token = localStorage.getItem("token");
       const role = localStorage.getItem("role");
 
-      // ==========================================
-      // 1. GLOBAL STATE & AUTHENTICATION CHECK
-      // ==========================================
+      // ----------------------------------------------------
+      // ១. ការពារសុវត្ថិភាព (Authentication Check)
+      // ----------------------------------------------------
+      // បើគ្មាន Token ឬ Role មិនមែនជា seller ទេ បណ្ដេញចេញទៅកាន់ទំព័រ Login
+      if (!token || role !== "seller") {
+        window.location.href = "login.html"; // ដូរឈ្មោះទៅតាម File Login ពិតប្រាកដរបស់បង
+      }
+
+      // ----------------------------------------------------
+      // ២. តួអថេរជាសកល (Global State)
+      // ----------------------------------------------------
       let storeData = null;
       let products = [];
       let orders = [];
 
-      // Auth Check
-      if (!token || role !== "seller") {
-        window.location.href = "login.html";
-      }
-
-      // Initialize Application on Load
+      // ----------------------------------------------------
+      // ៣. ចាប់ផ្ដើមកម្មវិធី (Initialization)
+      // ----------------------------------------------------
       async function init() {
         await fetchProfile();
         await fetchProducts();
         await fetchOrders();
       }
 
-      // ==========================================
-      // 2. API CALLS (FETCH DATA)
-      // ==========================================
+      // ----------------------------------------------------
+      // ៤. ទាញយកទិន្នន័យពី Server (API Calls)
+      // ----------------------------------------------------
       async function fetchProfile() {
         try {
           const res = await fetch(`${API_URL}/profile`, {
@@ -660,7 +664,6 @@
                 accountName: "",
                 accountNumber: "",
               };
-
             renderProfileInfo();
           } else {
             Swal.fire("Error", data.message, "error");
@@ -703,24 +706,21 @@
         }
       }
 
-      // ==========================================
-      // 3. RENDER FUNCTIONS (UI UPDATES)
-      // ==========================================
+      // ----------------------------------------------------
+      // ៥. បង្ហាញទិន្នន័យលើអេក្រង់ (Render Functions)
+      // ----------------------------------------------------
       function renderProfileInfo() {
-        // Header
         document.getElementById("top-store-name").innerText =
           storeData.storeName;
         if (storeData.logoUrl)
           document.getElementById("top-store-logo").src = storeData.logoUrl;
 
-        // Settings Form (រួមទាំង Cover URL ដែលទើបបន្ថែមថ្មី)
         document.getElementById("store-name").value = storeData.storeName;
         document.getElementById("store-logo").value = storeData.logoUrl || "";
         document.getElementById("store-cover").value = storeData.coverUrl || "";
         document.getElementById("store-desc").value =
           storeData.description || "";
 
-        // Payment Form
         document.getElementById("bank-name").value =
           storeData.paymentInfo.bankName;
         document.getElementById("account-name").value =
@@ -728,7 +728,6 @@
         document.getElementById("account-number").value =
           storeData.paymentInfo.accountNumber;
 
-        // Readonly Info
         document.getElementById("store-status").innerText = storeData.status;
         document.getElementById("store-commission").innerText =
           storeData.commissionRate + "%";
@@ -758,7 +757,6 @@
           const stockColor =
             p.stock < 5 ? "text-red-600 font-bold" : "text-gray-800";
           const imgUrl = p.imageUrl || "https://via.placeholder.com/50";
-
           tbody.innerHTML += `
             <tr class="hover:bg-gray-50 transition">
                 <td class="py-3 px-6 flex items-center space-x-3">
@@ -772,8 +770,7 @@
                     <button onclick="editProduct('${p._id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-edit"></i></button>
                     <button onclick="deleteProduct('${p._id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                 </td>
-            </tr>
-          `;
+            </tr>`;
         });
       }
 
@@ -806,8 +803,7 @@
                   <td class="py-3 font-medium">${o.shippingAddress?.fullName || "N/A"}</td>
                   <td class="py-3 text-blue-600">$${o.totalPrice.toFixed(2)}</td>
                   <td class="py-3">${statusBadge}</td>
-              </tr>
-            `;
+              </tr>`;
           }
         });
 
@@ -842,8 +838,7 @@
                   <button onclick="viewOrderDetails('${o._id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs py-1.5 rounded transition">មើលលម្អិត</button>
                   ${btnHTML}
               </div>
-          </div>
-        `;
+          </div>`;
 
         document.getElementById("board-new").innerHTML = cols.new
           .map((o) =>
@@ -874,14 +869,14 @@
           .join("");
       }
 
-      // ==========================================
-      // 4. STORE SETTINGS MANAGEMENT (UPDATE PROFILE)
-      // ==========================================
+      // ----------------------------------------------------
+      // ៦. មុខងារបញ្ជាផ្សេងៗ (Actions & Settings)
+      // ----------------------------------------------------
       async function saveStoreSettings() {
         const payload = {
           storeName: document.getElementById("store-name").value,
           logoUrl: document.getElementById("store-logo").value,
-          coverUrl: document.getElementById("store-cover").value, // 👈 បញ្ចូល Cover URL ទៅ Backend
+          coverUrl: document.getElementById("store-cover").value,
           description: document.getElementById("store-desc").value,
           paymentInfo: {
             bankName: document.getElementById("bank-name").value,
@@ -911,9 +906,6 @@
         }
       }
 
-      // ==========================================
-      // 5. CATEGORY MANAGEMENT
-      // ==========================================
       function openCategoryModal() {
         document.getElementById("category-modal").classList.remove("hidden");
         renderCategoryList();
@@ -921,45 +913,40 @@
       function closeCategoryModal() {
         document.getElementById("category-modal").classList.add("hidden");
       }
+
       function renderCategoryList() {
         const list = document.getElementById("cat-list");
         list.innerHTML = storeData.categories
           .map(
             (c, i) => `
-              <li class="py-2 px-3 flex justify-between items-center bg-white mb-1 rounded border">
-                  <span class="text-sm font-medium text-gray-700">${c}</span>
-                  <button onclick="removeCategory(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
-              </li>
-            `,
+          <li class="py-2 px-3 flex justify-between items-center bg-white mb-1 rounded border">
+              <span class="text-sm font-medium text-gray-700">${c}</span>
+              <button onclick="removeCategory(${i})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
+          </li>`,
           )
           .join("");
       }
+
       async function addNewCategory() {
         const input = document.getElementById("new-cat-name");
         const catName = input.value.trim();
         if (!catName) return;
-
         storeData.categories.push(catName);
         await silentSaveCategories();
         input.value = "";
         renderCategoryList();
         updateCategoryDropdown();
       }
+
       async function removeCategory(index) {
         storeData.categories.splice(index, 1);
         await silentSaveCategories();
         renderCategoryList();
         updateCategoryDropdown();
       }
+
       async function silentSaveCategories() {
-        const payload = {
-          storeName: storeData.storeName,
-          logoUrl: storeData.logoUrl,
-          coverUrl: storeData.coverUrl, // 👈 រក្សាទុក Cover URL ពេលកែប្រែ Category
-          description: storeData.description,
-          paymentInfo: storeData.paymentInfo,
-          categories: storeData.categories,
-        };
+        const payload = { ...storeData }; // ប្រើ Data ទាំងអស់ដើម្បី Save
         await fetch(`${API_URL}/profile`, {
           method: "PUT",
           headers: {
@@ -969,33 +956,26 @@
           body: JSON.stringify(payload),
         });
       }
+
       function updateCategoryDropdown() {
         const select = document.getElementById("prod-category");
-        if (storeData.categories.length === 0) {
+        if (storeData.categories.length === 0)
           select.innerHTML = `<option value="">-- សូមបង្កើត Category សិន --</option>`;
-        } else {
+        else
           select.innerHTML = storeData.categories
             .map((c) => `<option value="${c}">${c}</option>`)
             .join("");
-        }
       }
 
-      // ==========================================
-      // 6. PRODUCT MANAGEMENT (CRUD)
-      // ==========================================
       function openProductModal(id = null) {
         if (storeData.categories.length === 0) {
-          Swal.fire(
+          return Swal.fire(
             "បញ្ជាក់",
             "សូមចូលទៅកាន់ (រៀបចំ Category) ដើម្បីបង្កើតប្រភេទសិន មុនពេលបញ្ចូលទំនិញ!",
             "warning",
           );
-          return;
         }
-        const modal = document.getElementById("product-modal");
-        const form = document.getElementById("product-form");
-        form.reset();
-
+        document.getElementById("product-form").reset();
         if (id) {
           document.getElementById("product-modal-title").innerText =
             "កែប្រែទំនិញ";
@@ -1011,7 +991,7 @@
             "បន្ថែមទំនិញថ្មី";
           document.getElementById("prod-id").value = "";
         }
-        modal.classList.remove("hidden");
+        document.getElementById("product-modal").classList.remove("hidden");
       }
 
       function closeProductModal() {
@@ -1028,10 +1008,8 @@
           category: document.getElementById("prod-category").value,
           imageUrl: document.getElementById("prod-image").value,
         };
-
         const method = id ? "PUT" : "POST";
         const url = id ? `${API_URL}/products/${id}` : `${API_URL}/products`;
-
         try {
           const res = await fetch(url, {
             method,
@@ -1046,9 +1024,7 @@
             Swal.fire("ជោគជ័យ!", "ទិន្នន័យត្រូវបានរក្សាទុក!", "success");
             closeProductModal();
             fetchProducts();
-          } else {
-            Swal.fire("Error", data.message, "error");
-          }
+          } else Swal.fire("Error", data.message, "error");
         } catch (err) {
           console.error(err);
         }
@@ -1076,7 +1052,6 @@
                 headers: { Authorization: `Bearer ${token}` },
               });
               const data = await res.json();
-
               if (data.success) {
                 Swal.fire(
                   "បានលុបជោគជ័យ!",
@@ -1084,9 +1059,7 @@
                   "success",
                 );
                 fetchProducts();
-              } else {
-                Swal.fire("បរាជ័យ", data.message, "error");
-              }
+              } else Swal.fire("បរាជ័យ", data.message, "error");
             } catch (err) {
               Swal.fire("បរាជ័យ", "មានបញ្ហាបច្ចេកទេស", "error");
             }
@@ -1094,9 +1067,6 @@
         });
       }
 
-      // ==========================================
-      // 7. ORDER ACTIONS (STATUS & DETAILS)
-      // ==========================================
       async function updateOrderStatus(orderId, newStatus) {
         try {
           const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
@@ -1108,9 +1078,7 @@
             body: JSON.stringify({ status: newStatus }),
           });
           const data = await res.json();
-          if (data.success) {
-            fetchOrders();
-          }
+          if (data.success) fetchOrders();
         } catch (err) {
           console.error(err);
         }
@@ -1123,38 +1091,29 @@
           .join("");
         Swal.fire({
           title: "លម្អិតការកុម្ម៉ង់",
-          html: `
-            <div class="text-left text-sm">
-                <p><b>អ្នកទិញ:</b> ${order.shippingAddress.fullName}</p>
-                <p><b>ទូរស័ព្ទ:</b> ${order.shippingAddress.phone}</p>
-                <p><b>ទីតាំង:</b> ${order.shippingAddress.address}</p>
-                <hr class="my-2">
-                <ul class="list-disc pl-5">${itemsHTML}</ul>
-                <hr class="my-2">
-                <p class="text-lg text-blue-600 font-bold">សរុប: $${order.totalPrice.toFixed(2)}</p>
-            </div>
-          `,
+          html: `<div class="text-left text-sm">
+                  <p><b>អ្នកទិញ:</b> ${order.shippingAddress.fullName}</p>
+                  <p><b>ទូរស័ព្ទ:</b> ${order.shippingAddress.phone}</p>
+                  <p><b>ទីតាំង:</b> ${order.shippingAddress.address}</p>
+                  <hr class="my-2"><ul class="list-disc pl-5">${itemsHTML}</ul><hr class="my-2">
+                  <p class="text-lg text-blue-600 font-bold">សរុប: $${order.totalPrice.toFixed(2)}</p>
+                </div>`,
           confirmButtonColor: "#2563eb",
           confirmButtonText: "បិទ",
         });
       }
 
-      // ==========================================
-      // 8. NAVIGATION & UTILITIES
-      // ==========================================
       function switchTab(tabId) {
         document
           .querySelectorAll(".tab-content")
           .forEach((el) => el.classList.remove("active"));
         document.querySelectorAll(".nav-btn").forEach((el) => {
           el.classList.remove("bg-gray-800", "text-white", "border-blue-500");
-          el.classList.add("border-transparent");
+          el.classList.add("border-transparent", "text-gray-300");
         });
-
         document.getElementById(`${tabId}-tab`).classList.add("active");
-
         const activeBtn = document.getElementById(`nav-${tabId}`);
-        activeBtn.classList.remove("border-transparent");
+        activeBtn.classList.remove("border-transparent", "text-gray-300");
         activeBtn.classList.add("bg-gray-800", "text-white", "border-blue-500");
 
         const titles = {
@@ -1168,10 +1127,10 @@
 
       function logout() {
         localStorage.clear();
-        window.location.href = "admin-login.html";
+        window.location.href = "login.html"; // ត្រលប់ទៅ Login
       }
 
-      // Start Application
+      // ចាប់ផ្ដើម
       init();
     </script>
   </body>
