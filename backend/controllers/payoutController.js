@@ -2,11 +2,10 @@ const crypto = require("crypto");
 const Withdrawal = require("../models/Withdrawal");
 const User = require("../models/User");
 
-// ទាញយកទិន្នន័យសម្ងាត់ពី Environment Variables
 const UPAY_API_KEY = process.env.UPAY_API_KEY;
 const UPAY_SECRET = process.env.UPAY_API_SECRET;
 const UPAY_URL = process.env.UPAY_BASE_URL;
-const UPAY_MERCHANT_ID = process.env.UPAY_MERCHANT_ID; // 👈 ទាញយក Merchant ID
+const UPAY_MERCHANT_ID = process.env.UPAY_MERCHANT_ID;
 
 // ==========================================
 // ១. Seller ស្នើសុំដកប្រាក់
@@ -35,7 +34,7 @@ exports.requestWithdrawal = async (req, res) => {
 };
 
 // ==========================================
-// ២. Admin អនុម័ត និងបញ្ជាទៅ U-Pay
+// ២. Admin អនុម័ត និងបញ្ជាទៅ U-Pay (ផ្ទេរប្រាក់)
 // ==========================================
 exports.approveWithdrawal = async (req, res) => {
   try {
@@ -49,7 +48,6 @@ exports.approveWithdrawal = async (req, res) => {
     }
 
     if (!UPAY_API_KEY || !UPAY_SECRET || !UPAY_URL) {
-      console.error("Missing UPAY Credentials in Environment Variables!");
       return res
         .status(500)
         .json({
@@ -58,10 +56,9 @@ exports.approveWithdrawal = async (req, res) => {
         });
     }
 
-    // 🛡️ កែប្រែ Payload ត្រង់នេះ! (ប្រើ referenceId ជំនួស orderId និងថែម merchantId)
     const payload = {
       merchantId: UPAY_MERCHANT_ID || "500500500500500",
-      referenceId: withdrawal._id.toString(), // 👈 ប្ដូរមកពាក្យដែល U-Pay ស្គាល់
+      referenceId: withdrawal._id.toString(), // ប្រើ ID នេះដើម្បីចំណាំប្រវត្តិផ្ទេរប្រាក់
       amount: withdrawal.amount,
       receiverAccount: withdrawal.accountNumber,
       description: `U-Mall Payout for Seller`,
@@ -70,14 +67,14 @@ exports.approveWithdrawal = async (req, res) => {
     const payloadString = JSON.stringify(payload);
     const timestamp = Date.now().toString();
 
-    // បង្កើតហត្ថលេខាសម្ងាត់ (Signature)
     const dataToSign = payloadString + timestamp;
     const signature = crypto
       .createHmac("sha256", UPAY_SECRET)
       .update(dataToSign)
       .digest("hex");
 
-    const response = await fetch(`${UPAY_URL}/api/v1/b2b/escrow/release`, {
+    // 🚀 កន្លែងដែលត្រូវកែ គឺប្ដូរ Endpoint ទៅជា /api/v1/b2b/transfer (ផ្ទេរប្រាក់ផ្ទាល់)
+    const response = await fetch(`${UPAY_URL}/api/v1/b2b/transfer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -91,6 +88,7 @@ exports.approveWithdrawal = async (req, res) => {
     const data = await response.json();
 
     if (response.ok && data.success) {
+      // ជោគជ័យ កត់ត្រាទុក
       withdrawal.status = "PROCESSING";
       withdrawal.upayTransactionId = data.transactionId || "";
       withdrawal.note = "កំពុងរង់ចាំ U-Pay ដំណើរការ និងបញ្ចេញ PDF";
@@ -100,7 +98,7 @@ exports.approveWithdrawal = async (req, res) => {
         .status(200)
         .json({
           success: true,
-          message: "បានបញ្ជាទៅ U-Pay ជោគជ័យ កំពុងរង់ចាំ Webhook!",
+          message: "បានបញ្ជាផ្ទេរប្រាក់តាម U-Pay ជោគជ័យ!",
         });
     } else {
       res
