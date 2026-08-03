@@ -1,6 +1,7 @@
-const mongoose = require("mongoose"); // 👈 ថែមជួរនេះ ដើម្បីយកមកឆែក ObjectId
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Store = require("../models/Store");
+const User = require("../models/User"); // 👈 ថែម User ដើម្បីរក Admin បញ្ចូលលុយ Commission
 
 // ==========================================
 // 📌 ១. បង្កើតវិក័យប័ត្រថ្មី (Create Order)
@@ -17,11 +18,9 @@ const createOrder = async (req, res) => {
       phone,
     } = req.body;
 
-    // 🌟 ការពារទី១៖ សម្អាតទិន្នន័យទំនិញកុំឱ្យខុសទម្រង់ DB
     const formattedItems = items.map((item) => {
       const pId = item.product || item.productId || item.id;
       return {
-        // បើ ID មិនត្រឹមត្រូវ ដាក់ undefined កុំឱ្យ DB គាំង (CastError)
         product: mongoose.Types.ObjectId.isValid(pId) ? pId : undefined,
         name: item.name || "ទំនិញគ្មានឈ្មោះ",
         price: Number(item.price) || 0,
@@ -47,7 +46,6 @@ const createOrder = async (req, res) => {
       ],
     });
 
-    // 🌟 ការពារទី២៖ ពិនិត្យ buyer និង store កុំឱ្យជាប់ String ទទេ "" ដែលធ្វើឱ្យគាំង
     if (buyer && mongoose.Types.ObjectId.isValid(buyer)) {
       newOrder.buyer = buyer;
     }
@@ -59,8 +57,6 @@ const createOrder = async (req, res) => {
     res.status(200).json({ success: true, message: "កត់ត្រាវិក័យប័ត្រជោគជ័យ" });
   } catch (error) {
     console.error("🔥 កំហុសបង្កើតវិក័យប័ត្រ:", error);
-
-    // 🌟 ការពារទី៣៖ ចាប់ Error ជាន់លេខវិក័យប័ត្រ (Duplicate Key) ចំៗ
     if (error.code === 11000) {
       return res.status(500).json({
         success: false,
@@ -69,11 +65,10 @@ const createOrder = async (req, res) => {
         detail: error.message,
       });
     }
-
     res.status(500).json({
       success: false,
       message: "បញ្ហាក្នុងការ Save ចូល Database",
-      detail: error.message, // ផ្ញើបញ្ហាពិតប្រាកដទៅឱ្យ Frontend ដឹង
+      detail: error.message,
     });
   }
 };
@@ -116,10 +111,41 @@ const confirmReceipt = async (req, res) => {
         .json({ success: false, message: "រកមិនឃើញប្រវត្តិទិញនេះទេ!" });
     }
 
+    // 🚀 ការពារកុំឱ្យគេវាយ API នេះផ្ទួនៗរួចលុយបូក ២ ដង
+    if (order.status === "completed") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "ការបញ្ជាទិញនេះបានបញ្ជាក់រួចរាល់ហើយ!",
+        });
+    }
+
+    // 🚀 បែងចែកលុយ (Commission -> Admin & Earning -> Seller)
+    const store = await Store.findById(order.store);
+    if (store) {
+      const totalAmount = order.totalAmount;
+      const commissionRate = store.commissionRate || 10;
+      const commissionFee = totalAmount * (commissionRate / 100);
+      const sellerEarning = totalAmount - commissionFee;
+
+      // បញ្ចូលលុយឱ្យអ្នកលក់ និងបន្ថែមតួលេខការលក់ជោគជ័យ
+      store.walletBalance += sellerEarning;
+      store.totalSales = (store.totalSales || 0) + 1;
+      await store.save();
+
+      // បញ្ចូលលុយ Commission ឱ្យ Admin (Super Admin)
+      const admin = await User.findOne({ role: "super_admin" });
+      if (admin) {
+        admin.walletBalance = (admin.walletBalance || 0) + commissionFee;
+        await admin.save();
+      }
+    }
+
     order.status = "completed";
     order.timeline.push({
       status: "completed",
-      note: "អតិថិជនបានបញ្ជាក់ការទទួលទំនិញជោគជ័យ។",
+      note: "អតិថិជនបានបញ្ជាក់ការទទួលទំនិញជោគជ័យ និងប្រាក់បានវេរចូលកុងអ្នកលក់។",
     });
 
     await order.save();
@@ -130,7 +156,77 @@ const confirmReceipt = async (req, res) => {
 };
 
 // ==========================================
-// 📌 ៤. អតិថិជនវាយតម្លៃហាង (Submit Review)
+// 📌 ៤. Update Status ពីអ្នកលក់/Admin (កូដថ្មី 🚀)
+// ==========================================
+const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "រកមិនឃើញការបញ្ជាទិញទេ!" });
+    }
+
+    // ការពារកុំឱ្យបូកលុយជាន់គ្នា បើ Order នោះ Completed ស្រាប់
+    if (order.status === "completed") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "ការបញ្ជាទិញបានបញ្ចប់រួចរាល់ហើយ មិនអាចប្ដូរបានទេ!",
+        });
+    }
+
+    // 🚀 បើ Status ថ្មីជា "completed" ទើបធ្វើការបែងចែកលុយ
+    if (status === "completed") {
+      const store = await Store.findById(order.store);
+      if (store) {
+        const totalAmount = order.totalAmount;
+        const commissionRate = store.commissionRate || 10;
+        const commissionFee = totalAmount * (commissionRate / 100);
+        const sellerEarning = totalAmount - commissionFee;
+
+        // បញ្ចូលលុយឱ្យអ្នកលក់
+        store.walletBalance += sellerEarning;
+        store.totalSales = (store.totalSales || 0) + 1;
+        await store.save();
+
+        // បញ្ចូលលុយឱ្យ Admin
+        const admin = await User.findOne({
+          role: { $in: ["super_admin", "admin"] },
+        });
+        if (admin) {
+          admin.walletBalance = (admin.walletBalance || 0) + commissionFee;
+          await admin.save();
+        }
+      }
+    }
+
+    order.status = status;
+    order.timeline.push({
+      status: status,
+      date: new Date(),
+      note:
+        status === "completed"
+          ? "ការបញ្ជាទិញជោគជ័យ និងប្រាក់បានផ្ទេរចូលកុងអ្នកលក់"
+          : `បានផ្លាស់ប្ដូរស្ថានភាពទៅជា ${status}`,
+    });
+
+    await order.save();
+    res.status(200).json({ success: true, message: "កែប្រែស្ថានភាពជោគជ័យ!" });
+  } catch (error) {
+    console.error("Update Status Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "មានបញ្ហាបច្ចេកទេសលើ Server" });
+  }
+};
+
+// ==========================================
+// 📌 ៥. អតិថិជនវាយតម្លៃហាង (Submit Review)
 // ==========================================
 const submitReview = async (req, res) => {
   try {
@@ -182,15 +278,13 @@ const submitReview = async (req, res) => {
 };
 
 // ==========================================
-// 📌 ៥. API សម្រាប់បោះបង់ការបញ្ជាទិញ (Cancel Order)
+// 📌 ៦. API សម្រាប់បោះបង់ការបញ្ជាទិញ (Cancel Order)
 // ==========================================
-// ✅ កែពី exports.cancelOrder មកជា const cancelOrder វិញ ដើម្បីកុំឱ្យ Error ពេល Export
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.id; // ចាប់យក _id របស់ Order ពី URL
-    const { reason } = req.body; // ចាប់យកមូលហេតុពី Frontend
+    const orderId = req.params.id;
+    const { reason } = req.body;
 
-    // ១. ឆែកមើលថាតើគាត់បានបញ្ជាក់មូលហេតុឬអត់
     if (!reason || reason.trim() === "") {
       return res.status(400).json({
         success: false,
@@ -198,7 +292,6 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // ២. ស្វែងរក Order នៅក្នុង Database
     const order = await Order.findById(orderId);
 
     if (!order) {
@@ -208,12 +301,6 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // ៣. (Optional) ឆែកមើលសិទ្ធិ: ការពារកុំឱ្យ Seller ម្នាក់ ទៅលុប Order របស់ Seller ផ្សេង
-    // if (order.seller.toString() !== req.user._id.toString()) {
-    //   return res.status(403).json({ success: false, message: "អ្នកគ្មានសិទ្ធិបោះបង់ Order នេះទេ!" });
-    // }
-
-    // ៤. ឆែកមើលក្រែងលោ Order នេះត្រូវបានគេ Cancel រួចហើយ
     if (order.status === "cancelled") {
       return res.status(400).json({
         success: false,
@@ -221,13 +308,11 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // ៥. Update ស្ថានភាព និង មូលហេតុចូល Database
     order.status = "cancelled";
     order.cancelReason = reason;
 
-    await order.save(); // Save ចូល Database
+    await order.save();
 
-    // ៦. បោះសញ្ញាជោគជ័យទៅកាន់ Frontend វិញ
     res.status(200).json({
       success: true,
       message: "ការបញ្ជាទិញត្រូវបានបោះបង់ដោយជោគជ័យ!",
@@ -243,12 +328,13 @@ const cancelOrder = async (req, res) => {
 };
 
 // ==========================================
-// 📌 ៦. ចងក្រងនិង Export មុខងារទាំងអស់ទៅប្រើនៅកន្លែងផ្សេង
+// 📌 ៧. ចងក្រងនិង Export មុខងារទាំងអស់
 // ==========================================
 module.exports = {
   createOrder,
   getMyOrders,
   confirmReceipt,
+  updateOrderStatus, // 👈 Export មុខងារថ្មី
   submitReview,
   cancelOrder,
 };

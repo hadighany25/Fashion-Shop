@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const Withdrawal = require("../models/Withdrawal");
 const User = require("../models/User");
+const Store = require("../models/Store"); // 👈 ទី១៖ ត្រូវ Import Store ចូលមក
 
 const UPAY_API_KEY = process.env.UPAY_API_KEY;
 const UPAY_SECRET = process.env.UPAY_API_SECRET;
@@ -13,8 +14,37 @@ const UPAY_MERCHANT_ID = process.env.UPAY_MERCHANT_ID;
 exports.requestWithdrawal = async (req, res) => {
   try {
     const { amount, paymentInfo } = req.body;
-    const sellerId = req.user.id;
+    const sellerId = req.user.id; // ទាញពី Token
 
+    // 🚀 ការពារទី១៖ ត្រូវប្រាកដថាចំនួនទឹកប្រាក់ធំជាង ០
+    if (!amount || amount <= 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ចំនួនទឹកប្រាក់មិនត្រឹមត្រូវ!" });
+    }
+
+    // 🚀 ការពារទី២៖ រកមើលហាងរបស់គាត់
+    const store = await Store.findOne({ owner: sellerId });
+    if (!store) {
+      return res
+        .status(404)
+        .json({ success: false, message: "មិនអាចស្វែងរកហាងរបស់អ្នកបានទេ!" });
+    }
+
+    // 🚀 ការពារទី៣៖ ឆែកមើលលុយពិតប្រាកដក្នុង Database តើមានគ្រប់ដកឬអត់?
+    if (store.walletBalance < amount) {
+      return res.status(400).json({
+        success: false,
+        message: "ទឹកប្រាក់ក្នុងកាបូបរបស់អ្នកមិនគ្រប់គ្រាន់ទេ!",
+      });
+    }
+
+    // 🚀 អាគមសំខាន់៖ កាត់លុយចេញពី Wallet ភ្លាមៗ!
+    // (លុយនេះក្លាយជាលុយជាប់គាំង PENDING ពេល Admin ចុច Approve ទើបបាត់ឈឹង បើ Admin ចុច Reject ត្រូវបូកសងវិញ)
+    store.walletBalance -= amount;
+    await store.save();
+
+    // បង្កើតសំណើដកប្រាក់
     const newWithdrawal = new Withdrawal({
       sellerId,
       amount,
@@ -25,14 +55,14 @@ exports.requestWithdrawal = async (req, res) => {
 
     await newWithdrawal.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "សំណើដកប្រាក់ទទួលបានជោគជ័យ" });
+    res.status(200).json({
+      success: true,
+      message: "សំណើដកប្រាក់ទទួលបានជោគជ័យ និងបានកាត់ចេញពីគណនី!",
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 // ==========================================
 // ២. Admin អនុម័ត និងបញ្ជាទៅ U-Pay (ផ្ទេរប្រាក់)
 // ==========================================
@@ -122,6 +152,54 @@ exports.approveWithdrawal = async (req, res) => {
     }
   } catch (err) {
     console.error("Payout Error:", err);
+    res.status(500).json({ success: false, message: "បញ្ហាបច្ចេកទេស Backend" });
+  }
+};
+
+// ==========================================
+// ៣. Admin បដិសេធសំណើដកប្រាក់ (Reject Withdrawal)
+// ==========================================
+exports.rejectWithdrawal = async (req, res) => {
+  try {
+    const { withdrawalId } = req.params;
+    const { reason } = req.body; // Admin អាចបញ្ជាក់មូលហេតុ (ឧ. "លេខកុងធនាគារមិនត្រឹមត្រូវ")
+
+    // ១. ស្វែងរកប្រវត្តិដកប្រាក់
+    const withdrawal = await Withdrawal.findById(withdrawalId);
+
+    if (!withdrawal || withdrawal.status !== "PENDING") {
+      return res.status(400).json({
+        success: false,
+        message: "សំណើនេះមិនត្រឹមត្រូវ ឬត្រូវបានដោះស្រាយរួចរាល់ហើយ!",
+      });
+    }
+
+    // ២. ស្វែងរកហាងរបស់អ្នកលក់ ដើម្បីសងប្រាក់ត្រលប់វិញ
+    const store = await Store.findOne({ owner: withdrawal.sellerId });
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "រកមិនឃើញគណនីហាងរបស់អ្នកលក់ដើម្បីសងប្រាក់វិញទេ!",
+      });
+    }
+
+    // 🚀 ៣. អាគមសំខាន់៖ បូកប្រាក់សងចូលក្នុង Wallet របស់ Seller វិញ
+    store.walletBalance += withdrawal.amount;
+    await store.save();
+
+    // ៤. ធ្វើបច្ចុប្បន្នភាពស្ថានភាពសំណើទៅជា REJECTED
+    withdrawal.status = "REJECTED";
+    withdrawal.note = reason || "សំណើដកប្រាក់ត្រូវបានបដិសេធដោយ Admin";
+    await withdrawal.save();
+
+    res.status(200).json({
+      success: true,
+      message:
+        "បានបដិសេធសំណើ និងបានសងប្រាក់ចូលកាបូប (Wallet) អ្នកលក់វិញជោគជ័យ!",
+    });
+  } catch (err) {
+    console.error("❌ Reject Payout Error:", err);
     res.status(500).json({ success: false, message: "បញ្ហាបច្ចេកទេស Backend" });
   }
 };

@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema(
       enum: ["super_admin", "admin", "seller", "buyer"],
       default: "buyer",
     },
+    // 👇 ថែមវាចូលត្រង់នេះសម្រាប់ផ្ទុកលុយចំណូល Admin
+    walletBalance: {
+      type: Number,
+      default: 0,
+    },
     phone: {
       type: String,
       unique: true,

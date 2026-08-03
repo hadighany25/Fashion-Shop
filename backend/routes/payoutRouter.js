@@ -12,8 +12,6 @@ const {
 // ==========================================
 // ផ្នែកអ្នកលក់ (Seller)
 // ==========================================
-// អ្នកលក់ស្នើសុំដកប្រាក់ (ទាមទារ Token និងសិទ្ធិជា Seller ប៉ុណ្ណោះ)
-// យើងប្រើ Middleware ២ តៗគ្នា: ទី១ ឆែក Token, ទី២ ឆែកមើលតួនាទី
 router.post(
   "/seller/withdraw",
   verifyToken,
@@ -24,12 +22,21 @@ router.post(
 // ==========================================
 // ផ្នែកអ្នកគ្រប់គ្រង (Admin)
 // ==========================================
-// Admin អនុម័តការដកប្រាក់ (ទាមទារ Token និងសិទ្ធិជា Admin ឬ Super Admin)
+
+// ផ្លូវសម្រាប់ Approve (មានស្រាប់)
 router.post(
   "/admin/withdrawals/:withdrawalId/approve",
   verifyToken,
   isAdmin,
   payoutController.approveWithdrawal,
+);
+
+// 🚀 ផ្លូវថ្មីសម្រាប់ Reject (ថែមចូល)
+router.post(
+  "/admin/withdrawals/:withdrawalId/reject",
+  verifyToken,
+  isAdmin,
+  payoutController.rejectWithdrawal,
 );
 
 module.exports = router;
