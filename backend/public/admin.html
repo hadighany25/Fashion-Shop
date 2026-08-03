@@ -19,7 +19,25 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ================= ការពារ LOGIN & ROLE ================= -->
+    <script>
+      (function enforceRoleAccess() {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
 
+        // ១. បើគ្មាន Token ទាល់តែសោះ ទើបឲ្យលោតទៅ Login វិញ
+        if (!token) {
+          window.location.replace("admin-login.html");
+          return;
+        }
+
+        // ២. ការពារក្រែងលោ User ធម្មតា (buyer) លួចវាយ Link ចូល Admin
+        if (role !== "admin" && role !== "super_admin" && role !== "seller") {
+          localStorage.clear(); // លុបចោលបើក្លែងបន្លំ
+          window.location.replace("admin-login.html");
+        }
+      })();
+    </script>
     <style>
       /* ==========================================
            🎨 ១. Theme & CSS Variables (Dark/Light Mode)
@@ -1137,8 +1155,9 @@
       const ROLE = localStorage.getItem("role");
 
       document.addEventListener("DOMContentLoaded", () => {
+        // ឆែកមើលសិទ្ធិ: បើគ្មាន Token ឬមិនមែន Admin ទេ ទើបទាត់បញ្ជូនទៅ Login
         if (!TOKEN || (ROLE !== "admin" && ROLE !== "super_admin")) {
-          window.location.href = "admin-login.html";
+          window.location.replace("admin-login.html");
           return;
         }
 
@@ -1152,14 +1171,17 @@
         if (savedTheme === "light") document.body.classList.add("light-mode");
         updateThemeIcon();
 
-        // Hash Navigation State
-        const hash = window.location.hash.replace("#", "") || "dashboard";
-        switchTab(hash);
-        toggleStoreFields();
+        // 🔥 ដោះស្រាយបញ្ហាទី១: ចាប់យក Tab ចុងក្រោយពី LocalStorage
+        // ពេល Refresh (F5) វានឹងបើក Tab ហ្នឹងវិញដដែល មិនលោតទៅ Dashboard ទេ
+        const savedTab = localStorage.getItem("activeAdminTab") || "dashboard";
+        switchTab(savedTab);
       });
 
       function switchTab(tabId) {
-        window.location.hash = tabId;
+        // 🔥 រក្សាទុកឈ្មោះ Tab ទៅក្នុង LocalStorage រាល់ពេលគេចុច Menu ណាមួយ
+        localStorage.setItem("activeAdminTab", tabId);
+
+        // លាក់ Tab ចាស់ ហើយបង្ហាញ Tab ថ្មី
         document
           .querySelectorAll(".nav-link")
           .forEach((l) => l.classList.remove("active"));
@@ -1172,6 +1194,7 @@
         if (nav) nav.classList.add("active");
         if (sec) sec.classList.add("active");
 
+        // ហៅទិន្នន័យមកបង្ហាញ ទៅតាម Tab នីមួយៗ
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresForIframe();
         if (tabId === "withdrawals") loadWithdrawals();
@@ -1197,19 +1220,23 @@
         icon.style.color = isLight ? "#f59e0b" : "#f8fafc";
       }
 
+      // ==========================================
+      // 🚪 មុខងារ Logout (ទាល់តែចុច OK ទើបព្រមលុប Token ចេញ)
+      // ==========================================
       function handleLogout() {
         Swal.fire({
-          title: "ចាកចេញ?",
+          title: "ចាកចេញពីប្រព័ន្ធ?",
           text: "តើអ្នកពិតជាចង់ចាកចេញមែនទេ?",
-          icon: "question",
+          icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#ef4444",
           confirmButtonText: "បាទ/ចាស ចាកចេញ",
           cancelButtonText: "បោះបង់",
         }).then((result) => {
+          // ទាល់តែចុច យល់ព្រម (OK) ទើបយើងលុបទិន្នន័យចោល ហើយឲ្យលោតទៅ Login វិញ
           if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = "admin-login.html";
+            localStorage.clear(); // លុប Token ចោល
+            window.location.replace("admin-login.html");
           }
         });
       }

@@ -30,10 +30,19 @@
     <!-- ================= ការពារ LOGIN & ROLE ================= -->
     <script>
       (function enforceRoleAccess() {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-        if (!token || role !== "seller")
+        // 🔥 កែមកអាន portal_token និង portal_role ឱ្យត្រូវគ្នា
+        const token =
+          localStorage.getItem("portal_token") || localStorage.getItem("token");
+        const role =
+          localStorage.getItem("portal_role") || localStorage.getItem("role");
+
+        // អនុញ្ញាតឱ្យទាំង seller, admin និង super_admin ចូលមើលបានដោយសុវត្ថិភាព
+        if (
+          !token ||
+          (role !== "seller" && role !== "admin" && role !== "super_admin")
+        ) {
           window.location.replace("admin-login.html");
+        }
       })();
     </script>
 
@@ -846,7 +855,12 @@
     <script>
       const API_URL = "/api/seller";
       const PAYOUT_API = "/api/payout";
-      const token = localStorage.getItem("token");
+
+      // 🔥 កែមកអាន portal_token និង portal_role នៅទីនេះផងដែរ
+      const token =
+        localStorage.getItem("portal_token") || localStorage.getItem("token");
+      const role =
+        localStorage.getItem("portal_role") || localStorage.getItem("role");
 
       let storeData = {
         categories: [],
@@ -858,31 +872,55 @@
       let orders = [];
       let withdrawalHistory = [];
 
-      async function init() {
+      // 🚀 ពេលចាប់ផ្តើមដំណើរការទំព័រ (DOMContentLoaded)
+      document.addEventListener("DOMContentLoaded", async () => {
+        // 1. ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យទាំង seller, admin និង super_admin ចូលមើលបាន
+        // ធ្វើឱ្យ Admin ចូលមើលតាម Iframe មិនលោតទាត់ចេញ និង F5 មិនបាច់ Login ឡើងវិញ
+        if (
+          !token ||
+          (role !== "seller" && role !== "admin" && role !== "super_admin")
+        ) {
+          window.location.replace("admin-login.html");
+          return;
+        }
+
+        // 2. ចាប់ផ្តើមដំណើរការ სისტემა
         initTheme();
         initTabState();
-        await fetchProfile();
-        await fetchWithdrawals();
-        await fetchProducts();
-        await fetchOrders();
-      }
+
+        // 3. ទាញទិន្នន័យពី Server មកបង្ហាញដោយសុវត្ថិភាព
+        try {
+          await fetchProfile();
+          await fetchWithdrawals();
+          await fetchProducts();
+          await fetchOrders();
+        } catch (error) {
+          console.error("Error initializing seller data:", error);
+        }
+      });
 
       function initTabState() {
+        // 🔥 រក្សា Tab ចុងក្រោយពេល Refresh (F5)
         const savedTab = localStorage.getItem("activeSellerTab") || "dashboard";
         switchTab(savedTab);
       }
 
       function switchTab(tabId) {
+        // កត់ត្រា Tab ទុកក្នុង LocalStorage
         localStorage.setItem("activeSellerTab", tabId);
+
         document
           .querySelectorAll(".tab-content")
           .forEach((el) => el.classList.remove("active"));
+
         document.querySelectorAll(".nav-btn").forEach((el) => {
           el.classList.remove("bg-gray-800", "text-white", "border-blue-500");
           el.classList.add("border-transparent", "text-gray-400");
         });
+
         const activeTab = document.getElementById(`${tabId}-tab`);
         if (activeTab) activeTab.classList.add("active");
+
         const activeBtn = document.getElementById(`nav-${tabId}`);
         if (activeBtn) {
           activeBtn.classList.remove("border-transparent", "text-gray-400");
@@ -892,6 +930,7 @@
             "border-blue-500",
           );
         }
+
         const titles = {
           dashboard: "ទិដ្ឋភាពទូទៅ",
           orders: "គ្រប់គ្រងការលក់",
@@ -899,7 +938,11 @@
           payment: "ហិរញ្ញវត្ថុ",
           settings: "ការកំណត់ហាង",
         };
-        document.getElementById("header-title").innerText = titles[tabId];
+
+        const titleEl = document.getElementById("header-title");
+        if (titleEl && titles[tabId]) {
+          titleEl.innerText = titles[tabId];
+        }
       }
 
       function initTheme() {
@@ -1666,7 +1709,7 @@
           );
         }
       }
-
+      // 🚪 មុខងារ Logout តាមកូដរបស់បង (ទាល់តែចុច OK លើ SweetAlert ទើបលុបនិងចេញ)
       function logout() {
         Swal.fire({
           title: "ចាកចេញពីប្រព័ន្ធ?",
@@ -1683,8 +1726,6 @@
           }
         });
       }
-
-      document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>
 </html>

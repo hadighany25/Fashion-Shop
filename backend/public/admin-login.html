@@ -321,12 +321,12 @@
               });
             }
 
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("portal_token", data.token);
             localStorage.setItem(
               "username",
               data.username || (data.user && data.user.username),
             );
-            localStorage.setItem("role", userRole);
+            localStorage.setItem("portal_role", userRole);
 
             Swal.fire({
               icon: "success",
