@@ -863,6 +863,7 @@
     <!-- ================= JAVASCRIPT MASTER LOGIC ================= -->
     <script>
       const API_URL = "/api/seller";
+      const PAYOUT_API = "/api/payout";
       const token = localStorage.getItem("token");
 
       let storeData = {
@@ -1593,7 +1594,7 @@
         });
       }
 
-      // 🌟 ៧. ផ្នែកហិរញ្ញវត្ថុ & ការកំណត់ហាង
+      // 🌟 ៧. ផ្នែកហិរញ្ញវត្ថុ & ការកំណត់ហាង (ភ្ជាប់ជាមួយ U-Mall Backend)
       async function requestWithdrawal() {
         if (
           !storeData.paymentInfo.bankName ||
@@ -1644,25 +1645,60 @@
 
         if (formValues) {
           try {
-            storeData.walletBalance -= parseFloat(formValues);
-            withdrawalHistory.unshift({
-              date: new Date().toISOString(),
-              amount: parseFloat(formValues),
-              bank: storeData.paymentInfo.bankName,
-              accountName: storeData.paymentInfo.accountName,
-              accountNumber: storeData.paymentInfo.accountNumber,
-              status: "PENDING",
-              note: "កំពុងរង់ចាំ Admin ពិនិត្យ",
+            // បង្ហាញ Loading ពេលកំពុងបញ្ជូនទិន្នន័យទៅ Server
+            Swal.fire({
+              title: "កំពុងបញ្ជូនសំណើ...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
             });
-            renderPaymentHistory();
-            renderProfileInfo();
-            Swal.fire(
-              "ជោគជ័យ!",
-              "សំណើដកប្រាក់ត្រូវបានបញ្ជូនទៅ Admin ហើយ!",
-              "success",
-            );
+
+            // 🚀 បាញ់ API ទៅកាន់ Backend ឲ្យបង្កើតសំណើដកប្រាក់
+            const res = await fetch(`${PAYOUT_API}/seller/withdraw`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ amount: parseFloat(formValues) }),
+            });
+
+            const data = await res.json();
+            Swal.close();
+
+            if (res.ok && data.success) {
+              // កាត់លុយលើអេក្រង់សិន (Local State) និងបន្ថែមប្រវត្តិថ្មី
+              storeData.walletBalance -= parseFloat(formValues);
+              withdrawalHistory.unshift({
+                date: new Date().toISOString(),
+                amount: parseFloat(formValues),
+                bank: storeData.paymentInfo.bankName,
+                accountName: storeData.paymentInfo.accountName,
+                accountNumber: storeData.paymentInfo.accountNumber,
+                status: "PENDING",
+                note: "កំពុងរង់ចាំ Admin ពិនិត្យ",
+              });
+
+              renderPaymentHistory();
+              renderProfileInfo();
+              Swal.fire(
+                "ជោគជ័យ!",
+                "សំណើដកប្រាក់ត្រូវបានបញ្ជូនទៅ Admin ពិនិត្យហើយ!",
+                "success",
+              );
+            } else {
+              Swal.fire(
+                "បរាជ័យ",
+                data.message || "មានបញ្ហាក្នុងការបង្កើតសំណើ!",
+                "error",
+              );
+            }
           } catch (err) {
-            Swal.fire("Error", "បញ្ហាបច្ចេកទេស", "error");
+            console.error(err);
+            Swal.fire(
+              "Error",
+              "បញ្ហាបច្ចេកទេស មិនអាចតភ្ជាប់ទៅកាន់ Server បានទេ!",
+              "error",
+            );
           }
         }
       }
