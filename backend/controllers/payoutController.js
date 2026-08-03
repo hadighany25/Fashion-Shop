@@ -71,8 +71,8 @@ exports.approveWithdrawal = async (req, res) => {
       .update(dataToSign)
       .digest("hex");
 
-    // 🚀 ដាក់ URL ឱ្យចំតាម Route ដែលមានស្រាប់នៅក្នុង U-Pay របស់បង
-    const response = await fetch(`${UPAY_URL}/api/gateway/transfer`, {
+    // 🚀 កែ Endpoint ឲ្យត្រូវនឹងអ្វីដែលយើងទើបបង្កើតនៅក្នុង U-Pay
+    const response = await fetch(`${UPAY_URL}/api/transaction/b2b/transfer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
