@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Store = require("../models/Store");
+const Withdrawal = require("../models/Withdrawal");
 const bcrypt = require("bcryptjs");
 
 // ១. ទាញយកអ្នកប្រើប្រាស់ទាំងអស់
@@ -42,12 +43,10 @@ exports.createUserAndStore = async (req, res) => {
       if (!storeName || !storeCategory) {
         // បើអត់មានឈ្មោះហាង យើងលុបគណនីវិញ ដើម្បីកុំឱ្យខូចទិន្នន័យ
         await User.findByIdAndDelete(newUser._id);
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "ត្រូវតែមានឈ្មោះហាង និងប្រភេទហាងសម្រាប់ Seller!",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "ត្រូវតែមានឈ្មោះហាង និងប្រភេទហាងសម្រាប់ Seller!",
+        });
       }
 
       const newStore = new Store({
@@ -97,5 +96,23 @@ exports.getStores = async (req, res) => {
     res.json({ success: true, stores });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// មុខងារសម្រាប់ទាញយកប្រវត្តិដកប្រាក់ទាំងអស់មកបង្ហាញ Admin
+exports.getAllWithdrawals = async (req, res) => {
+  try {
+    // ទាញយកសំណើទាំងអស់ រៀបតាមថ្ងៃថ្មីៗបំផុត (createdAt: -1)
+    const withdrawals = await Withdrawal.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      withdrawals: withdrawals,
+    });
+  } catch (error) {
+    console.error("Error fetching withdrawals:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "មានបញ្ហាក្នុងការទាញយកទិន្នន័យ!" });
   }
 };

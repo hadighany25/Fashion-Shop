@@ -10,5 +10,11 @@ router.get("/users", adminController.getUsers);
 router.post("/users", adminController.createUserAndStore);
 router.delete("/users/:id", adminController.deleteUser);
 router.get("/stores", adminController.getStores); // Route ថ្មីសម្រាប់ទាញ Stores
+router.get(
+  "/withdrawals",
+  verifyToken,
+  isAdmin,
+  adminController.getAllWithdrawals,
+);
 
 module.exports = router;
