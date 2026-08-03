@@ -164,7 +164,6 @@
           ទិដ្ឋភាពទូទៅ
         </h2>
         <div class="flex items-center">
-          <!-- 🌟 ប៊ូតុង Dark Mode ផ្លាស់មកជិត Logo ហាងទីនេះ 🌟 -->
           <button
             onclick="toggleDarkMode()"
             class="text-gray-400 hover:text-blue-500 transition mr-4"
@@ -360,7 +359,6 @@
         </div>
 
         <!-- ================= 2. ORDERS TAB (KANBAN) ================= -->
-        <!-- 🌟 កែតម្រូវទប់មិនឱ្យវាបង្ហាញជាន់គ្នាដោយបន្ថែម Wrapper ខាងក្នុង -->
         <div id="orders-tab" class="tab-content h-full">
           <div class="flex flex-col h-full">
             <div class="mb-4 flex justify-between items-center">
@@ -562,7 +560,7 @@
               >
                 <tr>
                   <th class="py-3 px-6">កាលបរិច្ឆេទ</th>
-                  <th class="py-3 px-6">ចំនួនប្រាក់ស្នើសុំ</th>
+                  <th class="py-3 px-6">ចំនួនប្រាក់</th>
                   <th class="py-3 px-6">ព័ត៌មានទទួលប្រាក់</th>
                   <th class="py-3 px-6">ស្ថានភាព</th>
                   <th class="py-3 px-6">ចំណាំ / វិក្កយបត្រ</th>
@@ -581,7 +579,6 @@
         <!-- ================= 5. SETTINGS TAB ================= -->
         <div id="settings-tab" class="tab-content">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- ពត៌មានហាងទូទៅ -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
               <h3
                 class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2 dark:text-white"
@@ -630,7 +627,6 @@
             </div>
 
             <div class="space-y-6">
-              <!-- កូដសម្រាប់ជំនួសក្នុង Settings Tab (Payment Info) -->
               <div
                 class="bg-blue-50 dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-blue-100 dark:border-gray-700"
               >
@@ -641,7 +637,6 @@
                   (Settlement)
                 </h3>
                 <div class="space-y-4">
-                  <!-- ឈ្មោះធនាគារ (មិនបាច់អោយវាយទេ ព្រោះដឹងតែ U-PAY) -->
                   <div>
                     <label
                       class="block text-sm font-bold mb-1 dark:text-gray-300"
@@ -656,7 +651,6 @@
                     />
                   </div>
 
-                  <!-- លេខគណនី & ប៊ូតុង Check -->
                   <div>
                     <label
                       class="block text-sm font-bold mb-1 dark:text-gray-300"
@@ -678,14 +672,12 @@
                         <i class="fas fa-check-circle"></i> Check
                       </button>
                     </div>
-                    <!-- កន្លែងបង្ហាញលទ្ធផល ពណ៌បៃតងពេលត្រូវ ឬក្រហមពេលខុស -->
                     <div
                       id="verify-result"
                       class="text-sm font-bold mt-2 hidden"
                     ></div>
                   </div>
 
-                  <!-- ឈ្មោះម្ចាស់គណនី (Auto-fill) -->
                   <div>
                     <label
                       class="block text-sm font-bold mb-1 dark:text-gray-300"
@@ -882,8 +874,7 @@
         initTabState();
         await fetchProfile();
         await fetchProducts();
-        await fetchOrders();
-        renderPaymentHistory();
+        await fetchOrders(); // ការទាញ Orders នឹងគណនាលុយដោយស្វ័យប្រវត្តិ
       }
 
       function initTabState() {
@@ -925,7 +916,6 @@
         document.getElementById("header-title").innerText = titles[tabId];
       }
 
-      // 🌟 ២. Dark Mode Logic (ប្ដូររូប Icon ទៀតផង)
       function initTheme() {
         const icon = document.getElementById("theme-icon");
         if (
@@ -972,14 +962,28 @@
                 accountName: "",
                 accountNumber: "",
               };
-            storeData.walletBalance = storeData.walletBalance || 0;
-            storeData.totalWithdrawn = storeData.totalWithdrawn || 0;
 
-            // 🚀 [កន្លែងត្រូវថែមថ្មី] ទាញប្រវត្តិដកប្រាក់ពី DB មកដាក់ចូល Array
+            // 🚀 ទាញយកប្រវត្តិដកប្រាក់ទាំងអស់ (ចាស់+ថ្មី)
             withdrawalHistory = data.withdrawals || storeData.withdrawals || [];
 
+            // ធានាថាប្រសិនបើអត់មាននៅក្នុង profile ទេ សាកល្បងហៅ API Payout ផ្ទាល់ (ដើម្បីការពារបាត់ប្រវត្តិចាស់)
+            if (withdrawalHistory.length === 0) {
+              try {
+                const payoutRes = await fetch(`${PAYOUT_API}/seller/history`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                const payoutData = await payoutRes.json();
+                if (payoutData.success) {
+                  withdrawalHistory =
+                    payoutData.history || payoutData.withdrawals || [];
+                }
+              } catch (e) {
+                // បើ Endpoint អត់មានក៏មិនអីដែរ វានឹងប្រើ Array ទទេរ
+              }
+            }
+
             renderProfileInfo();
-            renderPaymentHistory(); // 🚀 [កុំភ្លេចហៅវាទីនេះ] ដើម្បីឱ្យវា Render ចេញមក
+            renderPaymentHistory(); // បង្ហាញតារាងប្រវត្តិភ្លាមៗ
           }
         } catch (err) {
           console.error(err);
@@ -1015,14 +1019,14 @@
             );
             renderDashboardOrders();
             renderKanbanBoard();
-            calculateRevenueAndCustomers();
+            calculateRevenueAndCustomers(); // 🚀 គណនាលុយ និង Status ទើបលោតត្រូវ!
           }
         } catch (err) {
           console.error(err);
         }
       }
 
-      // 🌟 ៤. Render Data
+      // 🌟 ៤. Render Data និង គណនាលុយ (Master Calculation)
       function renderProfileInfo() {
         document.getElementById("top-store-name").innerText =
           storeData.storeName || "មិនស្គាល់";
@@ -1040,7 +1044,6 @@
         document.getElementById("store-desc").value =
           storeData.description || "";
 
-        // 🌟 ការពារ Error ពេល paymentInfo ត្រលប់មកវិញអត់មានទិន្នន័យ (Undefined)
         const payInfo = storeData.paymentInfo || {};
         document.getElementById("bank-name").value = payInfo.bankName || "";
         document.getElementById("account-name").value =
@@ -1055,20 +1058,10 @@
         document.getElementById("lbl-acc-num").innerText =
           payInfo.accountNumber || "មិនទាន់កំណត់";
 
-        // 🌟 ការពារ Error គាំងទំព័រ (Cannot read properties of undefined reading 'toFixed')
-        const walletBal = storeData.walletBalance || 0;
-        const totalWith = storeData.totalWithdrawn || 0;
-
-        document.getElementById("pay-available-balance").innerText =
-          `$${walletBal.toFixed(2)}`;
-        document.getElementById("dash-balance").innerText =
-          `$${walletBal.toFixed(2)}`;
-        document.getElementById("dash-withdrawn").innerText =
-          `$${totalWith.toFixed(2)}`;
-
         updateCategoryDropdown();
       }
 
+      // 🚀 មុខងារកែតម្រូវទិដ្ឋភាពទូទៅ និង លុយដកបានពិតប្រាកដ
       function calculateRevenueAndCustomers() {
         let totalRev = 0,
           compCount = 0,
@@ -1076,11 +1069,10 @@
           cancCount = 0;
         let uniqueCustomers = new Set();
 
-        // គណនា Order ទាំងអស់
+        // ១. គណនា Order ទាំងអស់ដែលបាន Complected សម្រាប់រកចំណូលសរុប
         orders.forEach((o) => {
           if (o.buyer) uniqueCustomers.add(o.buyer._id || o.buyer);
 
-          // បូកលុយតែ Order ណាដែលជោគជ័យ (completed) ប៉ុណ្ណោះ
           if (o.status === "completed") {
             totalRev += o.totalAmount;
             compCount++;
@@ -1089,7 +1081,29 @@
           if (o.status === "cancelled") cancCount++;
         });
 
-        // បង្ហាញទិន្នន័យលើ Dashboard
+        // ២. បូកសរុបលុយដែលបានដកទាំងអស់ចេញពីប្រវត្តិដកប្រាក់ផ្ទាល់ (លើកលែងតែ REJECTED)
+        let totalLockedAndWithdrawn = 0;
+        if (withdrawalHistory && withdrawalHistory.length > 0) {
+          totalLockedAndWithdrawn = withdrawalHistory.reduce((sum, w) => {
+            // បូកបញ្ចូលទាំង PENDING, PROCESSING, និង COMPLETED ដើម្បីបង្កកលុយពី Seller កុំឱ្យគាត់ដកជាន់គ្នា
+            if (w.status !== "REJECTED") {
+              return sum + w.amount;
+            }
+            return sum;
+          }, 0);
+        } else {
+          // បើអត់មានប្រវត្តិទេ ប្រើទិន្នន័យចាស់ជាជំនួយ
+          totalLockedAndWithdrawn = storeData.totalWithdrawn || 0;
+        }
+
+        // ៣. គណនាសមតុល្យដែលនៅសល់អាចដកបាន
+        let availableBalance = totalRev - totalLockedAndWithdrawn;
+        if (availableBalance < 0) availableBalance = 0; // ការពារកុំឱ្យអវិជ្ជមាន
+
+        // រក្សាទុកតម្លៃថ្មីទៅកាន់អថេរគោល
+        storeData.walletBalance = availableBalance;
+
+        // ៤. ធ្វើបច្ចុប្បន្នភាព Dashboard (ផ្ទាំងទិដ្ឋភាពទូទៅ)
         document.getElementById("dash-revenue").innerText =
           "$" + totalRev.toFixed(2);
         document.getElementById("dash-completed-orders").innerText = compCount;
@@ -1098,21 +1112,13 @@
         document.getElementById("dash-customers").innerText =
           uniqueCustomers.size;
 
-        // 🌟 គណនាលុយដែលអាចដកបាន (Available Balance) ដោយស្វ័យប្រវត្តិ
-        let withdrawn = storeData.totalWithdrawn || 0;
-        let availableBalance = totalRev - withdrawn;
-
-        // ការពារក្រែងលោវាជាប់លេខអវិជ្ជមាន
-        if (availableBalance < 0) availableBalance = 0;
-
-        // អាប់ដេតចូលទៅអថេរ storeData ដើម្បីឱ្យមុខងារដកលុយស្គាល់
-        storeData.walletBalance = availableBalance;
-
-        // បង្ហាញលុយដែលអាចដកបានទៅកាន់អេក្រង់ (ទាំង Dashboard និង Tab Payment)
+        // ធ្វើបច្ចុប្បន្នភាពលុយដែលដកបាន
         document.getElementById("dash-balance").innerText =
           "$" + availableBalance.toFixed(2);
         document.getElementById("pay-available-balance").innerText =
           "$" + availableBalance.toFixed(2);
+        document.getElementById("dash-withdrawn").innerText =
+          "$" + totalLockedAndWithdrawn.toFixed(2);
       }
 
       function renderDashboardOrders() {
@@ -1601,7 +1607,6 @@
 
       // 🌟 ៧. ផ្នែកហិរញ្ញវត្ថុ & ការកំណត់ហាង (ភ្ជាប់ជាមួយ U-Mall Backend)
       async function requestWithdrawal() {
-        // ការពារ Error បើ paymentInfo មិនមានទាល់តែសោះ
         if (
           !storeData.paymentInfo ||
           !storeData.paymentInfo.bankName ||
@@ -1658,7 +1663,6 @@
               didOpen: () => Swal.showLoading(),
             });
 
-            // 🚀 បាញ់ API ទៅកាន់ Backend ដោយភ្ជាប់ជាមួយព័ត៌មានធនាគារ
             const res = await fetch(`${PAYOUT_API}/seller/withdraw`, {
               method: "POST",
               headers: {
@@ -1667,7 +1671,6 @@
               },
               body: JSON.stringify({
                 amount: parseFloat(formValues),
-                // បន្ថែមទិន្នន័យធនាគារផ្ញើទៅឲ្យ Backend ដើម្បីកុំឲ្យវាលោត Error 'bankName' ទៀត
                 paymentInfo: storeData.paymentInfo,
                 bankName: storeData.paymentInfo.bankName,
                 accountName: storeData.paymentInfo.accountName,
@@ -1679,19 +1682,21 @@
             Swal.close();
 
             if (res.ok && data.success) {
-              storeData.walletBalance -= parseFloat(formValues);
+              // 🚀 Update ចូលក្នុងបញ្ជីប្រវត្តិភ្លាមៗ
               withdrawalHistory.unshift({
-                date: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
                 amount: parseFloat(formValues),
-                bank: storeData.paymentInfo.bankName,
+                bankName: storeData.paymentInfo.bankName,
                 accountName: storeData.paymentInfo.accountName,
                 accountNumber: storeData.paymentInfo.accountNumber,
                 status: "PENDING",
                 note: "កំពុងរង់ចាំ Admin ពិនិត្យ",
               });
 
+              // 🚀 ហៅមុខងារនេះឡើងវិញ ដើម្បីកាត់លុយ និង Update ផ្ទាំងផ្សេងៗដោយមិនបាច់ Refresh
+              calculateRevenueAndCustomers();
               renderPaymentHistory();
-              renderProfileInfo();
+
               Swal.fire(
                 "ជោគជ័យ!",
                 "សំណើដកប្រាក់ត្រូវបានបញ្ជូនទៅ Admin ពិនិត្យហើយ!",
@@ -1724,7 +1729,6 @@
 
         list.innerHTML = withdrawalHistory
           .map((w) => {
-            // គាំទ្រទាំង date (local) និង createdAt (ពី Database)
             const dateStr = new Date(w.createdAt || w.date).toLocaleDateString(
               "km-KH",
               {
@@ -1737,9 +1741,8 @@
             );
 
             let statusBadge = "";
-            let actionHtml = w.note || "-"; // បង្ហាញ Note ធម្មតាសិន
+            let actionHtml = w.note || "-";
 
-            // 🌟 កំណត់ពណ៌ Status ទៅតាម Flow
             if (w.status === "PENDING") {
               statusBadge =
                 '<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-clock"></i> រង់ចាំអនុម័ត</span>';
@@ -1749,8 +1752,6 @@
             } else if (w.status === "COMPLETED") {
               statusBadge =
                 '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-check-circle"></i> ជោគជ័យ</span>';
-
-              // 🚀 បើជោគជ័យ លោតប៊ូតុង PDF យក upayTransactionId ទៅពិនិត្យ!
               if (w.upayTransactionId) {
                 actionHtml = `<a href="https://u-pay-bank.fly.dev/receipt.html?trx=${w.upayTransactionId}" target="_blank" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-2 rounded-lg border border-red-200 shadow-sm transition"><i class="fas fa-file-pdf text-lg align-middle mr-1"></i> មើលវិក្កយបត្រ</a>`;
               } else {
@@ -1777,10 +1778,8 @@
       // 🌟 ៧. ផ្នែកកំណត់ទម្រង់ហាង (Store Settings & Bank Validation)
       // =================================================================
 
-      // URL របស់ប្រព័ន្ធ U-Pay (ផ្លាស់ប្តូរទៅតាម URL Fly.io របស់បង)
       const UPAY_API_URL = "https://u-pay-bank.fly.dev/api/bank";
 
-      // ពេលអ្នកប្រើវាយលេខថ្មី ត្រូវលុបឈ្មោះចាស់ចេញ ដើម្បីកុំឱ្យមានការបន្លំ
       function resetBankVerification() {
         document.getElementById("account-name").value = "";
         const resultDiv = document.getElementById("verify-result");
@@ -1788,17 +1787,14 @@
         resultDiv.innerHTML = "";
       }
 
-      // មុខងារហៅ API ទៅកាន់ U-Pay ឆែកឈ្មោះ
       async function verifyBankAccount() {
         const accNo = document.getElementById("account-number").value.trim();
-
-        if (!accNo) {
+        if (!accNo)
           return Swal.fire(
             "បញ្ជាក់",
             "សូមបញ្ចូលលេខគណនី U-PAY ជាមុនសិន!",
             "warning",
           );
-        }
 
         Swal.fire({
           title: "កំពុងផ្ទៀងផ្ទាត់...",
@@ -1815,13 +1811,11 @@
           resultDiv.classList.remove("hidden");
 
           if (res.ok && data.success) {
-            // បើគណនីមានពិត បង្ហាញអក្សរពណ៌បៃតង និង Auto-fill ឈ្មោះ
             resultDiv.className =
               "text-sm font-bold mt-2 text-green-600 dark:text-green-400";
             resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> គណនីត្រឹមត្រូវ: ${data.account_name}`;
             document.getElementById("account-name").value = data.account_name;
           } else {
-            // បើគណនីខុស បង្ហាញអក្សរពណ៌ក្រហម
             resultDiv.className =
               "text-sm font-bold mt-2 text-red-600 dark:text-red-400";
             resultDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${data.message || "រកមិនឃើញគណនីនេះទេ!"}`;
@@ -1833,12 +1827,10 @@
         }
       }
 
-      // មុខងាររក្សាទុកការកំណត់ហាង (Save Settings)
       async function saveStoreSettings() {
         const accNum = document.getElementById("account-number").value.trim();
         const accName = document.getElementById("account-name").value.trim();
 
-        // 🔥 លក្ខខណ្ឌការពារ: បើមានលេខកុង តែអត់មានឈ្មោះ (មានន័យថាគាត់អត់ចុច Check)
         if (accNum && !accName) {
           return Swal.fire(
             "ចាំសិន",
@@ -1861,7 +1853,6 @@
         };
 
         try {
-          // បង្ហាញ Loading ពេលកំពុង Save
           Swal.fire({
             title: "កំពុងរក្សាទុក...",
             allowOutsideClick: false,
@@ -1917,7 +1908,6 @@
         });
       }
 
-      // ចាប់ផ្តើមដំណើរការប្រព័ន្ធពេល Page ដើរ
       document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>
