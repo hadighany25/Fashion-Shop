@@ -48,12 +48,10 @@ exports.approveWithdrawal = async (req, res) => {
     }
 
     if (!UPAY_API_KEY || !UPAY_SECRET || !UPAY_URL) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Server មិនទាន់បានកំណត់ API Keys ត្រឹមត្រូវទេ!",
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Server មិនទាន់បានកំណត់ API Keys ត្រឹមត្រូវទេ!",
+      });
     }
 
     const payload = {
@@ -74,7 +72,7 @@ exports.approveWithdrawal = async (req, res) => {
       .digest("hex");
 
     // 🚀 សាកល្បងប្រើ Endpoint /api/bank/transfer វិញ
-    const response = await fetch(`${UPAY_URL}/api/bank/transfer`, {
+    const response = await fetch(`${UPAY_URL}/api/v1/b2b/transfer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -112,19 +110,15 @@ exports.approveWithdrawal = async (req, res) => {
       withdrawal.note = "ការផ្ទេរប្រាក់ជោគជ័យ";
       await withdrawal.save();
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "បានបញ្ជាផ្ទេរប្រាក់តាម U-Pay ជោគជ័យ!",
-        });
+      res.status(200).json({
+        success: true,
+        message: "បានបញ្ជាផ្ទេរប្រាក់តាម U-Pay ជោគជ័យ!",
+      });
     } else {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message: "កំហុសពី U-Pay: " + (data.message || "មិនស្គាល់បញ្ហា"),
-        });
+      res.status(400).json({
+        success: false,
+        message: "កំហុសពី U-Pay: " + (data.message || "មិនស្គាល់បញ្ហា"),
+      });
     }
   } catch (err) {
     console.error("Payout Error:", err);
