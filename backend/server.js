@@ -4,12 +4,18 @@ const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 
-// កែតម្រូវទី១៖ កុំឱ្យ dotenv ដំណើរការរំខាននៅលើ Fly.io
+// =====================================================================
+// 🌟 ១. ការកំណត់បរិស្ថាន (Environment & Process Settings)
+// =====================================================================
+// កុំឱ្យ dotenv ដំណើរការរំខាននៅលើ Fly.io (Production)
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-// ១. ទាញយក Routes ដែលយើងបានសរសេរ
+// =====================================================================
+// 🌟 ២. ការទាញយក Routes និង Models (Imports)
+// =====================================================================
+// -- បណ្តាញចាស់ៗ (Existing Routes) --
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -20,13 +26,18 @@ const settingRoutes = require("./routes/settingRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-// ២. ទាញយក User Model សម្រាប់បង្កើត Super Admin
+// -- បណ្តាញថ្មីសម្រាប់ប្រព័ន្ធ Payout & Escrow (New Routes) --
+const payoutRoutes = require("./routes/payoutRouter");
+const webhookRoutes = require("./routes/webhookRouter");
+
+// ទាញយក User Model សម្រាប់បង្កើត Super Admin
 const User = require("./models/User");
 
-// ៣. បង្កើតអថេរ app ជាមុនសិន
+// =====================================================================
+// 🌟 ៣. ការបង្កើត Server & Middleware (App Initialization)
+// =====================================================================
 const app = express();
 
-// Middleware សំខាន់ៗសម្រាប់ Server
 app.use(cors()); // អនុញ្ញាតឱ្យ Frontend អាចហៅ API បាន
 app.use(express.json()); // អនុញ្ញាតឱ្យ Server ស្គាល់ទិន្នន័យប្រភេទ JSON
 app.use(express.urlencoded({ extended: true }));
@@ -34,8 +45,9 @@ app.use(express.urlencoded({ extended: true }));
 // បម្រើឯកសារ Frontend (HTML/CSS/JS) ដែលនៅក្នុង Folder 'public'
 app.use(express.static(path.join(__dirname, "public")));
 
-// ៤. ភ្ជាប់ Routes ទាំងអស់ទៅកាន់ API Endpoints
-// (ដាក់នៅទីនេះទើបត្រឹមត្រូវ ព្រោះ app ត្រូវបានបង្កើតរួចហើយ)
+// =====================================================================
+// 🌟 ៤. ការភ្ជាប់ Routes ទៅកាន់ API Endpoints (API Routing)
+// =====================================================================
 app.use("/api/public", publicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
@@ -45,10 +57,23 @@ app.use("/api/seller", sellerRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/user", userRoutes);
-// ៥. ការតភ្ជាប់ទៅកាន់ Database (MongoDB)
-// កែតម្រូវទី២៖ ប្ដូរពី MONGODB_URI ទៅជា MONGO_URI ឱ្យត្រូវជាមួយ Fly Secrets
-const MONGODB_URI =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/fashion_shop_db";
+
+// -- ភ្ជាប់ Routes ថ្មីសម្រាប់ Payout ចូល --
+app.use("/api/payout", payoutRoutes);
+app.use("/api/webhook", webhookRoutes);
+
+// =====================================================================
+// 🌟 ៥. ការតភ្ជាប់ទៅកាន់ Database (MongoDB Connection)
+// =====================================================================
+// លុប Localhost ចោល ប្រើតែ process.env.MONGO_URI សម្រាប់ Production
+const MONGODB_URI = process.env.MONGO_URI;
+
+if (!MONGODB_URI) {
+  console.error(
+    "❌ មិនមាន MONGO_URI នៅក្នុង Environment Variables ទេ! Server មិនអាចដំណើរការបានឡើយ។",
+  );
+  process.exit(1); // បញ្ឈប់ Server ប្រសិនបើមិនមាន Database URL
+}
 
 mongoose
   .connect(MONGODB_URI)
@@ -60,15 +85,16 @@ mongoose
     console.error("❌ បរាជ័យក្នុងការភ្ជាប់ MongoDB:", err);
   });
 
-// ៦. Function សម្រាប់បង្កើត Super Admin ដោយស្វ័យប្រវត្តិ
+// =====================================================================
+// 🌟 ៦. អនុគមន៍ជំនួយ (Helper Functions)
+// =====================================================================
+// Function សម្រាប់បង្កើត Super Admin ដោយស្វ័យប្រវត្តិ
 const createSuperAdmin = async () => {
   try {
-    // ឆែកមើលថាតើមាន Super Admin ក្នុងប្រព័ន្ធហើយឬនៅ?
     const adminExists = await User.findOne({ role: "super_admin" });
 
     if (!adminExists) {
-      // បើអត់ទាន់មានទេ យើងបង្កើតថ្មីមួយ
-      const hashedPassword = await bcrypt.hash("superadmin123", 10); // លេខសម្ងាត់ដើម
+      const hashedPassword = await bcrypt.hash("superadmin123", 10);
       const superAdmin = new User({
         username: "superadmin",
         password: hashedPassword,
@@ -85,10 +111,12 @@ const createSuperAdmin = async () => {
   }
 };
 
-// ៧. កំណត់ Port សម្រាប់ដំណើរការ Server
+// =====================================================================
+// 🌟 ៧. ដំណើរការ Server (Start Application)
+// =====================================================================
 const PORT = process.env.PORT || 3000;
 
-// កែតម្រូវទី៣៖ បន្ថែម "0.0.0.0" ដើម្បីកុំឱ្យ Fly.io បដិសេធការភ្ជាប់ (Refused Connection)
+// បន្ថែម "0.0.0.0" ដើម្បីកុំឱ្យ Fly.io បដិសេធការភ្ជាប់ (Refused Connection)
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server កំពុងដំណើរការយ៉ាងរលូននៅលើ Port: ${PORT}`);
 });
