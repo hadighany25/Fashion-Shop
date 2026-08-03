@@ -1596,7 +1596,9 @@
 
       // 🌟 ៧. ផ្នែកហិរញ្ញវត្ថុ & ការកំណត់ហាង (ភ្ជាប់ជាមួយ U-Mall Backend)
       async function requestWithdrawal() {
+        // ការពារ Error បើ paymentInfo មិនមានទាល់តែសោះ
         if (
+          !storeData.paymentInfo ||
           !storeData.paymentInfo.bankName ||
           !storeData.paymentInfo.accountNumber
         ) {
@@ -1645,28 +1647,33 @@
 
         if (formValues) {
           try {
-            // បង្ហាញ Loading ពេលកំពុងបញ្ជូនទិន្នន័យទៅ Server
             Swal.fire({
               title: "កំពុងបញ្ជូនសំណើ...",
               allowOutsideClick: false,
               didOpen: () => Swal.showLoading(),
             });
 
-            // 🚀 បាញ់ API ទៅកាន់ Backend ឲ្យបង្កើតសំណើដកប្រាក់
+            // 🚀 បាញ់ API ទៅកាន់ Backend ដោយភ្ជាប់ជាមួយព័ត៌មានធនាគារ
             const res = await fetch(`${PAYOUT_API}/seller/withdraw`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ amount: parseFloat(formValues) }),
+              body: JSON.stringify({
+                amount: parseFloat(formValues),
+                // បន្ថែមទិន្នន័យធនាគារផ្ញើទៅឲ្យ Backend ដើម្បីកុំឲ្យវាលោត Error 'bankName' ទៀត
+                paymentInfo: storeData.paymentInfo,
+                bankName: storeData.paymentInfo.bankName,
+                accountName: storeData.paymentInfo.accountName,
+                accountNumber: storeData.paymentInfo.accountNumber,
+              }),
             });
 
             const data = await res.json();
             Swal.close();
 
             if (res.ok && data.success) {
-              // កាត់លុយលើអេក្រង់សិន (Local State) និងបន្ថែមប្រវត្តិថ្មី
               storeData.walletBalance -= parseFloat(formValues);
               withdrawalHistory.unshift({
                 date: new Date().toISOString(),
@@ -1702,7 +1709,6 @@
           }
         }
       }
-
       function renderPaymentHistory() {
         const list = document.getElementById("withdrawal-history-list");
         if (withdrawalHistory.length === 0) {
