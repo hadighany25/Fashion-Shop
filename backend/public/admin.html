@@ -833,45 +833,24 @@
             សំណើដកប្រាក់ចូលធនាគារ (U-Pay Escrow)
           </h2>
           <p style="color: var(--text-muted); margin-bottom: 15px">
-            ពេលអ្នកចុច "ពិនិត្យត្រឹមត្រូវ" ប្រព័ន្ធនឹងកាត់ប្រាក់ពី U-Mall ទៅ
-            Hold នៅធនាគារកណ្ដាល ហើយទូទាត់ចូលកុងអ្នកលក់ដោយស្វ័យប្រវត្តិ។
+            ពេលអ្នកចុច "ពិនិត្យត្រឹមត្រូវ" ប្រព័ន្ធនឹងបញ្ជាទៅធនាគារកណ្ដាល U-Pay
+            ដើម្បីទម្លាក់ប្រាក់ចូលកុងអ្នកលក់ដោយស្វ័យប្រវត្តិ។
           </p>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
                   <th>កាលបរិច្ឆេទ</th>
-                  <th>ឈ្មោះហាង</th>
-                  <th>ចំនួនប្រាក់ស្នើសុំ</th>
+                  <th>ចំនួនប្រាក់</th>
                   <th>ព័ត៌មានធនាគារ (U-Pay)</th>
                   <th>ស្ថានភាព</th>
-                  <th>សកម្មភាព</th>
+                  <th>សកម្មភាព / ចំណាំ</th>
                 </tr>
               </thead>
               <tbody id="withdrawal-table-body">
-                <!-- Data នេះនៅសល់ Mock ព្រោះអត់ទាន់មាន API Withdrawal ជាក់លាក់ទេ -->
                 <tr>
-                  <td>2026-08-02 10:30</td>
-                  <td><strong>Fashion Shop KH</strong></td>
-                  <td style="color: var(--danger); font-weight: bold">
-                    $500.00
-                  </td>
-                  <td>U-Pay: 012345678<br /><small>HENG SOK</small></td>
-                  <td>
-                    <span
-                      class="badge"
-                      style="background: #f59e0b; color: white"
-                      >រង់ចាំ (Pending)</span
-                    >
-                  </td>
-                  <td>
-                    <button
-                      class="btn-primary"
-                      style="background: var(--success); padding: 8px 15px"
-                      onclick="approveWithdrawal('WD001', 500)"
-                    >
-                      <i class="fas fa-check-circle"></i> ពិនិត្យត្រឹមត្រូវ
-                    </button>
+                  <td colspan="5" style="text-align: center">
+                    កំពុងទាញទិន្នន័យ...
                   </td>
                 </tr>
               </tbody>
@@ -1115,6 +1094,7 @@
       // 🔒 ផ្នែកទី១៖ កំណត់អញ្ញាត និង ការចាប់ផ្តើម (Variables & Init)
       // ==========================================
       const API_BASE = "/api/admin";
+      const PAYOUT_API = "/api/payout"; // 👈 បន្ថែមបន្ទាត់នេះ
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
 
@@ -1157,6 +1137,7 @@
 
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresForIframe();
+        if (tabId === "withdrawals") loadWithdrawals(); // 👈 បន្ថែមបន្ទាត់នេះ
         if (tabId === "storefront-settings") loadSettingsData();
         if (tabId === "promotions-settings") loadPromotionsData();
       }
@@ -1698,6 +1679,113 @@
         } finally {
           btn.innerHTML = `<i class="fas fa-save"></i> រក្សាទុក Flash Sale & Top Stores`;
         }
+      }
+
+      // ==========================================
+      // 💸 WITHDRAWALS (Admin Approve)
+      // ==========================================
+      async function loadWithdrawals() {
+        try {
+          const res = await fetch(`${API_BASE}/withdrawals`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            const list = data.withdrawals || [];
+            document.getElementById("stat-pending-withdraw").innerText =
+              list.filter((w) => w.status === "PENDING").length;
+            renderWithdrawalsTable(list);
+          }
+        } catch (error) {
+          console.error("Error loading withdrawals:", error);
+          document.getElementById("withdrawal-table-body").innerHTML =
+            `<tr><td colspan="5" style="text-align: center; color: red;">មិនអាចតភ្ជាប់ទៅ Server ភ្ជាប់</td></tr>`;
+        }
+      }
+
+      function renderWithdrawalsTable(list) {
+        const tbody = document.getElementById("withdrawal-table-body");
+        if (list.length === 0)
+          return (tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">មិនមានសំណើដកប្រាក់ទេ</td></tr>`);
+
+        tbody.innerHTML = list
+          .map((w) => {
+            const dateStr = new Date(w.createdAt).toLocaleDateString("km-KH", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            let statusHtml = "";
+            let actionHtml = "";
+
+            if (w.status === "PENDING") {
+              statusHtml = `<span class="badge" style="background: #f59e0b; color: white">រង់ចាំ (Pending)</span>`;
+              actionHtml = `<button class="btn-primary" style="background: var(--success); padding: 8px 15px;" onclick="approveWithdrawal('${w._id}', ${w.amount})"><i class="fas fa-check-circle"></i> ពិនិត្យត្រឹមត្រូវ</button>`;
+            } else if (w.status === "PROCESSING") {
+              statusHtml = `<span class="badge" style="background: #3b82f6; color: white">កំពុងវេរប្រាក់</span>`;
+              actionHtml = `<small style="color:var(--text-muted)">រង់ចាំ PDF ពីធនាគារ</small>`;
+            } else if (w.status === "COMPLETED") {
+              statusHtml = `<span class="badge" style="background: #10b981; color: white">ជោគជ័យ</span>`;
+              actionHtml = w.pdfUrl
+                ? `<a href="${w.pdfUrl}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`
+                : "-";
+            } else {
+              statusHtml = `<span class="badge" style="background: #ef4444; color: white">បរាជ័យ</span>`;
+              actionHtml = `<small style="color:var(--danger)">${w.note || "កំហុស"}</small>`;
+            }
+
+            return `
+            <tr>
+              <td>${dateStr}</td>
+              <td style="color: var(--danger); font-weight: bold">$${w.amount.toFixed(2)}</td>
+              <td><b>${w.bankName}</b><br><span style="font-family: monospace; color: var(--accent);">${w.accountNumber}</span><br><small>${w.accountName}</small></td>
+              <td>${statusHtml}</td>
+              <td>${actionHtml}</td>
+            </tr>
+          `;
+          })
+          .join("");
+      }
+
+      function approveWithdrawal(withdrawalId, amount) {
+        Swal.fire({
+          title: "បញ្ជាក់ការទម្លាក់ប្រាក់?",
+          html: `អ្នកកំពុងអនុម័តសំណើចំនួន <b style="color:red">$${amount}</b>។<br><br>ប្រព័ន្ធនឹងបញ្ជាទៅ <b>U-Pay Escrow</b> ដើម្បីផ្ទេរប្រាក់ចូលកុងអ្នកលក់ភ្លាមៗ!`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#10b981",
+          confirmButtonText: "យល់ព្រម (Approve)",
+          cancelButtonText: "ថយក្រោយ",
+          showLoaderOnConfirm: true,
+          preConfirm: async () => {
+            try {
+              const res = await fetch(
+                `${PAYOUT_API}/admin/withdrawals/${withdrawalId}/approve`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${TOKEN}`,
+                  },
+                },
+              );
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.message || "មានបញ្ហាបច្ចេកទេស");
+              return data;
+            } catch (error) {
+              Swal.showValidationMessage(`បរាជ័យ: ${error.message}`);
+            }
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire(
+              "ជោគជ័យ",
+              "សំណើត្រូវបានបញ្ជូនទៅធនាគារ U-Pay! រង់ចាំបន្តិចដើម្បីទទួលបាន PDF។",
+              "success",
+            );
+            loadWithdrawals();
+          }
+        });
       }
     </script>
   </body>
