@@ -956,21 +956,19 @@
         }
       }
 
+      // 🚀 កែត្រង់នេះឱ្យត្រូវជាមួយឈ្មោះ Endpoint ថ្មីរបស់ Backend (withdrawals)
       async function fetchWithdrawals() {
         try {
-          let res = await fetch(`${PAYOUT_API}/seller/history`, {
+          const res = await fetch(`${PAYOUT_API}/seller/withdrawals`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (!res.ok || res.status === 404) {
-            res = await fetch(`${API_URL}/withdrawals`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-          }
           if (res.ok) {
             const data = await res.json();
-            withdrawalHistory =
-              data.history || data.withdrawals || data.data || [];
+            withdrawalHistory = data.data || [];
             renderPaymentHistory();
+            calculateDashboardData(); // អាប់ដេតទិន្នន័យលើ Dashboard ភ្លាមៗ
+          } else {
+            console.warn("មិនមានប្រវត្តិដកប្រាក់ ឬ មានបញ្ហា API");
           }
         } catch (e) {
           console.error("Error fetching history:", e);
@@ -1078,7 +1076,7 @@
           if (o.status === "cancelled") cancCount++;
         });
 
-        // គណនាលុយដកសរុបពីប្រវត្តិពិតប្រាកដ
+        // គណនាលុយដកសរុបពីប្រវត្តិពិតប្រាកដ (យកតែ COMPLETED)
         let totalWithdrawn = 0;
         withdrawalHistory.forEach((w) => {
           const st = (w.status || "").toUpperCase();
@@ -1098,7 +1096,6 @@
       }
 
       function renderDashboardOrders() {
-        // [រក្សាទុកដូចដើម...]
         const searchTerm = document
           .getElementById("dash-search-order")
           .value.toLowerCase();
@@ -1134,7 +1131,6 @@
       }
 
       function renderKanbanBoard() {
-        // [រក្សាទុកដូចដើម...]
         const searchTerm = document
           .getElementById("kanban-search")
           .value.toLowerCase();
@@ -1246,7 +1242,6 @@
       }
 
       async function cancelOrder(orderId) {
-        // [រក្សាទុកដូចដើម...]
         const { value: reason } = await Swal.fire({
           title: "បោះបង់ការបញ្ជាទិញ",
           input: "text",
@@ -1284,7 +1279,6 @@
       }
 
       function viewOrderDetails(id) {
-        // [រក្សាទុកដូចដើម...]
         const order = orders.find((o) => o._id === id);
         const orderDate = new Date(order.createdAt).toLocaleDateString("km-KH");
         const oId = order.orderId || order._id;
@@ -1310,7 +1304,6 @@
       }
 
       // 🌟 ៦. Products & Categories Management
-      // [រក្សាទុកដូចដើមទាំងអស់ ខ្ញុំសង្ខេបដើម្បីកុំអោយវែងពេក តែមុខងារនៅដដែល]
       function openCategoryModal() {
         document.getElementById("category-modal").classList.remove("hidden");
         renderCategoryList();
@@ -1319,14 +1312,15 @@
         document.getElementById("category-modal").classList.add("hidden");
       }
       async function editCategory(oldName, index) {
-        /*...*/
+        /* ទុកធម្មតា */
       }
       async function addNewCategory() {
-        /*...*/
+        /* ទុកធម្មតា */
       }
       async function removeCategory(index) {
-        /*...*/
+        /* ទុកធម្មតា */
       }
+
       function updateCategoryDropdown() {
         const select = document.getElementById("prod-category");
         if (storeData.categories.length === 0)
@@ -1336,6 +1330,7 @@
             .map((c) => `<option value="${c}">${c}</option>`)
             .join("");
       }
+
       function renderCategoryList() {
         const list = document.getElementById("cat-list");
         list.innerHTML = storeData.categories
@@ -1345,6 +1340,7 @@
           )
           .join("");
       }
+
       function openProductModal(id = null) {
         if (storeData.categories.length === 0)
           return Swal.fire(
@@ -1373,6 +1369,7 @@
       function closeProductModal() {
         document.getElementById("product-modal").classList.add("hidden");
       }
+
       async function saveProduct(e) {
         e.preventDefault();
         const id = document.getElementById("prod-id").value;
@@ -1404,6 +1401,7 @@
           console.error(err);
         }
       }
+
       function deleteProduct(id) {
         Swal.fire({
           title: "តើអ្នកប្រាកដឬទេ?",
@@ -1430,6 +1428,7 @@
           }
         });
       }
+
       function renderProducts() {
         const searchTerm = document
           .getElementById("search-product")
@@ -1504,9 +1503,6 @@
               body: JSON.stringify({
                 amount: parseFloat(formValues),
                 paymentInfo: storeData.paymentInfo,
-                bankName: storeData.paymentInfo.bankName,
-                accountName: storeData.paymentInfo.accountName,
-                accountNumber: storeData.paymentInfo.accountNumber,
               }),
             });
             const data = await res.json();
@@ -1517,7 +1513,7 @@
                 "សំណើដកប្រាក់ត្រូវបានបញ្ជូនទៅ Admin ពិនិត្យហើយ!",
                 "success",
               );
-              // 🚀 ហៅ DB សារថ្មី ដើម្បីឱ្យលុយ Update ច្បាស់លាស់ពី DB ពិតប្រាកដ
+              // 🚀 ពេលដកប្រាក់ជោគជ័យ ត្រូវហៅ DB សារថ្មី ដើម្បី Update លុយ
               fetchProfile();
               fetchWithdrawals();
             } else
@@ -1571,6 +1567,7 @@
                 '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-times-circle"></i> បដិសេធ</span>';
             else
               statusBadge = `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold">${w.status}</span>`;
+
             return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"><td class="py-3 px-6 text-gray-600 dark:text-gray-300 text-xs">${dateStr}</td><td class="py-3 px-6 font-bold text-blue-600">$${w.amount.toFixed(2)}</td><td class="py-3 px-6 text-xs text-gray-600 dark:text-gray-400"><b>${w.bankName || w.bank || "U-PAY"}</b><br>${w.accountNumber}<br>${w.accountName}</td><td class="py-3 px-6">${statusBadge}</td><td class="py-3 px-6 text-sm text-gray-500 dark:text-gray-400">${actionHtml}</td></tr>`;
           })
           .join("");
@@ -1616,6 +1613,7 @@
           Swal.fire("Error", "មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធធនាគារបានទេ!", "error");
         }
       }
+
       async function saveStoreSettings() {
         const accNum = document.getElementById("account-number").value.trim();
         const accName = document.getElementById("account-name").value.trim();
@@ -1667,6 +1665,7 @@
           );
         }
       }
+
       function logout() {
         Swal.fire({
           title: "ចាកចេញពីប្រព័ន្ធ?",
@@ -1683,6 +1682,7 @@
           }
         });
       }
+
       document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>

@@ -203,3 +203,50 @@ exports.rejectWithdrawal = async (req, res) => {
     res.status(500).json({ success: false, message: "បញ្ហាបច្ចេកទេស Backend" });
   }
 };
+
+// ==========================================
+// ៤. ទាញយកប្រវត្តិដកប្រាក់ទាំងអស់របស់អ្នកលក់ (Seller)
+// ==========================================
+exports.getSellerWithdrawals = async (req, res) => {
+  try {
+    const sellerId = req.user.id || req.user._id; // ចាប់យក ID ពី Token
+
+    // ស្វែងរកប្រវត្តិដកប្រាក់របស់គាត់ ហើយតម្រៀបពីថ្មីទៅចាស់ (createdAt: -1)
+    const withdrawals = await Withdrawal.find({ sellerId: sellerId }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json({
+      success: true,
+      count: withdrawals.length,
+      data: withdrawals, // បោះទិន្នន័យទៅឱ្យ Frontend
+    });
+  } catch (err) {
+    console.error("❌ Get Withdrawals Error:", err);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "មានបញ្ហាក្នុងការទាញយកប្រវត្តិដកប្រាក់",
+      });
+  }
+};
+
+// ==========================================
+// ៥. ទាញយកប្រវត្តិដកប្រាក់ទាំងអស់សម្រាប់ Admin (ទុកឱ្យ Admin ឆែកមើល)
+// ==========================================
+exports.getAllWithdrawals = async (req, res) => {
+  try {
+    // Admin អាចមើលឃើញទាំងអស់ មិនបាច់ Filter តាម sellerId ទេ
+    const withdrawals = await Withdrawal.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: withdrawals.length,
+      data: withdrawals,
+    });
+  } catch (err) {
+    console.error("❌ Admin Get Withdrawals Error:", err);
+    res.status(500).json({ success: false, message: "បញ្ហាបច្ចេកទេស Backend" });
+  }
+};
