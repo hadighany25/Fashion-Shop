@@ -105,9 +105,9 @@ exports.approveWithdrawal = async (req, res) => {
 
     // ដំណើរការបន្តបើបំប្លែង JSON បានជោគជ័យ
     if (response.ok && data.success) {
-      withdrawal.status = "PROCESSING";
+      withdrawal.status = "COMPLETED"; // ✅ ដូរមក COMPLETED វិញ
       withdrawal.upayTransactionId = data.transactionId || "";
-      withdrawal.note = "ការផ្ទេរប្រាក់ជោគជ័យ";
+      withdrawal.note = "ការផ្ទេរប្រាក់ជោគជ័យតាមប្រព័ន្ធ U-Pay";
       await withdrawal.save();
 
       res.status(200).json({
