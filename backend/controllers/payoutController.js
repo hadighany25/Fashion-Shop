@@ -58,7 +58,7 @@ exports.approveWithdrawal = async (req, res) => {
 
     const payload = {
       merchantId: UPAY_MERCHANT_ID || "500500500500500",
-      referenceId: withdrawal._id.toString(), // ប្រើ ID នេះដើម្បីចំណាំប្រវត្តិផ្ទេរប្រាក់
+      referenceId: withdrawal._id.toString(),
       amount: withdrawal.amount,
       receiverAccount: withdrawal.accountNumber,
       description: `U-Mall Payout for Seller`,
@@ -73,8 +73,8 @@ exports.approveWithdrawal = async (req, res) => {
       .update(dataToSign)
       .digest("hex");
 
-    // 🚀 កន្លែងដែលត្រូវកែ គឺប្ដូរ Endpoint ទៅជា /api/v1/b2b/transfer (ផ្ទេរប្រាក់ផ្ទាល់)
-    const response = await fetch(`${UPAY_URL}/api/v1/b2b/transfer`, {
+    // 🚀 សាកល្បងប្រើ Endpoint /api/bank/transfer វិញ
+    const response = await fetch(`${UPAY_URL}/api/bank/transfer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,13 +85,31 @@ exports.approveWithdrawal = async (req, res) => {
       body: payloadString,
     });
 
-    const data = await response.json();
+    // 🛡️ អាគមការពារ Crash: អានទិន្នន័យជា Text សិន ដើម្បីការពារពេល U-Pay បោះ HTML មកវិញ
+    const responseText = await response.text();
+    let data;
 
+    try {
+      // ព្យាយាមបំប្លែងទៅជា JSON
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      // បើបំប្លែងមិនចេញ (មានន័យថា U-Pay បោះ HTML មក)
+      console.error(
+        "❌ U-Pay បោះមកមិនមែនជា JSON ទេ! (ប្រហែលខុស Endpoint) លទ្ធផល:",
+        responseText.substring(0, 150),
+      );
+      return res.status(500).json({
+        success: false,
+        message:
+          "ប្រព័ន្ធ U-Pay ឆ្លើយតបខុសប្រក្រតី (អាចនឹងខុស Endpoint ផ្ទេរប្រាក់)",
+      });
+    }
+
+    // ដំណើរការបន្តបើបំប្លែង JSON បានជោគជ័យ
     if (response.ok && data.success) {
-      // ជោគជ័យ កត់ត្រាទុក
       withdrawal.status = "PROCESSING";
       withdrawal.upayTransactionId = data.transactionId || "";
-      withdrawal.note = "កំពុងរង់ចាំ U-Pay ដំណើរការ និងបញ្ចេញ PDF";
+      withdrawal.note = "ការផ្ទេរប្រាក់ជោគជ័យ";
       await withdrawal.save();
 
       res
