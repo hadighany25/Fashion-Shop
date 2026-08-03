@@ -2,10 +2,11 @@ const crypto = require("crypto");
 const Withdrawal = require("../models/Withdrawal");
 const User = require("../models/User");
 
-// 🛡️ លែងដាក់ String ផ្ទាល់ទៀតហើយ! យកពី Environment សុទ្ធ ១០០%
+// ទាញយកទិន្នន័យសម្ងាត់ពី Environment Variables
 const UPAY_API_KEY = process.env.UPAY_API_KEY;
 const UPAY_SECRET = process.env.UPAY_API_SECRET;
 const UPAY_URL = process.env.UPAY_BASE_URL;
+const UPAY_MERCHANT_ID = process.env.UPAY_MERCHANT_ID; // 👈 ទាញយក Merchant ID
 
 // ==========================================
 // ១. Seller ស្នើសុំដកប្រាក់
@@ -47,7 +48,6 @@ exports.approveWithdrawal = async (req, res) => {
         .json({ success: false, message: "សំណើនេះមិនត្រឹមត្រូវ!" });
     }
 
-    // 🛡️ ការពារក្រែងលោ Server អត់ទាន់ស្គាល់ API Key
     if (!UPAY_API_KEY || !UPAY_SECRET || !UPAY_URL) {
       console.error("Missing UPAY Credentials in Environment Variables!");
       return res
@@ -58,8 +58,10 @@ exports.approveWithdrawal = async (req, res) => {
         });
     }
 
+    // 🛡️ កែប្រែ Payload ត្រង់នេះ! (ប្រើ referenceId ជំនួស orderId និងថែម merchantId)
     const payload = {
-      orderId: withdrawal._id.toString(),
+      merchantId: UPAY_MERCHANT_ID || "500500500500500",
+      referenceId: withdrawal._id.toString(), // 👈 ប្ដូរមកពាក្យដែល U-Pay ស្គាល់
       amount: withdrawal.amount,
       receiverAccount: withdrawal.accountNumber,
       description: `U-Mall Payout for Seller`,
@@ -68,9 +70,8 @@ exports.approveWithdrawal = async (req, res) => {
     const payloadString = JSON.stringify(payload);
     const timestamp = Date.now().toString();
 
-    // 💡 របៀបបង្កើត Signature របស់ U-Pay (យក Payload + Timestamp មកកូដនីយកម្ម)
+    // បង្កើតហត្ថលេខាសម្ងាត់ (Signature)
     const dataToSign = payloadString + timestamp;
-
     const signature = crypto
       .createHmac("sha256", UPAY_SECRET)
       .update(dataToSign)
