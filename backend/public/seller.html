@@ -873,8 +873,9 @@
         initTheme();
         initTabState();
         await fetchProfile();
+        await fetchWithdrawals(); // 🚀 ហៅប្រវត្តិដកប្រាក់ដាច់ដោយឡែកទើបមិនបាត់
         await fetchProducts();
-        await fetchOrders(); // ការទាញ Orders នឹងគណនាលុយដោយស្វ័យប្រវត្តិ
+        await fetchOrders();
       }
 
       function initTabState() {
@@ -963,30 +964,49 @@
                 accountNumber: "",
               };
 
-            // 🚀 ទាញយកប្រវត្តិដកប្រាក់ទាំងអស់ (ចាស់+ថ្មី)
-            withdrawalHistory = data.withdrawals || storeData.withdrawals || [];
-
-            // ធានាថាប្រសិនបើអត់មាននៅក្នុង profile ទេ សាកល្បងហៅ API Payout ផ្ទាល់ (ដើម្បីការពារបាត់ប្រវត្តិចាស់)
-            if (withdrawalHistory.length === 0) {
-              try {
-                const payoutRes = await fetch(`${PAYOUT_API}/seller/history`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                const payoutData = await payoutRes.json();
-                if (payoutData.success) {
-                  withdrawalHistory =
-                    payoutData.history || payoutData.withdrawals || [];
-                }
-              } catch (e) {
-                // បើ Endpoint អត់មានក៏មិនអីដែរ វានឹងប្រើ Array ទទេរ
-              }
-            }
+            // 🚀 ជឿជាក់លើទិន្នន័យ Database សុទ្ធសាធ (អត់មានបូកដកដោយខ្លួនឯងទៀតទេ)
+            storeData.walletBalance = storeData.walletBalance || 0;
 
             renderProfileInfo();
-            renderPaymentHistory(); // បង្ហាញតារាងប្រវត្តិភ្លាមៗ
           }
         } catch (err) {
           console.error(err);
+        }
+      }
+
+      // 🚀 Function ថ្មី: ទាញប្រវត្តិដកប្រាក់ដាច់ដោយឡែក ដើម្បីកុំឱ្យវាបាត់ពេល Refresh
+      async function fetchWithdrawals() {
+        try {
+          // សាកល្បងហៅ API ទី១
+          let res = await fetch(`${PAYOUT_API}/seller/history`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          // បើអត់មាន សាកហៅ API ទី២ (ការពារខុស Endpoint)
+          if (!res.ok || res.status === 404) {
+            res = await fetch(`${API_URL}/withdrawals`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
+
+          if (res.ok) {
+            const data = await res.json();
+            withdrawalHistory =
+              data.history || data.withdrawals || data.data || [];
+            renderPaymentHistory(); // បង្ហាញតារាង
+
+            // គណនាលុយដែលបានដកជោគជ័យសរុបយកទៅដាក់លើ Dashboard
+            let totalWithdrawn = 0;
+            withdrawalHistory.forEach((w) => {
+              if ((w.status || "").toUpperCase() === "COMPLETED") {
+                totalWithdrawn += w.amount;
+              }
+            });
+            document.getElementById("dash-withdrawn").innerText =
+              "$" + totalWithdrawn.toFixed(2);
+          }
+        } catch (e) {
+          console.error("Error fetching history:", e);
         }
       }
 
@@ -1019,14 +1039,14 @@
             );
             renderDashboardOrders();
             renderKanbanBoard();
-            calculateRevenueAndCustomers(); // 🚀 គណនាលុយ និង Status ទើបលោតត្រូវ!
+            calculateRevenueAndCustomers(); // គណនាតែចំណូលនិងអតិថិជនប៉ុណ្ណោះ
           }
         } catch (err) {
           console.error(err);
         }
       }
 
-      // 🌟 ៤. Render Data និង គណនាលុយ (Master Calculation)
+      // 🌟 ៤. Render Data
       function renderProfileInfo() {
         document.getElementById("top-store-name").innerText =
           storeData.storeName || "មិនស្គាល់";
@@ -1058,10 +1078,17 @@
         document.getElementById("lbl-acc-num").innerText =
           payInfo.accountNumber || "មិនទាន់កំណត់";
 
+        // 🚀 ទាញលុយពី DB សុទ្ធយកមកដាក់បង្ហាញ! កាត់បន្ថយកំហុសឆ្គងពីការគណនាក្នុងកូដចាស់
+        const walletBal = storeData.walletBalance || 0;
+        document.getElementById("pay-available-balance").innerText =
+          `$${walletBal.toFixed(2)}`;
+        document.getElementById("dash-balance").innerText =
+          `$${walletBal.toFixed(2)}`;
+
         updateCategoryDropdown();
       }
 
-      // 🚀 មុខងារកែតម្រូវទិដ្ឋភាពទូទៅ និង លុយដកបានពិតប្រាកដ
+      // 🚀 មុខងារកែតម្រូវ៖ ឈប់ Overwrite លុយក្នុង Database ទៀតហើយ
       function calculateRevenueAndCustomers() {
         let totalRev = 0,
           compCount = 0,
@@ -1069,7 +1096,6 @@
           cancCount = 0;
         let uniqueCustomers = new Set();
 
-        // ១. គណនា Order ទាំងអស់ដែលបាន Complected សម្រាប់រកចំណូលសរុប
         orders.forEach((o) => {
           if (o.buyer) uniqueCustomers.add(o.buyer._id || o.buyer);
 
@@ -1081,29 +1107,7 @@
           if (o.status === "cancelled") cancCount++;
         });
 
-        // ២. បូកសរុបលុយដែលបានដកទាំងអស់ចេញពីប្រវត្តិដកប្រាក់ផ្ទាល់ (លើកលែងតែ REJECTED)
-        let totalLockedAndWithdrawn = 0;
-        if (withdrawalHistory && withdrawalHistory.length > 0) {
-          totalLockedAndWithdrawn = withdrawalHistory.reduce((sum, w) => {
-            // បូកបញ្ចូលទាំង PENDING, PROCESSING, និង COMPLETED ដើម្បីបង្កកលុយពី Seller កុំឱ្យគាត់ដកជាន់គ្នា
-            if (w.status !== "REJECTED") {
-              return sum + w.amount;
-            }
-            return sum;
-          }, 0);
-        } else {
-          // បើអត់មានប្រវត្តិទេ ប្រើទិន្នន័យចាស់ជាជំនួយ
-          totalLockedAndWithdrawn = storeData.totalWithdrawn || 0;
-        }
-
-        // ៣. គណនាសមតុល្យដែលនៅសល់អាចដកបាន
-        let availableBalance = totalRev - totalLockedAndWithdrawn;
-        if (availableBalance < 0) availableBalance = 0; // ការពារកុំឱ្យអវិជ្ជមាន
-
-        // រក្សាទុកតម្លៃថ្មីទៅកាន់អថេរគោល
-        storeData.walletBalance = availableBalance;
-
-        // ៤. ធ្វើបច្ចុប្បន្នភាព Dashboard (ផ្ទាំងទិដ្ឋភាពទូទៅ)
+        // បង្ហាញទិន្នន័យលើ Dashboard
         document.getElementById("dash-revenue").innerText =
           "$" + totalRev.toFixed(2);
         document.getElementById("dash-completed-orders").innerText = compCount;
@@ -1112,13 +1116,7 @@
         document.getElementById("dash-customers").innerText =
           uniqueCustomers.size;
 
-        // ធ្វើបច្ចុប្បន្នភាពលុយដែលដកបាន
-        document.getElementById("dash-balance").innerText =
-          "$" + availableBalance.toFixed(2);
-        document.getElementById("pay-available-balance").innerText =
-          "$" + availableBalance.toFixed(2);
-        document.getElementById("dash-withdrawn").innerText =
-          "$" + totalLockedAndWithdrawn.toFixed(2);
+        // ⚠️ [ចំណាំ] លុបចោលការគណនាលុយ (Available Balance) ទីនេះចោលទាំងស្រុង។ យើងប្រើលុយពី DB ផ្ទាល់។
       }
 
       function renderDashboardOrders() {
@@ -1693,10 +1691,14 @@
                 note: "កំពុងរង់ចាំ Admin ពិនិត្យ",
               });
 
-              // 🚀 ហៅមុខងារនេះឡើងវិញ ដើម្បីកាត់លុយ និង Update ផ្ទាំងផ្សេងៗដោយមិនបាច់ Refresh
-              calculateRevenueAndCustomers();
-              renderPaymentHistory();
+              // 🚀 កាត់លុយភ្លាមៗនៅលើអេក្រង់ (ដោយមិនបាច់ Refresh)
+              storeData.walletBalance -= parseFloat(formValues);
+              document.getElementById("pay-available-balance").innerText =
+                `$${storeData.walletBalance.toFixed(2)}`;
+              document.getElementById("dash-balance").innerText =
+                `$${storeData.walletBalance.toFixed(2)}`;
 
+              renderPaymentHistory();
               Swal.fire(
                 "ជោគជ័យ!",
                 "សំណើដកប្រាក់ត្រូវបានបញ្ជូនទៅ Admin ពិនិត្យហើយ!",
@@ -1743,13 +1745,16 @@
             let statusBadge = "";
             let actionHtml = w.note || "-";
 
-            if (w.status === "PENDING") {
+            // 🚀 ទប់ស្កាត់បញ្ហាឆែកអក្សរតូចធំ (Case-insensitive) ដើម្បីឱ្យលោតចេញគ្រប់ Status
+            const st = (w.status || "").toUpperCase();
+
+            if (st === "PENDING") {
               statusBadge =
                 '<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-clock"></i> រង់ចាំអនុម័ត</span>';
-            } else if (w.status === "PROCESSING") {
+            } else if (st === "PROCESSING") {
               statusBadge =
                 '<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-spinner fa-spin"></i> កំពុងវេរប្រាក់</span>';
-            } else if (w.status === "COMPLETED") {
+            } else if (st === "COMPLETED") {
               statusBadge =
                 '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-check-circle"></i> ជោគជ័យ</span>';
               if (w.upayTransactionId) {
@@ -1757,9 +1762,12 @@
               } else {
                 actionHtml = `<span class="text-green-600 font-bold"><i class="fas fa-check"></i> ប្រាក់បានវេរចូលរួចរាល់</span>`;
               }
-            } else if (w.status === "REJECTED") {
+            } else if (st === "REJECTED" || st === "CANCELLED") {
               statusBadge =
                 '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-times-circle"></i> បដិសេធ</span>';
+            } else {
+              // ករណីចុងក្រោយ ទោះ Status មានពាក្យប្លែកអីក៏ដោយ ក៏វាបង្ហាញអក្សរចេញមកដែរ
+              statusBadge = `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold">${w.status}</span>`;
             }
 
             return `
