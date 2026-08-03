@@ -1559,7 +1559,7 @@
               statusBadge =
                 '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-check-circle"></i> ជោគជ័យ</span>';
               if (w.upayTransactionId)
-                actionHtml = `<a href="https://u-pay-bank.fly.dev/receipt.html?trx=${w.upayTransactionId}" target="_blank" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-2 rounded-lg border border-red-200 shadow-sm transition"><i class="fas fa-file-pdf text-lg align-middle mr-1"></i> មើលវិក្កយបត្រ</a>`;
+                actionHtml = `<a href="https://u-pay-bank.fly.dev/receipts/Receipt-${w._id}.pdf" target="_blank" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-2 rounded-lg border border-red-200 shadow-sm transition"><i class="fas fa-file-pdf text-lg align-middle mr-1"></i> មើលវិក្កយបត្រ</a>`;
               else
                 actionHtml = `<span class="text-green-600 font-bold"><i class="fas fa-check"></i> ជោគជ័យ</span>`;
             } else if (st === "REJECTED" || st === "CANCELLED")
