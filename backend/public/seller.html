@@ -630,42 +630,73 @@
             </div>
 
             <div class="space-y-6">
-              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <!-- កូដសម្រាប់ជំនួសក្នុង Settings Tab (Payment Info) -->
+              <div
+                class="bg-blue-50 dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-blue-100 dark:border-gray-700"
+              >
                 <h3
-                  class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2 text-green-600 dark:text-green-400"
+                  class="text-lg font-bold mb-4 border-b border-blue-200 dark:border-gray-700 pb-2 text-blue-700 dark:text-blue-400"
                 >
-                  ព័ត៌មានគណនីទទួលប្រាក់ (Payment Info)
+                  <i class="fas fa-money-check-alt mr-2"></i> ព័ត៌មានគណនី U-PAY
+                  (Settlement)
                 </h3>
                 <div class="space-y-4">
+                  <!-- ឈ្មោះធនាគារ (មិនបាច់អោយវាយទេ ព្រោះដឹងតែ U-PAY) -->
                   <div>
                     <label
                       class="block text-sm font-bold mb-1 dark:text-gray-300"
-                      >ឈ្មោះធនាគារ (Bank Name)</label
-                    ><input
+                      >ធនាគារ (Bank Name)</label
+                    >
+                    <input
                       type="text"
                       id="bank-name"
-                      placeholder="ABA, ACLEDA, U-Pay..."
-                      class="w-full border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-2 focus:border-green-500"
+                      value="U-PAY"
+                      readonly
+                      class="w-full bg-gray-100 border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded-lg px-4 py-2 cursor-not-allowed font-bold"
                     />
                   </div>
+
+                  <!-- លេខគណនី & ប៊ូតុង Check -->
                   <div>
                     <label
                       class="block text-sm font-bold mb-1 dark:text-gray-300"
-                      >ឈ្មោះម្ចាស់គណនី (Account Name)</label
-                    ><input
+                      >លេខគណនី U-PAY *</label
+                    >
+                    <div class="flex gap-2">
+                      <input
+                        type="text"
+                        id="account-number"
+                        placeholder="ឧទាហរណ៍៖ 100100100"
+                        oninput="resetBankVerification()"
+                        class="w-full border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-2 focus:border-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onclick="verifyBankAccount()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold transition flex items-center gap-2 whitespace-nowrap shadow"
+                      >
+                        <i class="fas fa-check-circle"></i> Check
+                      </button>
+                    </div>
+                    <!-- កន្លែងបង្ហាញលទ្ធផល ពណ៌បៃតងពេលត្រូវ ឬក្រហមពេលខុស -->
+                    <div
+                      id="verify-result"
+                      class="text-sm font-bold mt-2 hidden"
+                    ></div>
+                  </div>
+
+                  <!-- ឈ្មោះម្ចាស់គណនី (Auto-fill) -->
+                  <div>
+                    <label
+                      class="block text-sm font-bold mb-1 dark:text-gray-300"
+                      >ឈ្មោះម្ចាស់គណនី (Account Name) *</label
+                    >
+                    <input
                       type="text"
                       id="account-name"
-                      class="w-full border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-2 focus:border-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      class="block text-sm font-bold mb-1 dark:text-gray-300"
-                      >លេខគណនី (Account Number)</label
-                    ><input
-                      type="text"
-                      id="account-number"
-                      class="w-full border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-4 py-2 focus:border-green-500"
+                      readonly
+                      placeholder="វាយលេខគណនីពីលើរួចចុច Check..."
+                      class="w-full bg-gray-100 border dark:border-gray-600 dark:bg-gray-700 dark:text-green-500 text-green-700 rounded-lg px-4 py-2 cursor-not-allowed font-bold"
                     />
                   </div>
                 </div>
@@ -1660,21 +1691,101 @@
           })
           .join("");
       }
+      // =================================================================
+      // 🌟 ៧. ផ្នែកកំណត់ទម្រង់ហាង (Store Settings & Bank Validation)
+      // =================================================================
 
+      // URL របស់ប្រព័ន្ធ U-Pay (ផ្លាស់ប្តូរទៅតាម URL Fly.io របស់បង)
+      const UPAY_API_URL = "https://u-pay-bank.fly.dev/api/bank";
+
+      // ពេលអ្នកប្រើវាយលេខថ្មី ត្រូវលុបឈ្មោះចាស់ចេញ ដើម្បីកុំឱ្យមានការបន្លំ
+      function resetBankVerification() {
+        document.getElementById("account-name").value = "";
+        const resultDiv = document.getElementById("verify-result");
+        resultDiv.classList.add("hidden");
+        resultDiv.innerHTML = "";
+      }
+
+      // មុខងារហៅ API ទៅកាន់ U-Pay ឆែកឈ្មោះ
+      async function verifyBankAccount() {
+        const accNo = document.getElementById("account-number").value.trim();
+
+        if (!accNo) {
+          return Swal.fire(
+            "បញ្ជាក់",
+            "សូមបញ្ចូលលេខគណនី U-PAY ជាមុនសិន!",
+            "warning",
+          );
+        }
+
+        Swal.fire({
+          title: "កំពុងផ្ទៀងផ្ទាត់...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
+        try {
+          const res = await fetch(`${UPAY_API_URL}/verify-account/${accNo}`);
+          const data = await res.json();
+          Swal.close();
+
+          const resultDiv = document.getElementById("verify-result");
+          resultDiv.classList.remove("hidden");
+
+          if (res.ok && data.success) {
+            // បើគណនីមានពិត បង្ហាញអក្សរពណ៌បៃតង និង Auto-fill ឈ្មោះ
+            resultDiv.className =
+              "text-sm font-bold mt-2 text-green-600 dark:text-green-400";
+            resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> គណនីត្រឹមត្រូវ: ${data.account_name}`;
+            document.getElementById("account-name").value = data.account_name;
+          } else {
+            // បើគណនីខុស បង្ហាញអក្សរពណ៌ក្រហម
+            resultDiv.className =
+              "text-sm font-bold mt-2 text-red-600 dark:text-red-400";
+            resultDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${data.message || "រកមិនឃើញគណនីនេះទេ!"}`;
+            resetBankVerification();
+          }
+        } catch (err) {
+          Swal.close();
+          Swal.fire("Error", "មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធធនាគារបានទេ!", "error");
+        }
+      }
+
+      // មុខងាររក្សាទុកការកំណត់ហាង (Save Settings)
       async function saveStoreSettings() {
+        const accNum = document.getElementById("account-number").value.trim();
+        const accName = document.getElementById("account-name").value.trim();
+
+        // 🔥 លក្ខខណ្ឌការពារ: បើមានលេខកុង តែអត់មានឈ្មោះ (មានន័យថាគាត់អត់ចុច Check)
+        if (accNum && !accName) {
+          return Swal.fire(
+            "ចាំសិន",
+            "សូមចុចប៊ូតុង [Check] ដើម្បីផ្ទៀងផ្ទាត់លេខគណនី U-PAY ជាមុនសិន ទើបអាចរក្សាទុកបាន!",
+            "warning",
+          );
+        }
+
         const payload = {
-          storeName: document.getElementById("store-name").value,
-          logoUrl: document.getElementById("store-logo").value,
-          coverUrl: document.getElementById("store-cover").value,
-          description: document.getElementById("store-desc").value,
+          storeName: document.getElementById("store-name").value.trim(),
+          logoUrl: document.getElementById("store-logo").value.trim(),
+          coverUrl: document.getElementById("store-cover").value.trim(),
+          description: document.getElementById("store-desc").value.trim(),
           paymentInfo: {
-            bankName: document.getElementById("bank-name").value,
-            accountName: document.getElementById("account-name").value,
-            accountNumber: document.getElementById("account-number").value,
+            bankName: document.getElementById("bank-name").value.trim(),
+            accountName: accName,
+            accountNumber: accNum,
           },
           categories: storeData.categories,
         };
+
         try {
+          // បង្ហាញ Loading ពេលកំពុង Save
+          Swal.fire({
+            title: "កំពុងរក្សាទុក...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+
           const res = await fetch(`${API_URL}/profile`, {
             method: "PUT",
             headers: {
@@ -1683,19 +1794,30 @@
             },
             body: JSON.stringify(payload),
           });
+
           const data = await res.json();
+          Swal.close();
+
           if (data.success) {
             storeData = data.store;
             renderProfileInfo();
             Swal.fire("ជោគជ័យ!", "ការកំណត់ត្រូវបានរក្សាទុក!", "success");
+          } else {
+            Swal.fire("បរាជ័យ", data.message || "មិនអាចរក្សាទុកបានទេ", "error");
           }
         } catch (err) {
-          console.error("កំហុសពិតប្រាកដគឺ:", err); // 👈 ពេលវាគាំងម្ដងទៀត បងអាចមើលក្នុង Console បានថាវាមកពីណា
-          Swal.fire("Error", "មានបញ្ហាបច្ចេកទេស", "error");
+          console.error("កំហុសក្នុងការ Save Settings:", err);
+          Swal.fire(
+            "Error",
+            "មានបញ្ហាបច្ចេកទេស មិនអាចភ្ជាប់ទៅ Server បានទេ!",
+            "error",
+          );
         }
       }
 
+      // =================================================================
       // 🌟 ៨. ការចាកចេញ (Logout)
+      // =================================================================
       function logout() {
         Swal.fire({
           title: "ចាកចេញពីប្រព័ន្ធ?",
@@ -1713,6 +1835,7 @@
         });
       }
 
+      // ចាប់ផ្តើមដំណើរការប្រព័ន្ធពេល Page ដើរ
       document.addEventListener("DOMContentLoaded", init);
     </script>
   </body>
