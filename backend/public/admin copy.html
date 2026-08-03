@@ -96,17 +96,11 @@
       .sidebar-logo span {
         color: var(--accent);
       }
-      /* ជួសជុល Logout Button លោត */
       .nav-menu {
         list-style: none;
-        flex: 1; /* រុញឲ្យ Menu យក Space កណ្ដាលទាំងអស់ */
+        flex: 1;
         overflow-y: auto;
         padding-top: 10px;
-        display: flex;
-        flex-direction: column;
-      }
-      .nav-menu li {
-        width: 100%;
       }
       .nav-menu a {
         display: flex;
@@ -126,7 +120,6 @@
       }
       .logout-btn {
         margin: 20px;
-        margin-top: auto; /* គន្លឹះរុញប៊ូតុងឲ្យនៅបាតជានិច្ច */
         padding: 12px;
         background-color: rgba(239, 68, 68, 0.1);
         color: var(--danger);
@@ -190,31 +183,14 @@
       }
 
       /* ==========================================
-           📊 ៣. UI Components & Grid 6 ជួរឈរ
+           📊 ៣. UI Components
            ========================================== */
-      .stats-grid-6 {
+      .stats-grid-15 {
         display: grid;
-        grid-template-columns: repeat(6, 1fr); /* កំណត់ ៦ ជួរឈរ */
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 15px;
         margin-bottom: 30px;
       }
-
-      @media (max-width: 1600px) {
-        .stats-grid-6 {
-          grid-template-columns: repeat(4, 1fr);
-        }
-      }
-      @media (max-width: 1200px) {
-        .stats-grid-6 {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-      @media (max-width: 768px) {
-        .stats-grid-6 {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
       .stat-card {
         background-color: var(--bg-card);
         padding: 15px;
@@ -392,6 +368,9 @@
           gap: 15px;
           text-align: center;
         }
+        .stats-grid-15 {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
     </style>
   </head>
@@ -466,6 +445,7 @@
           (Control Center)
         </h2>
         <div class="admin-profile">
+          <!-- Theme Toggle -->
           <button
             class="theme-toggle"
             onclick="toggleTheme()"
@@ -488,102 +468,85 @@
              📌 TAB 1: DASHBOARD
              ========================================== -->
       <div id="dashboard" class="view-section active">
-        <!-- ផ្ទាំងទិន្នន័យ ៦ជួរឈរ (សរុប ១៨ ប្រអប់) -->
-        <div class="stats-grid-6">
-          <!-- ជួរទី ១៖ ព័ត៌មានអ្នកប្រើប្រាស់ និង ហាង -->
+        <div class="stats-grid-15">
           <div class="stat-card">
             <i class="fas fa-users" style="color: #0ea5e9"></i>
-            <h3 id="stat-total-buyers">0</h3>
+            <h3 id="stat-total-users">0</h3>
             <p>អ្នកទិញសរុប (Buyers)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-store" style="color: #10b981"></i>
             <h3 id="stat-total-sellers">0</h3>
-            <p>ហាងលក់សរុប (Stores)</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-store-slash" style="color: #ef4444"></i>
-            <h3 id="stat-inactive-stores">0</h3>
-            <p>ហាងមិនដំណើរការ/បិទ</p>
+            <p>អ្នកលក់សរុប (Sellers)</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-user-shield" style="color: #f59e0b"></i>
             <h3 id="stat-total-admins">0</h3>
             <p>អ្នកគ្រប់គ្រង (Admins)</p>
           </div>
+          <!-- ចំណុចផ្សេងៗទុក ០ សិន ព្រោះ API បច្ចុប្បន្នទាញបានតែ Users & Stores -->
           <div class="stat-card">
             <i class="fas fa-user-plus" style="color: #8b5cf6"></i>
-            <h3 id="stat-new-users">0</h3>
-            <p>គណនីថ្មី (ខែនេះ)</p>
+            <h3>0</h3>
+            <p>គណនីថ្មី (ថ្ងៃនេះ)</p>
           </div>
           <div class="stat-card">
-            <i class="fas fa-user-lock" style="color: #64748b"></i>
-            <h3 id="stat-banned-users">0</h3>
-            <p>គណនីជាប់បម្រាម</p>
-          </div>
-
-          <!-- ជួរទី ២៖ ហិរញ្ញវត្ថុ (ចាប់ទិន្នន័យពិត) -->
-          <div class="stat-card">
-            <i class="fas fa-dollar-sign" style="color: #10b981"></i>
-            <h3 id="stat-gross-revenue">$0.00</h3>
-            <p>ទំហំទឹកប្រាក់សរុបលក់បាន</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-hand-holding-usd" style="color: #3b82f6"></i>
-            <h3 id="stat-net-revenue">$0.00</h3>
-            <p>ទឹកប្រាក់ត្រូវទូទាត់ឲ្យហាង</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-piggy-bank" style="color: #f59e0b"></i>
-            <h3 id="stat-total-commission">$0.00</h3>
-            <p>ចំណូលកាត់កុង (Admin)</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-money-bill-transfer" style="color: #ef4444"></i>
-            <h3 id="stat-pending-withdraw">0</h3>
-            <p>សំណើដកប្រាក់ថ្មី</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-check-double" style="color: #14b8a6"></i>
-            <h3 id="stat-total-payout">$0.00</h3>
-            <p>បានទូទាត់ឲ្យហាងសរុប</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-undo" style="color: #f43f5e"></i>
-            <h3 id="stat-total-refunds">$0.00</h3>
-            <p>ទំហំទឹកប្រាក់ Refund</p>
+            <i class="fas fa-ban" style="color: #ef4444"></i>
+            <h3>0</h3>
+            <p>គណនីត្រូវបានបិទ</p>
           </div>
 
-          <!-- ជួរទី ៣៖ ទំនិញ និង ការបញ្ជាទិញ -->
           <div class="stat-card">
-            <i class="fas fa-box-open" style="color: #6366f1"></i>
-            <h3 id="stat-total-products">0</h3>
-            <p>ទំនិញទាំងអស់</p>
+            <i class="fas fa-box" style="color: #3b82f6"></i>
+            <h3>0</h3>
+            <p>ទំនិញសរុប</p>
           </div>
           <div class="stat-card">
             <i class="fas fa-exclamation-triangle" style="color: #f97316"></i>
-            <h3 id="stat-out-of-stock">0</h3>
+            <h3>0</h3>
             <p>ទំនិញអស់ស្តុក</p>
           </div>
           <div class="stat-card">
+            <i class="fas fa-shopping-cart" style="color: #14b8a6"></i>
+            <h3>0</h3>
+            <p>ការបញ្ជាទិញ (ថ្ងៃនេះ)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-dollar-sign" style="color: #10b981"></i>
+            <h3>$0</h3>
+            <p>ចំណូលសរុប (ថ្ងៃនេះ)</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-truck" style="color: #6366f1"></i>
+            <h3>0</h3>
+            <p>កំពុងដឹកជញ្ជូន</p>
+          </div>
+
+          <div class="stat-card">
+            <i class="fas fa-hand-holding-dollar" style="color: #f43f5e"></i>
+            <h3 id="stat-pending-withdraw">0</h3>
+            <!-- 👈 ថែម ID នៅត្រង់នេះ -->
+            <p>សំណើដកប្រាក់ថ្មី</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-piggy-bank" style="color: #10b981"></i>
+            <h3>$0</h3>
+            <p>កម្រៃជើងសារ Admin</p>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-store-slash" style="color: #f59e0b"></i>
+            <h3>0</h3>
+            <p>ហាងរង់ចាំអនុម័ត</p>
+          </div>
+          <div class="stat-card">
             <i class="fas fa-bolt" style="color: #eab308"></i>
-            <h3 id="stat-flash-sales">0</h3>
+            <h3>0</h3>
             <p>ទំនិញ Flash Sale</p>
           </div>
           <div class="stat-card">
-            <i class="fas fa-shopping-cart" style="color: #3b82f6"></i>
-            <h3 id="stat-total-orders">0</h3>
-            <p>ការបញ្ជាទិញសរុប</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-spinner" style="color: #8b5cf6"></i>
-            <h3 id="stat-pending-orders">0</h3>
-            <p>Order រង់ចាំរៀបចំ</p>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-truck-fast" style="color: #10b981"></i>
-            <h3 id="stat-completed-orders">0</h3>
-            <p>Order ជោគជ័យ</p>
+            <i class="fas fa-undo" style="color: #64748b"></i>
+            <h3>0</h3>
+            <p>សំណើរប្ដូរទំនិញ (Refund)</p>
           </div>
         </div>
 
@@ -871,7 +834,7 @@
             សំណើដកប្រាក់ចូលធនាគារ (U-Pay Escrow)
           </h2>
           <p style="color: var(--text-muted); margin-bottom: 15px">
-            ពេលអ្នកចុច "អនុម័ត" ប្រព័ន្ធនឹងបញ្ជាទៅធនាគារកណ្ដាល U-Pay
+            ពេលអ្នកចុច "ពិនិត្យត្រឹមត្រូវ" ប្រព័ន្ធនឹងបញ្ជាទៅធនាគារកណ្ដាល U-Pay
             ដើម្បីទម្លាក់ប្រាក់ចូលកុងអ្នកលក់ដោយស្វ័យប្រវត្តិ។
           </p>
           <div class="table-responsive">
@@ -1132,11 +1095,12 @@
       // 🔒 ផ្នែកទី១៖ កំណត់អញ្ញាត និង ការចាប់ផ្តើម (Variables & Init)
       // ==========================================
       const API_BASE = "/api/admin";
-      const PAYOUT_API = "/api/payout";
+      const PAYOUT_API = "/api/payout"; // 👈 បន្ថែមបន្ទាត់នេះ
       const TOKEN = localStorage.getItem("token");
       const ROLE = localStorage.getItem("role");
 
       document.addEventListener("DOMContentLoaded", () => {
+        // ពិនិត្យសិទ្ធិ
         if (!TOKEN || (ROLE !== "admin" && ROLE !== "super_admin")) {
           window.location.href = "admin-login.html";
           return;
@@ -1174,7 +1138,7 @@
 
         if (tabId === "dashboard") loadDashboardData();
         if (tabId === "manage-stores") loadStoresForIframe();
-        if (tabId === "withdrawals") loadWithdrawals();
+        if (tabId === "withdrawals") loadWithdrawals(); // 👈 បន្ថែមបន្ទាត់នេះ
         if (tabId === "storefront-settings") loadSettingsData();
         if (tabId === "promotions-settings") loadPromotionsData();
       }
@@ -1215,77 +1179,27 @@
       }
 
       // ==========================================
-      // 📊 ផ្នែកទី២៖ DASHBOARD (18 ប្រអប់) & USERS (API)
+      // 📊 ផ្នែកទី២៖ DASHBOARD & USERS (API)
       // ==========================================
       let allUsers = [];
       async function loadDashboardData() {
         try {
-          // ១. ទាញទិន្នន័យ User សម្រាប់បង្ហាញក្នុងតារាងពីក្រោម
-          const resUsers = await fetch(`${API_BASE}/users`, {
+          const res = await fetch(`${API_BASE}/users`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
-          const dataUsers = await resUsers.json();
-          allUsers = dataUsers.users || [];
+          const data = await res.json();
+          allUsers = data.users || [];
+
+          document.getElementById("stat-total-users").innerText =
+            allUsers.length;
+          document.getElementById("stat-total-sellers").innerText =
+            allUsers.filter((u) => u.role === "seller").length;
+          document.getElementById("stat-total-admins").innerText =
+            allUsers.filter(
+              (u) => u.role === "admin" || u.role === "super_admin",
+            ).length;
+
           renderUserTable(allUsers);
-
-          // ២. 🚀 ទាញទិន្នន័យវិភាគ Dashboard (Stats) ពិតប្រាកដពី Database
-          // ចំណាំ៖ បងត្រូវបង្កើត API Endpoint ឈ្មោះ /api/admin/dashboard-stats នៅខាង Backend ជាមុនសិន
-          const resStats = await fetch(`${API_BASE}/dashboard-stats`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-
-          if (resStats.ok) {
-            const dataStats = await resStats.json();
-            if (dataStats.success && dataStats.stats) {
-              const s = dataStats.stats;
-
-              // ជួរទី ១៖ Users & Stores
-              document.getElementById("stat-total-buyers").innerText =
-                s.totalBuyers || 0;
-              document.getElementById("stat-total-sellers").innerText =
-                s.totalSellers || 0;
-              document.getElementById("stat-inactive-stores").innerText =
-                s.inactiveStores || 0;
-              document.getElementById("stat-total-admins").innerText =
-                s.totalAdmins || 0;
-              document.getElementById("stat-new-users").innerText =
-                s.newUsersMonth || 0;
-              document.getElementById("stat-banned-users").innerText =
-                s.bannedUsers || 0;
-
-              // ជួរទី ២៖ លុយ (ហិរញ្ញវត្ថុ)
-              document.getElementById("stat-gross-revenue").innerText =
-                `$${(s.grossRevenue || 0).toFixed(2)}`;
-              document.getElementById("stat-net-revenue").innerText =
-                `$${(s.netRevenue || 0).toFixed(2)}`;
-              document.getElementById("stat-total-commission").innerText =
-                `$${(s.totalCommission || 0).toFixed(2)}`;
-              document.getElementById("stat-pending-withdraw").innerText =
-                s.pendingWithdrawals || 0;
-              document.getElementById("stat-total-payout").innerText =
-                `$${(s.totalPayout || 0).toFixed(2)}`;
-              document.getElementById("stat-total-refunds").innerText =
-                `$${(s.totalRefunds || 0).toFixed(2)}`;
-
-              // ជួរទី ៣៖ ទំនិញ & ការបញ្ជាទិញ
-              document.getElementById("stat-total-products").innerText =
-                s.totalProducts || 0;
-              document.getElementById("stat-out-of-stock").innerText =
-                s.outOfStock || 0;
-              document.getElementById("stat-flash-sales").innerText =
-                s.flashSaleItems || 0;
-              document.getElementById("stat-total-orders").innerText =
-                s.totalOrders || 0;
-              document.getElementById("stat-pending-orders").innerText =
-                s.pendingOrders || 0;
-              document.getElementById("stat-completed-orders").innerText =
-                s.completedOrders || 0;
-            }
-          } else {
-            console.warn(
-              "API /api/admin/dashboard-stats មិនទាន់មានដំណើរការនៅឡើយទេ",
-            );
-          }
         } catch (error) {
           console.error("Error loading dashboard:", error);
         }
@@ -1392,6 +1306,7 @@
             profileImage: document.getElementById("u-profile").value,
             role: document.getElementById("new-role").value,
 
+            // Store fields
             storeName: document.getElementById("s-name").value,
             storeCategory: document.getElementById("s-category").value,
             commissionRate: Number(
@@ -1404,6 +1319,7 @@
             storeAddress: document.getElementById("s-address").value,
           };
 
+          // Payment info
           if (document.getElementById("check-payment").checked) {
             payload.paymentInfo = {
               bankName: document.getElementById("p-bank").value,
@@ -1490,6 +1406,28 @@
         document.getElementById("store-iframe-container").style.display =
           "block";
         document.getElementById("store-select-list").style.display = "none";
+      }
+
+      // ==========================================
+      // 💸 WITHDRAWALS (U-Fund Logic Framework)
+      // ==========================================
+      function approveWithdrawal(txId, amount) {
+        Swal.fire({
+          title: "បញ្ជាក់ការផ្ទេរប្រាក់",
+          html: `អ្នកកំពុងពិនិត្យសំណើដកប្រាក់ចំនួន <b style="color:red">$${amount}</b>។<br><br>ប្រព័ន្ធនឹងកាត់ប្រាក់ទៅ <b>ធនាគារកណ្ដាល (Escrow)</b>។`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#10b981",
+          confirmButtonText: "យល់ព្រមអនុម័ត (Approve)",
+        }).then((result) => {
+          if (result.isConfirmed)
+            Swal.fire(
+              "ជោគជ័យ",
+              "បន្តនីតិវិធីទូទាត់ដោយស្វ័យប្រវត្តិ។",
+              "success",
+            );
+          // ត្រៀមហៅ API នៅពេល Backend រួចរាល់: fetch('/api/admin/withdrawals/approve', { method: 'POST', body: ...})
+        });
       }
 
       // ==========================================
@@ -1745,7 +1683,7 @@
       }
 
       // ==========================================
-      // 💸 ផ្នែកទី៧៖ WITHDRAWALS (Approve & Reject)
+      // 💸 WITHDRAWALS (Admin Approve)
       // ==========================================
       async function loadWithdrawals() {
         try {
@@ -1756,13 +1694,14 @@
 
           if (data.success) {
             const list = data.withdrawals || [];
-            // Update notification badge (ប្រសិនបើមានប្រអប់នៅលើ Dashboard)
+            document.getElementById("stat-pending-withdraw").innerText =
+              list.filter((w) => w.status === "PENDING").length;
             renderWithdrawalsTable(list);
           }
         } catch (error) {
           console.error("Error loading withdrawals:", error);
           document.getElementById("withdrawal-table-body").innerHTML =
-            `<tr><td colspan="5" style="text-align: center; color: red;">មិនអាចតភ្ជាប់ទៅ Server បានទេ</td></tr>`;
+            `<tr><td colspan="5" style="text-align: center; color: red;">មិនអាចតភ្ជាប់ទៅ Server ភ្ជាប់</td></tr>`;
         }
       }
 
@@ -1782,24 +1721,16 @@
 
             let statusHtml = "";
             let actionHtml = "";
+
+            // ការពារក្រែងលោ amount ស្មើ null ឬ undefined
             const amount = parseFloat(w.amount || 0).toFixed(2);
             const bankName = w.bankName || "N/A";
             const accNum = w.accountNumber || "N/A";
             const accName = w.accountName || "N/A";
 
-            // បន្ថែមមុខងារ Approve និង Reject នៅក្នុង PENDING
             if (w.status === "PENDING") {
               statusHtml = `<span class="badge" style="background: #f59e0b; color: white">រង់ចាំ (Pending)</span>`;
-              actionHtml = `
-                <div style="display: flex; gap: 5px;">
-                  <button class="btn-primary" style="background: var(--success); padding: 8px 10px; font-size: 0.85rem;" onclick="approveWithdrawal('${w._id}', ${amount})">
-                    <i class="fas fa-check"></i> អនុម័ត
-                  </button>
-                  <button class="btn-primary" style="background: var(--danger); padding: 8px 10px; font-size: 0.85rem;" onclick="rejectWithdrawal('${w._id}', ${amount})">
-                    <i class="fas fa-times"></i> បដិសេធ
-                  </button>
-                </div>
-              `;
+              actionHtml = `<button class="btn-primary" style="background: var(--success); padding: 8px 15px;" onclick="approveWithdrawal('${w._id}', ${amount})"><i class="fas fa-check-circle"></i> ពិនិត្យត្រឹមត្រូវ</button>`;
             } else if (w.status === "PROCESSING") {
               statusHtml = `<span class="badge" style="background: #3b82f6; color: white">កំពុងវេរប្រាក់</span>`;
               actionHtml = `<small style="color:var(--text-muted)">រង់ចាំ PDF ពីធនាគារ</small>`;
@@ -1809,7 +1740,7 @@
                 ? `<a href="${w.pdfUrl}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`
                 : "-";
             } else {
-              statusHtml = `<span class="badge" style="background: #ef4444; color: white">បដិសេធ / បរាជ័យ</span>`;
+              statusHtml = `<span class="badge" style="background: #ef4444; color: white">បរាជ័យ</span>`;
               actionHtml = `<small style="color:var(--danger)">${w.note || "កំហុស"}</small>`;
             }
 
@@ -1863,55 +1794,6 @@
               "success",
             );
             loadWithdrawals();
-          }
-        });
-      }
-
-      // មុខងារថ្មី៖ បដិសេធសំណើដកប្រាក់
-      function rejectWithdrawal(withdrawalId, amount) {
-        Swal.fire({
-          title: "បដិសេធសំណើដកប្រាក់?",
-          html: `អ្នកកំពុងបដិសេធសំណើចំនួន <b style="color:red">$${amount}</b>។<br>ទឹកប្រាក់នេះនឹងត្រូវបានបង្វិលចូល Wallet អ្នកលក់វិញ។`,
-          icon: "error",
-          input: "text",
-          inputLabel: "សូមបញ្ជាក់មូលហេតុ (ឧ. ខុសលេខគណនី):",
-          inputPlaceholder: "បញ្ចូលមូលហេតុនៅទីនេះ...",
-          showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          confirmButtonText: "បញ្ជាក់ការបដិសេធ",
-          cancelButtonText: "ថយក្រោយ",
-          inputValidator: (value) => {
-            if (!value) return "អ្នកត្រូវតែបញ្ចូលមូលហេតុនៃការបដិសេធ!";
-          },
-          showLoaderOnConfirm: true,
-          preConfirm: async (reason) => {
-            try {
-              const res = await fetch(
-                `${PAYOUT_API}/admin/withdrawals/${withdrawalId}/reject`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${TOKEN}`,
-                  },
-                  body: JSON.stringify({ note: reason }),
-                },
-              );
-              const data = await res.json();
-              if (!res.ok) throw new Error(data.message || "មានបញ្ហាបច្ចេកទេស");
-              return data;
-            } catch (error) {
-              Swal.showValidationMessage(`បរាជ័យ: ${error.message}`);
-            }
-          },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            Swal.fire(
-              "ជោគជ័យ!",
-              "សំណើត្រូវបានបដិសេធ ហើយប្រាក់បានបង្វិលចូល Wallet វិញ។",
-              "success",
-            );
-            loadWithdrawals(); // Refresh តារាង
           }
         });
       }
