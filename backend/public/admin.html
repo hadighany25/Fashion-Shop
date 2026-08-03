@@ -22,8 +22,11 @@
     <!-- ================= ការពារ LOGIN & ROLE ================= -->
     <script>
       (function enforceRoleAccess() {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
+        // 🔥 ដូរមកអាន portal_token និង portal_role ឱ្យត្រូវគ្នាជាមួយ admin-login.html
+        const token =
+          localStorage.getItem("portal_token") || localStorage.getItem("token");
+        const role =
+          localStorage.getItem("portal_role") || localStorage.getItem("role");
 
         // ១. បើគ្មាន Token ទាល់តែសោះ ទើបឲ្យលោតទៅ Login វិញ
         if (!token) {
@@ -31,7 +34,7 @@
           return;
         }
 
-        // ២. ការពារក្រែងលោ User ធម្មតា (buyer) លួចវាយ Link ចូល Admin
+        // ២. ការពារក្រែងលោ User គ្មានសិទ្ធិលួចវាយ Link ចូល Admin
         if (role !== "admin" && role !== "super_admin" && role !== "seller") {
           localStorage.clear(); // លុបចោលបើក្លែងបន្លំ
           window.location.replace("admin-login.html");
@@ -1151,8 +1154,10 @@
       // ==========================================
       const API_BASE = "/api/admin";
       const PAYOUT_API = "/api/payout";
-      const TOKEN = localStorage.getItem("token");
-      const ROLE = localStorage.getItem("role");
+      const TOKEN =
+        localStorage.getItem("portal_token") || localStorage.getItem("token");
+      const ROLE =
+        localStorage.getItem("portal_role") || localStorage.getItem("role");
 
       document.addEventListener("DOMContentLoaded", () => {
         // ឆែកមើលសិទ្ធិ: បើគ្មាន Token ឬមិនមែន Admin ទេ ទើបទាត់បញ្ជូនទៅ Login

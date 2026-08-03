@@ -856,7 +856,7 @@
       const API_URL = "/api/seller";
       const PAYOUT_API = "/api/payout";
 
-      // 🔥 កែមកអាន portal_token និង portal_role នៅទីនេះផងដែរ
+      // 🔥 កែមកអាន portal_token និង portal_role ឱ្យត្រូវគ្នា
       const token =
         localStorage.getItem("portal_token") || localStorage.getItem("token");
       const role =
@@ -874,8 +874,7 @@
 
       // 🚀 ពេលចាប់ផ្តើមដំណើរការទំព័រ (DOMContentLoaded)
       document.addEventListener("DOMContentLoaded", async () => {
-        // 1. ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យទាំង seller, admin និង super_admin ចូលមើលបាន
-        // ធ្វើឱ្យ Admin ចូលមើលតាម Iframe មិនលោតទាត់ចេញ និង F5 មិនបាច់ Login ឡើងវិញ
+        // 1. ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យ seller, admin និង super_admin ចូលមើលបាន
         if (
           !token ||
           (role !== "seller" && role !== "admin" && role !== "super_admin")
@@ -884,21 +883,20 @@
           return;
         }
 
-        // 2. ចាប់ផ្តើមដំណើរការ სისტემა
+        // 2. ដំឡើង Theme និង Tab ដើម
         initTheme();
         initTabState();
 
-        // 3. ទាញទិន្នន័យពី Server មកបង្ហាញដោយសុវត្ថិភាព
+        // 3. ទាញយកទិន្នន័យពី Server ម្ដងមួយៗដោយសុវត្ថិភាពពេល Refresh
         try {
           await fetchProfile();
           await fetchWithdrawals();
           await fetchProducts();
           await fetchOrders();
         } catch (error) {
-          console.error("Error initializing seller data:", error);
+          console.error("Error loading seller data on refresh:", error);
         }
       });
-
       function initTabState() {
         // 🔥 រក្សា Tab ចុងក្រោយពេល Refresh (F5)
         const savedTab = localStorage.getItem("activeSellerTab") || "dashboard";
