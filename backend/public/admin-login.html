@@ -3,143 +3,297 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Portal | Fashion Shop</title>
+    <title>Admin Portal | U-Mall</title>
+
+    <!-- 📌 Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Kantumruy+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 📌 Icons -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
+    <!-- 📌 SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "DM Sans", sans-serif;
       }
+
       body {
-        background-color: #1e293b;
+        /* ដោះស្រាយបញ្ហាផ្ទាំងលោត ដោយប្រើ min-height និងលុប overflow:hidden ចេញ */
+        min-height: 100vh;
+        background: radial-gradient(circle at top left, #1e293b, #0f172a);
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        overflow: hidden; /* ការពារកុំឱ្យមាន Scrollbar លោតចុះឡើង */
-        color: #fff;
+        font-family: "DM Sans", "Kantumruy Pro", sans-serif;
+        color: #f8fafc;
+        position: relative;
+        padding: 20px;
       }
+
+      /* ផ្ទៃ Background តុបតែងបន្ថែមឱ្យមើលទៅទំនើប */
+      body::before {
+        content: "";
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: rgba(2, 132, 199, 0.2);
+        filter: blur(100px);
+        border-radius: 50%;
+        z-index: 0;
+      }
+
+      body::after {
+        content: "";
+        position: absolute;
+        bottom: -100px;
+        left: -100px;
+        width: 300px;
+        height: 300px;
+        background: rgba(16, 185, 129, 0.1);
+        filter: blur(100px);
+        border-radius: 50%;
+        z-index: 0;
+      }
+
       .admin-login-card {
-        background: #0f172a;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 50px 40px;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         width: 100%;
-        max-width: 400px;
-        border: 1px solid #334155;
+        max-width: 420px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         text-align: center;
+        position: relative;
+        z-index: 1;
+        animation: slideUp 0.6s ease-out;
       }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #0284c7, #38bdf8);
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 20px auto;
+        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
+      }
+
       .admin-login-card h2 {
-        margin-bottom: 5px;
-        color: #38bdf8;
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #f8fafc;
       }
+
       .admin-login-card p {
         color: #94a3b8;
-        font-size: 0.9rem;
-        margin-bottom: 25px;
+        font-size: 0.95rem;
+        margin-bottom: 35px;
       }
+
       .input-group {
         text-align: left;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        position: relative;
       }
+
       .input-group label {
         display: block;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: #cbd5e1;
         margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-wrapper i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 1.1rem;
+        transition: 0.3s;
+      }
+
       .input-group input {
         width: 100%;
-        padding: 12px;
-        background: #1e293b;
-        border: 1px solid #475569;
-        border-radius: 6px;
+        padding: 14px 14px 14px 45px;
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid #334155;
+        border-radius: 10px;
         color: #fff;
         font-size: 1rem;
         outline: none;
-        transition: 0.3s;
+        transition: all 0.3s ease;
       }
+
       .input-group input:focus {
         border-color: #38bdf8;
+        background: rgba(30, 41, 59, 0.9);
+        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
       }
+
+      .input-group input:focus + i,
+      .input-wrapper i.active {
+        color: #38bdf8;
+      }
+
       .btn-login {
         width: 100%;
-        padding: 14px;
-        background: #0284c7;
+        padding: 15px;
+        background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 10px;
         font-size: 1.1rem;
         font-weight: 600;
+        letter-spacing: 0.5px;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(2, 132, 199, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
       }
+
       .btn-login:hover {
-        background: #0369a1;
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(2, 132, 199, 0.4);
       }
+
       .btn-login:disabled {
         background: #475569;
+        box-shadow: none;
+        transform: translateY(0);
         cursor: not-allowed;
+        color: #94a3b8;
+      }
+
+      .footer-text {
+        margin-top: 25px;
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+      .footer-text a {
+        color: #38bdf8;
+        text-decoration: none;
+      }
+      .footer-text a:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
     <div class="admin-login-card">
-      <h2>Admin Portal</h2>
-      <p>Restricted Access - Authorized Personnel Only</p>
+      <div class="logo-icon">
+        <i class="fas fa-crown"></i>
+      </div>
+      <h2>U-Mall Admin</h2>
+      <p>Secure Portal - Authorized Personnel Only</p>
 
-      <!-- លុប onsubmit ចេញពី HTML ប្រើប្រាស់ id ជំនួសវិញ -->
       <form id="admin-login-form">
         <div class="input-group">
-          <label>Admin Username</label>
-          <input
-            type="text"
-            id="admin-user"
-            required
-            placeholder="Enter username"
-            autocomplete="username"
-          />
+          <label>Username</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="admin-user"
+              required
+              placeholder="Enter your username"
+              autocomplete="username"
+            />
+            <i class="fas fa-user"></i>
+          </div>
         </div>
+
         <div class="input-group">
           <label>Password</label>
-          <input
-            type="password"
-            id="admin-pass"
-            required
-            placeholder="Enter password"
-            autocomplete="current-password"
-          />
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="admin-pass"
+              required
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <i class="fas fa-lock"></i>
+          </div>
         </div>
+
         <button type="submit" id="submit-btn" class="btn-login">
-          Login to Dashboard
+          <span>Login to Dashboard</span> <i class="fas fa-arrow-right"></i>
         </button>
       </form>
+
+      <div class="footer-text">
+        <i class="fas fa-shield-alt"></i> Protected by U-Mall Security
+      </div>
     </div>
 
     <script>
-      // ដោយសារ Frontend និង Backend នៅជាមួយគ្នា យើងអាចប្រើ Path ខ្លីបែបនេះបាន
       const API_URL = "/api/auth";
-
-      // ចាប់យក Form តាមរយៈ ID
       const loginForm = document.getElementById("admin-login-form");
       const submitBtn = document.getElementById("submit-btn");
 
-      // ប្រើ addEventListener ដើម្បីធានាថា preventDefault ដំណើរការបាន ១០០%
+      // បន្ថែម Effect ពេល Type អោយ Icon ដូរពណ៌
+      document.querySelectorAll(".input-group input").forEach((input) => {
+        input.addEventListener("focus", function () {
+          this.nextElementSibling.classList.add("active");
+        });
+        input.addEventListener("blur", function () {
+          if (!this.value) this.nextElementSibling.classList.remove("active");
+        });
+      });
+
       loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault(); // ទប់កុំឱ្យ Page លោត ឬ Refresh ដាច់ខាត
+        event.preventDefault();
 
         const username = document.getElementById("admin-user").value.trim();
         const password = document.getElementById("admin-pass").value;
 
         // ដូរ UI ប៊ូតុងពេលកំពុងរង់ចាំ
         submitBtn.disabled = true;
-        submitBtn.textContent = "Logging in...";
+        submitBtn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> <span>Authenticating...</span>`;
 
         try {
           const res = await fetch(`${API_URL}/login`, {
@@ -150,26 +304,23 @@
           const data = await res.json();
 
           if (data.success) {
-            // ទាញយក Role របស់អ្នកប្រើប្រាស់
             const userRole = data.role || (data.user && data.user.role);
 
-            // ឆែកសិទ្ធិ: អនុញ្ញាតឱ្យតែ super_admin, admin និង seller ប៉ុណ្ណោះ
             if (
               userRole !== "super_admin" &&
               userRole !== "admin" &&
               userRole !== "seller"
             ) {
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Login to Dashboard";
+              resetButton();
               return Swal.fire({
                 icon: "error",
                 title: "Access Denied",
                 text: "You do not have administrative privileges!",
                 confirmButtonColor: "#0284c7",
+                scrollbarPadding: false, // ការពារកុំអោយផ្ទាំងលោត
               });
             }
 
-            // រក្សាទុក Token និងទិន្នន័យចាំបាច់
             localStorage.setItem("token", data.token);
             localStorage.setItem(
               "username",
@@ -183,8 +334,8 @@
               text: "Redirecting to Dashboard...",
               showConfirmButton: false,
               timer: 1500,
+              scrollbarPadding: false, // ការពារកុំអោយផ្ទាំងលោត
             }).then(() => {
-              // បញ្ជូនទៅកាន់ទំព័រទៅតាម Role
               if (userRole === "super_admin" || userRole === "admin") {
                 window.location.href = "admin.html";
               } else if (userRole === "seller") {
@@ -192,27 +343,31 @@
               }
             });
           } else {
-            // បើ Login ខុស
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Login to Dashboard";
+            resetButton();
             Swal.fire({
               icon: "error",
               title: "Login Failed",
               text: data.message || "Invalid username or password!",
               confirmButtonColor: "#0284c7",
+              scrollbarPadding: false, // ការពារកុំអោយផ្ទាំងលោត
             });
           }
         } catch (error) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Login to Dashboard";
+          resetButton();
           Swal.fire({
             icon: "error",
             title: "Connection Error",
             text: "Cannot connect to server. Please try again.",
             confirmButtonColor: "#0284c7",
+            scrollbarPadding: false, // ការពារកុំអោយផ្ទាំងលោត
           });
         }
       });
+
+      function resetButton() {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Login to Dashboard</span> <i class="fas fa-arrow-right"></i>`;
+      }
     </script>
   </body>
 </html>
