@@ -1220,7 +1220,7 @@
       let allUsers = [];
       async function loadDashboardData() {
         try {
-          // ១. ទាញទិន្នន័យ User សម្រាប់បង្ហាញក្នុងតារាងពីក្រោម
+          // ១. ទាញទិន្នន័យ User ទាំងអស់ (មានស្រាប់)
           const resUsers = await fetch(`${API_BASE}/users`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
@@ -1228,8 +1228,17 @@
           allUsers = dataUsers.users || [];
           renderUserTable(allUsers);
 
-          // ២. 🚀 ទាញទិន្នន័យវិភាគ Dashboard (Stats) ពិតប្រាកដពី Database
-          // ចំណាំ៖ បងត្រូវបង្កើត API Endpoint ឈ្មោះ /api/admin/dashboard-stats នៅខាង Backend ជាមុនសិន
+          // 🌟 [Quick Win] ទាញចំនួន User ដាក់ចូលប្រអប់ភ្លាមៗ (មិនបាច់ចាំ API ថ្មី)
+          document.getElementById("stat-total-buyers").innerText =
+            allUsers.filter((u) => u.role === "buyer").length;
+          document.getElementById("stat-total-sellers").innerText =
+            allUsers.filter((u) => u.role === "seller").length;
+          document.getElementById("stat-total-admins").innerText =
+            allUsers.filter(
+              (u) => u.role === "admin" || u.role === "super_admin",
+            ).length;
+
+          // ២. 🚀 ព្យាយាមទាញទិន្នន័យលុយ និង Order ពី API ថ្មីដែលយើងទើបបង្កើត
           const resStats = await fetch(`${API_BASE}/dashboard-stats`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
@@ -1239,19 +1248,9 @@
             if (dataStats.success && dataStats.stats) {
               const s = dataStats.stats;
 
-              // ជួរទី ១៖ Users & Stores
-              document.getElementById("stat-total-buyers").innerText =
-                s.totalBuyers || 0;
-              document.getElementById("stat-total-sellers").innerText =
-                s.totalSellers || 0;
+              // បើ API ដើរ វានឹង Update លេខទាំងនេះបន្ថែមទៀត
               document.getElementById("stat-inactive-stores").innerText =
                 s.inactiveStores || 0;
-              document.getElementById("stat-total-admins").innerText =
-                s.totalAdmins || 0;
-              document.getElementById("stat-new-users").innerText =
-                s.newUsersMonth || 0;
-              document.getElementById("stat-banned-users").innerText =
-                s.bannedUsers || 0;
 
               // ជួរទី ២៖ លុយ (ហិរញ្ញវត្ថុ)
               document.getElementById("stat-gross-revenue").innerText =
@@ -1260,20 +1259,12 @@
                 `$${(s.netRevenue || 0).toFixed(2)}`;
               document.getElementById("stat-total-commission").innerText =
                 `$${(s.totalCommission || 0).toFixed(2)}`;
-              document.getElementById("stat-pending-withdraw").innerText =
-                s.pendingWithdrawals || 0;
-              document.getElementById("stat-total-payout").innerText =
-                `$${(s.totalPayout || 0).toFixed(2)}`;
-              document.getElementById("stat-total-refunds").innerText =
-                `$${(s.totalRefunds || 0).toFixed(2)}`;
 
               // ជួរទី ៣៖ ទំនិញ & ការបញ្ជាទិញ
               document.getElementById("stat-total-products").innerText =
                 s.totalProducts || 0;
               document.getElementById("stat-out-of-stock").innerText =
                 s.outOfStock || 0;
-              document.getElementById("stat-flash-sales").innerText =
-                s.flashSaleItems || 0;
               document.getElementById("stat-total-orders").innerText =
                 s.totalOrders || 0;
               document.getElementById("stat-pending-orders").innerText =
@@ -1281,10 +1272,6 @@
               document.getElementById("stat-completed-orders").innerText =
                 s.completedOrders || 0;
             }
-          } else {
-            console.warn(
-              "API /api/admin/dashboard-stats មិនទាន់មានដំណើរការនៅឡើយទេ",
-            );
           }
         } catch (error) {
           console.error("Error loading dashboard:", error);
