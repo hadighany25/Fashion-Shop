@@ -1819,14 +1819,16 @@
                   </button>
                 </div>
               `;
+              // ជំនួសកូដត្រង់នេះ នៅក្នុង admin.html
             } else if (w.status === "PROCESSING") {
               statusHtml = `<span class="badge" style="background: #3b82f6; color: white">កំពុងវេរប្រាក់</span>`;
               actionHtml = `<small style="color:var(--text-muted)">រង់ចាំ PDF ពីធនាគារ</small>`;
             } else if (w.status === "COMPLETED") {
               statusHtml = `<span class="badge" style="background: #10b981; color: white">ជោគជ័យ</span>`;
-              actionHtml = w.pdfUrl
-                ? `<a href="${w.pdfUrl}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`
-                : "-";
+
+              // 🚀 ប្រើ w._id ជា Reference ព្រោះពេលបាញ់ API ទៅ U-Pay យើងបានប្រើវា
+              const receiptId = w.upayTransactionId || w._id;
+              actionHtml = `<a href="https://u-pay-bank.fly.dev/api/receipt/${receiptId}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`;
             } else {
               statusHtml = `<span class="badge" style="background: #ef4444; color: white">បដិសេធ / បរាជ័យ</span>`;
               actionHtml = `<small style="color:var(--danger)">${w.note || "កំហុស"}</small>`;
