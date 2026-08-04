@@ -1806,43 +1806,46 @@
             const accNum = w.accountNumber || "N/A";
             const accName = w.accountName || "N/A";
 
-            // បន្ថែមមុខងារ Approve និង Reject នៅក្នុង PENDING
+            // លក្ខខណ្ឌ PENDING
             if (w.status === "PENDING") {
               statusHtml = `<span class="badge" style="background: #f59e0b; color: white">រង់ចាំ (Pending)</span>`;
               actionHtml = `
-                <div style="display: flex; gap: 5px;">
-                  <button class="btn-primary" style="background: var(--success); padding: 8px 10px; font-size: 0.85rem;" onclick="approveWithdrawal('${w._id}', ${amount})">
-                    <i class="fas fa-check"></i> អនុម័ត
-                  </button>
-                  <button class="btn-primary" style="background: var(--danger); padding: 8px 10px; font-size: 0.85rem;" onclick="rejectWithdrawal('${w._id}', ${amount})">
-                    <i class="fas fa-times"></i> បដិសេធ
-                  </button>
-                </div>
-              `;
-              // ជំនួសកូដត្រង់នេះ នៅក្នុង admin.html
-            } else if (w.status === "PROCESSING") {
+          <div style="display: flex; gap: 5px;">
+            <button class="btn-primary" style="background: var(--success); padding: 8px 10px; font-size: 0.85rem;" onclick="approveWithdrawal('${w._id}', ${amount})">
+              <i class="fas fa-check"></i> អនុម័ត
+            </button>
+            <button class="btn-primary" style="background: var(--danger); padding: 8px 10px; font-size: 0.85rem;" onclick="rejectWithdrawal('${w._id}', ${amount})">
+              <i class="fas fa-times"></i> បដិសេធ
+            </button>
+          </div>
+        `;
+            }
+            // លក្ខខណ្ឌ PROCESSING
+            else if (w.status === "PROCESSING") {
               statusHtml = `<span class="badge" style="background: #3b82f6; color: white">កំពុងវេរប្រាក់</span>`;
               actionHtml = `<small style="color:var(--text-muted)">រង់ចាំ PDF ពីធនាគារ</small>`;
-            } else if (w.status === "COMPLETED") {
+            }
+            // លក្ខខណ្ឌ COMPLETED
+            else if (w.status === "COMPLETED") {
               statusHtml = `<span class="badge" style="background: #10b981; color: white">ជោគជ័យ</span>`;
-
-              // 🚀 ប្រើ w._id ជា Reference ព្រោះពេលបាញ់ API ទៅ U-Pay យើងបានប្រើវា
-              const receiptId = w.upayTransactionId || w._id;
+              const receiptId = w.upayTransactionId || w._id; // យក upayTransactionId ឬ _id តាមការកំណត់ថ្មី
               actionHtml = `<a href="https://u-pay-bank.fly.dev/api/receipt/${receiptId}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`;
-            } else {
+            }
+            // លក្ខខណ្ឌផ្សេងៗទៀត (REJECTED / CANCELLED / FAILED) - [កន្លែងដែលបងខ្វះកាលពីមុន]
+            else {
               statusHtml = `<span class="badge" style="background: #ef4444; color: white">បដិសេធ / បរាជ័យ</span>`;
               actionHtml = `<small style="color:var(--danger)">${w.note || "កំហុស"}</small>`;
             }
 
             return `
-            <tr>
-              <td>${dateStr}</td>
-              <td style="color: var(--danger); font-weight: bold">$${amount}</td>
-              <td><b>${bankName}</b><br><span style="font-family: monospace; color: var(--accent);">${accNum}</span><br><small>${accName}</small></td>
-              <td>${statusHtml}</td>
-              <td>${actionHtml}</td>
-            </tr>
-          `;
+      <tr>
+        <td>${dateStr}</td>
+        <td style="color: var(--danger); font-weight: bold">$${amount}</td>
+        <td><b>${bankName}</b><br><span style="font-family: monospace; color: var(--accent);">${accNum}</span><br><small>${accName}</small></td>
+        <td>${statusHtml}</td>
+        <td>${actionHtml}</td>
+      </tr>
+    `;
           })
           .join("");
       }
@@ -1888,7 +1891,6 @@
         });
       }
 
-      // មុខងារថ្មី៖ បដិសេធសំណើដកប្រាក់
       function rejectWithdrawal(withdrawalId, amount) {
         Swal.fire({
           title: "បដិសេធសំណើដកប្រាក់?",
@@ -1932,7 +1934,7 @@
               "សំណើត្រូវបានបដិសេធ ហើយប្រាក់បានបង្វិលចូល Wallet វិញ។",
               "success",
             );
-            loadWithdrawals(); // Refresh តារាង
+            loadWithdrawals();
           }
         });
       }

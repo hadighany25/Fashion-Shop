@@ -1602,9 +1602,8 @@
               statusBadge =
                 '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-check-circle"></i> ជោគជ័យ</span>';
 
-              // 🚀 កែតម្រូវត្រង់នេះដូចគ្នា ដើម្បីកុំអោយវាស្វែងរកខុស ID
-              const receiptId = w.upayTransactionId || w._id;
-              actionHtml = `<a href="https://u-pay-bank.fly.dev/api/receipt/${receiptId}" target="_blank" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-2 rounded-lg border border-red-200 shadow-sm transition"><i class="fas fa-file-pdf text-lg align-middle mr-1"></i> មើលវិក្កយបត្រ</a>`;
+              const receiptId = w._id;
+              actionHtml = `<a href="https://u-pay-bank.fly.dev/api/receipt/${receiptId}" target="_blank" style="color:var(--accent); text-decoration:none;"><i class="fas fa-file-pdf text-red-500"></i> មើលវិក្កយបត្រ</a>`;
             } else if (st === "REJECTED" || st === "CANCELLED")
               statusBadge =
                 '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold"><i class="fas fa-times-circle"></i> បដិសេធ</span>';
